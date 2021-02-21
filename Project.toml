@@ -1,0 +1,13 @@
+name = "PersistenceLandscapes"
+uuid = "57fa2ca4-3800-4457-8ea1-3c54cd81cce3"
+authors = ["Emil Dmitruk"]
+version = "0.1.0"
+
+[compat]
+julia = "1.5"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
