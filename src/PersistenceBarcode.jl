@@ -39,6 +39,18 @@ end
 struct PersistenceBarcodes
     barcodes::Vector{MyPair}
     dimensionOfBarcode::UInt
+
+    function PersistenceBarcodes(bars::Vector{MyPair}, number::Real)
+        new(bars, UInt(number))
+    end
+
+    # This is constructor function and should be put in the struct
+    function PersistenceBarcodes(pers_barcode::PersistenceBarcodes)
+        @info typeof(pers_barcodes.barcodes)
+        @info typeof(pers_barcodes.dimensionOfBarcode)
+        new(pers_barcode.barcodes, UInt(pers_barcode.dimensionOfBarcode))
+    end
+
 end
 
 
@@ -237,7 +249,7 @@ function compareMyPairs( f::MyPair, s::MyPair)::Bool
     return false;
 end
 
-function sort(pers_barcode::PersistenceBarcodes)
+function Base.sort(pers_barcode::PersistenceBarcodes)
 	# sorted = sort([1:mat_size;], by=i->(sorted_values[i],matrix_indices[i]))
 	sorted = sort(pers_barcode.barcodes, by= x-> x.first)
     # sort( pers_barcode.barcodes.begin() , pers_barcode.barcodes.end() , compareMyPairs );
@@ -247,21 +259,22 @@ end
 # tested
 function compare(pers_barcode::PersistenceBarcodes,  b::PersistenceBarcodes; dbg::Bool = true)::Bool
     if ( dbg )
-        # cerr << "pers_barcode.barcodes.size() :size(" << pers_barcode.barcodes,1) << endl;
-        # cerr << "b.barcodes.size() :size(" << b.barcodes,1) << endl;
+        println("pers_barcode.barcodes.size(): $(size(pers_barcode.barcodes,1))")
+        println("b.barcodes.size(): $(size(b.barcodes,1))")
     end
 
-    if ( pers_barcode.barcodes.size() != b.barcodes.size() )
+    if ( size(pers_barcode.barcodes,1) != size(b.barcodes, 1) )
+        @info "size missmatch"
         return false
     end
 
-    sort(pers_barcode);
-    sort(b);
-    for i = 0:size(pers_barcode.barcodes,1)
-        if pers_barcode.barcodes[i] != b.barcodes[i]
-            cerr << "pers_barcode.barcodes["<<i<<"] = " << pers_barcode.barcodes[i] << endl;
-            cerr << "b.barcodes["<<i<<"] = " << b.barcodes[i] << endl;
-            getchar();
+    sorted_pers_barcode = sort(pers_barcode);
+    sorted_b = sort(b);
+    for i = 1:size(sorted_pers_barcode.barcodes,1)
+        if sorted_pers_barcode.barcodes[i] != b.barcodes[i]
+            println("sorted_pers_barcode.barcodes[$(i)] = $(sorted_pers_barcode.barcodes[i])")
+            println("sorted_b.barcodes[$(i)] = $(sorted_b.barcodes[i])")
+            # getchar();
             return false;
         end
     end
@@ -269,55 +282,64 @@ function compare(pers_barcode::PersistenceBarcodes,  b::PersistenceBarcodes; dbg
 end
 
 function minn(f,  s )
-    if ( f < s )
-        return f
-    end
+    (f < s) && return f
     return s;
 end
 
 
-function  computeAverageOfMidpointOfBarcodes(pers_barcode::PersistenceBarcodes, )::Float64
+function computeAverageOfMidpointOfBarcodes(pers_barcode::PersistenceBarcodes)::Float64
     averages = 0; #::Float64
-    for i = 0:size(pers_barcode.barcodes,1)
+    for i = 1:size(pers_barcode.barcodes,1)
         averages += 0.5*(pers_barcode.barcodes[i].second - pers_barcode.barcodes[i].first);
     end
-    averages /= pers_barcode.barcodes.size();
+    averages /= size(pers_barcode.barcodes,1);
 
     return averages;
 end# computeAverageOfMidpointOfBarcodes
 
 
-function setAverageMidpointToZero(pers_barcode::PersistenceBarcodes, )
-    dbg::Bool = false;
+function setAverageMidpointToZero(pers_barcode::PersistenceBarcodes; dbg::Bool = false)
+
     # average = pers_barcode.computeAverageOfMidpointOfBarcodes(); #::Float64
-    average = computeAverageOfMidpointOfBarcodesWeightedByLength(); #::Float64
+    average = computeAverageOfMidpointOfBarcodesWeightedByLength(pers_barcode); #::Float64
 
     if (dbg)
-        cerr << "average :" << average << endl
+        println("average : $(average)")
     end
 
     # shift every barcode by -average
-    for i = 0:size(pers_barcode.barcodes,1)
-        pers_barcode.barcodes[i].first -= average;
-        pers_barcode.barcodes[i].second -= average;
+    new_pairs = MyPair[]
+    for i = 1:size(pers_barcode.barcodes,1)
+        push!(new_pairs,
+              MyPair( pers_barcode.barcodes[i].first - average, pers_barcode.barcodes[i].second - average)
+             )
+
     end
+
+    return PersistenceBarcodes(new_pairs, pers_barcode.dimensionOfBarcode)
 end
 
-function setAveragedLengthToOne(pers_barcode::PersistenceBarcodes, )
+function setAveragedLengthToOne(pers_barcode::PersistenceBarcodes)
     # first compute average length of barcode:
-     sumOfLengths = 0;
-    for i = 0:size(pers_barcode.barcodes,1)
-        sumOfLengths += fabs( pers_barcode.barcodes[i].second - pers_barcode.barcodes[i].first );
+    sumOfLengths = 0
+    for i = 1:size(pers_barcode.barcodes,1)
+        sumOfLengths += abs( pers_barcode.barcodes[i].second - pers_barcode.barcodes[i].first )
     end
+
     # averageLength:size(:Float64 = (double)sumOfLengths / (double)pers_barcode.barcodes,1);
-    averageLength = sumOfLengths / size(pers_barcode.barcodes,1);
+    averageLength = sumOfLengths / size(pers_barcode.barcodes,1)
+
     # now we need to rescale the length by 1/averageLength
-    for i = 0:size(pers_barcode.barcodes,1)
+    new_pairs = MyPair[]
+    for i = 1:size(pers_barcode.barcodes,1)
         midpoint = 0.5 * (pers_barcode.barcodes[i].first+pers_barcode.barcodes[i].second); #::Float64
-        length = fabs( pers_barcode.barcodes[i].first-pers_barcode.barcodes[i].second )/averageLength; #::Float64
-        pers_barcode.barcodes[i].first = midpoint - length/2;
-        pers_barcode.barcodes[i].second = midpoint + length/2;
+        my_len = abs( pers_barcode.barcodes[i].first - pers_barcode.barcodes[i].second )/averageLength; #::Float64
+        push!(new_pairs,
+              MyPair( midpoint - my_len/2, midpoint + my_len/2)
+             )
     end
+
+    return PersistenceBarcodes(new_pairs, pers_barcode.dimensionOfBarcode)
 end
 
 function averageBarcodes(pers_barcode::PersistenceBarcodes, )
@@ -329,50 +351,61 @@ end
 
 function setRangeToMinusOneOne(pers_barcode::PersistenceBarcodes, )
     # first we need to find min and max endpoint of intervals:
-    minn = Inf #INT_MAX; #::Float64
-    maxx = -Inf #INT_MAX; #::Float64
-    for i = 0:size(pers_barcode.barcodes,1)
+    min_val = Inf #INT_MAX; #::Float64
+    max_val = -Inf #INT_MAX; #::Float64
+    for i = 1:size(pers_barcode.barcodes,1)
         a = pers_barcode.barcodes[i].first; #::Float64
         b = pers_barcode.barcodes[i].second; #::Float64
         if b < a
-            swap(a,b)
+            temp = copy(a)
+            a = b
+            b = temp
+            # swap(a,b)
         end
 
-        if a < minn
-            minn = a
+        if a < min_val
+            min_val = a
         end
-        if b > maxx
-            maxx = b
+
+        if b > max_val
+            max_val = b
         end
     end
 
-    shiftValue = -minn; #::Float64
-    maxx += shiftValue;
-    for i = 0:size(pers_barcode.barcodes,1)
-        pers_barcode.barcodes[i].first += shiftValue;
-        pers_barcode.barcodes[i].first /= maxx;
-        pers_barcode.barcodes[i].second += shiftValue;
-        pers_barcode.barcodes[i].second /= maxx;
+    shiftValue = -min_val; #::Float64
+    max_val += shiftValue;
+    new_pairs = MyPair[]
+    for i = 1:size(pers_barcode.barcodes,1)
+        push!(new_pairs, MyPair(
+                               (pers_barcode.barcodes[i].first + shiftValue) / max_val,
+                               (pers_barcode.barcodes[i].second+ shiftValue) / max_val,
+                                )
+             )
     end
+
+    return PersistenceBarcodes(new_pairs, pers_barcode.dimensionOfBarcode)
 end
 
-function setRange(pers_barcode::PersistenceBarcodes,  beginn::Float64, endd::Float64)
-    if ( beginn >= endd )
-        throw("Bar ranges in the setRange procedure.")
+function setRange(pers_barcode::PersistenceBarcodes,  beginn::Real, endd::Real)
+    if beginn >= endd
+        throw(DomainError("Bar ranges in the setRange procedure."))
     end
 
-    minMax::MyPair = pers_barcode.minMax();
+    minMax_val = minMax(pers_barcode)# ::MyPair
+    new_range = endd-beginn
 
-    for i = 0:size(pers_barcode.barcodes,1)
-        originalBegin = pers_barcode.barcodes[i].first; #::Float64
-        originalEnd = pers_barcode.barcodes[i].second; #::Float64
+    new_pairs = MyPair[]
+    for i = 1:size(pers_barcode.barcodes,1)
+        originalBegin = pers_barcode.barcodes[i].first #::Float64
+        originalEnd = pers_barcode.barcodes[i].second #::Float64
 
-        newBegin = beginn + ( originalBegin - minMax.first )*(endd-beginn)/( minMax.second - minMax.first ); #::Float64
-        newEnd = beginn + ( originalEnd - minMax.first )*(endd-beginn)/( minMax.second - minMax.first ); #::Float64
+        newBegin = beginn + ( originalBegin - minMax_val.first )*new_range/( minMax_val.second - minMax_val.first ); #::Float64
+        newEnd   = beginn + ( originalEnd - minMax_val.first )*new_range/( minMax_val.second - minMax_val.first ); #::Float64
 
-        pers_barcode.barcodes[i].first = newBegin;
-        pers_barcode.barcodes[i].second = newEnd;
+        push!(new_pairs, MyPair(newBegin, newEnd))
     end
+
+    return PersistenceBarcodes(new_pairs, pers_barcode.dimensionOfBarcode)
 end
 
 # function writeToFile(pers_barcode::PersistenceBarcodes,  filename::String )
@@ -384,22 +417,25 @@ end
 #     out.close();
 # end
 
-function  computeAverageOfMidpointOfBarcodesWeightedByLength(pers_barcode::PersistenceBarcodes, )::Float64
-    averageBarcodeLength = 0; #::Float64
-    for i = 0:size(pers_barcode.barcodes,1)
+function  computeAverageOfMidpointOfBarcodesWeightedByLength(pers_barcode::PersistenceBarcodes)::Float64
+    averageBarcodeLength = 0.0; #::Float64
+
+    for i = 1:size(pers_barcode.barcodes,1)
         averageBarcodeLength += (pers_barcode.barcodes[i].second - pers_barcode.barcodes[i].first);
     end
-    averageBarcodeLength /= pers_barcode.barcodes.size();
+
+    averageBarcodeLength /= size(pers_barcode.barcodes,1)
 
     weightedAverageOfBarcodesMidpoints = 0; #::Float64
-    for i = 0:size(pers_barcode.barcodes,1)
+    for i = 1:size(pers_barcode.barcodes,1)
         weight = (pers_barcode.barcodes[i].second - pers_barcode.barcodes[i].first)/averageBarcodeLength; #::Float64
         weightedAverageOfBarcodesMidpoints += weight * 0.5*(pers_barcode.barcodes[i].second - pers_barcode.barcodes[i].first);
     end
-    weightedAverageOfBarcodesMidpoints /= pers_barcode.barcodes.size();
+
+    weightedAverageOfBarcodesMidpoints /= size(pers_barcode.barcodes,1)
 
     # YTANIE< CZY TO MA SENS???
-    return weightedAverageOfBarcodesMidpoints;
+    return weightedAverageOfBarcodesMidpoints
 end # computeAverageOfMidpointOfBarcodesWeightedByLength
 
 
@@ -488,39 +524,37 @@ function putToAFileHistogramOfBarcodesLengths(pers_barcode::PersistenceBarcodes,
 end # putToAFileHistogramOfBarcodesLengths
 
 
-function removeShortBarcodes(pers_barcode::PersistenceBarcodes,  minimalDiameterOfBarcode::Float64)
+function removeShortBarcodes(pers_barcode::PersistenceBarcodes,  minimalDiameterOfBarcode::Real)
 
-    cleanedBarcodes = Vector{MyPair}
-    for i = 0:size(pers_barcode.barcodes,1)
-        if ( fabs(pers_barcode.barcodes[i].second - pers_barcode.barcodes[i].first) > minimalDiameterOfBarcode )
-            cleanedBarcodes.push_back(pers_barcode.barcodes[i]);
+    cleanedBarcodes = MyPair[]
+    for i = 1:size(pers_barcode.barcodes,1)
+        if ( abs(pers_barcode.barcodes[i].second - pers_barcode.barcodes[i].first) > minimalDiameterOfBarcode )
+            push!(cleanedBarcodes, pers_barcode.barcodes[i])
         end
     end
-    return swap(pers_barcode.barcodes, cleanedBarcodes );
+    return PersistenceBarcodes(cleanedBarcodes, pers_barcode.dimensionOfBarcode)
 end
 
 
-function restrictBarcodesToGivenInterval(pers_barcode::PersistenceBarcodes,  MyPairinterval )::PersistenceBarcodes
-
-    result::PersistenceBarcodes;
-    result.dimensionOfBarcode = pers_barcode.dimensionOfBarcode;
-    for i = 0:size(pers_barcode.barcodes,1)
+function restrictBarcodesToGivenInterval(pers_barcode::PersistenceBarcodes,  interval::MyPair )::PersistenceBarcodes
+    new_pairs= MyPair[]
+    for i = 1:size(pers_barcode.barcodes,1)
         if pers_barcode.barcodes[i].first >= interval.second
+            @debug "First condition met"
             continue
         end
         if pers_barcode.barcodes[i].second <= interval.first
+            @debug "Second condition met"
             continue
         end
-        push!(result.barcodes, make_MyPair( max( interval.first , pers_barcode.barcodes[i].first ) , min( interval.second , pers_barcode.barcodes[i].second ) ) );
+        push!(new_pairs,
+                make_MyPair(
+                    max( interval.first , pers_barcode.barcodes[i].first ),
+                    min( interval.second , pers_barcode.barcodes[i].second )
+                   )
+               )
     end
-    return result;
-end
-
-
-function PersistenceBarcodes(pers_barcode::PersistenceBarcodes, orgyginal::PersistenceBarcodes)
-
-    pers_barcode.dimensionOfBarcode = orgyginal.dimensionOfBarcode;
-    pers_barcode.barcodes.insert( pers_barcode.barcodes.end() , orgyginal.barcodes.begin() , orgyginal.barcodes.end() );
+    return PersistenceBarcodes(new_pairs, pers_barcode.dimensionOfBarcode);
 end
 
 # function operator=(pers_barcode::PersistenceBarcodes,  rhs ::PersistenceBarcodes)::PersistenceBarcodes
@@ -537,7 +571,6 @@ end
 #     return *this;
 # end
 
-
 function minMax(pers_barcode::PersistenceBarcodes)
     bmin = Inf # INT_MAX; #::Float64
     bmax = -Inf # INT_MIN; #::Float64
@@ -552,17 +585,17 @@ function minMax(pers_barcode::PersistenceBarcodes)
     return make_MyPair( bmin , bmax );
 end # minMax
 
-function  computeLandscapeIntegralFromBarcodes(pers_barcode::PersistenceBarcodes, )::Float64
 
+function computeLandscapeIntegralFromBarcodes(pers_barcode::PersistenceBarcodes)::Float64
     result = 0; #::Float64
-    for i = 0:size(pers_barcode.barcodes,1)
-        result += (pers_barcode.barcodes[i].second-pers_barcode.barcodes[i].first)*(pers_barcode.barcodes[i].second-pers_barcode.barcodes[i].first);
+    for i = 1:size(pers_barcode.barcodes,1)
+        a = pers_barcode.barcodes[i].second
+        b = pers_barcode.barcodes[i].first
+        result += (a-b)^2;
     end
     result *= 0.25;
     return result;
 end
-
-
 
 # TODO2 -- consider adding some instructions to remove anything that is not numeric from the input stream.
 # function PersistenceBarcodes(pers_barcode::PersistenceBarcodes, filename::String)
@@ -571,7 +604,8 @@ function PersistenceBarcodes(pers_barcode::PersistenceBarcodes, filename::String
     1+1
 end
 
-function PersistenceBarcodes(pers_barcode::PersistenceBarcodes,  bars::Vector{MyPair} )
+# function PersistenceBarcodes(bars::Vector{MyPair})
+function create_from_bars(bars::Vector{MyPair})
 
     infty = 0.0;
     pers_barcode.dimensionOfBarcode = 0;
@@ -586,7 +620,7 @@ function PersistenceBarcodes(pers_barcode::PersistenceBarcodes,  bars::Vector{My
             bars[i].first = sec;
         end
     end
-    barcodes = Vector{MyPair}#  ( sizeOfBarcode );
+    barcodes = MyPair[] #  ( sizeOfBarcode );
     nr::Unt = 0;
     for i = 0:size(bars,1)
         if ( bars[i].second != infty )

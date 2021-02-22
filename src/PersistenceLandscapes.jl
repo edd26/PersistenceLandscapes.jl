@@ -12,7 +12,19 @@ module PersistenceLandscapes
             compareMyPairs,
             sort,
             compare,
-            minMax
+            minn,
+            computeAverageOfMidpointOfBarcodes,
+            setAverageMidpointToZero,
+            setAveragedLengthToOne,
+            averageBarcodes,
+            setRangeToMinusOneOne,
+            setRange,
+            computeAverageOfMidpointOfBarcodesWeightedByLength,
+            compareForHistograms,
+            removeShortBarcodes,
+            restrictBarcodesToGivenInterval,
+            minMax,
+            computeLandscapeIntegralFromBarcodes
 
     include("PersistenceBarcode.jl")
 # Write your package code here.
