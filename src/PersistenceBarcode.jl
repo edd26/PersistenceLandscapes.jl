@@ -42,7 +42,15 @@ struct PersistenceBarcodes
 
     function PersistenceBarcodes(bars::Vector{MyPair}, number::Real)
         new(bars, UInt(number))
+
     end
+
+    # This hould be transformed into cinstructor from matrix nx2
+    # function PersistenceBarcodes(pers_barcode::PersistenceBarcodes,  vect::Vector , dimensionOfBarcode::UInt )
+    #     1+1
+    #     # *this = PersistenceBarcodes(vect);
+    #     # pers_barcode.dimensionOfBarcode = dimensionOfBarcode;
+    # end
 
     # This is constructor function and should be put in the struct
     function PersistenceBarcodes(pers_barcode::PersistenceBarcodes)
@@ -50,6 +58,43 @@ struct PersistenceBarcodes
         @info typeof(pers_barcodes.dimensionOfBarcode)
         new(pers_barcode.barcodes, UInt(pers_barcode.dimensionOfBarcode))
     end
+
+
+    function PersistenceBarcodes(bars::Vector{MyPair})
+        total_pairs = size(bars, 1)
+        infty = Inf
+        dimensionOfBarcode = 0;
+        sizeOfBarcode = 0 # ::UInt
+        for i = 1:total_pairs 
+            if ( bars[i].second != infty )
+                sizeOfBarcode += 1
+            end
+            if ( bars[i].second < bars[i].first )
+                sec = bars[i].second; #::Float64
+                bars[i].second = bars[i].first;
+                bars[i].first = sec;
+            end
+        end
+
+        barcodes = MyPair[] #  ( sizeOfBarcode );
+        nr = 1 # ::Unt
+        for i = 1:total_pairs
+            if ( bars[i].second != infty )
+                # this is a finite interval
+                push!(barcodes, make_MyPair( bars[i].first , bars[i].second ))
+                nr += 1
+            end
+            # to keep it all compact for now I am removing infinite intervals from consideration.
+            #=else
+                # this is infinite interval:
+                barcodes[i] =  make_MyPair( bars[i].first , INT_MAX );
+            }=#
+        end
+
+        # CHANGE
+        new(barcodes, UInt(dimensionOfBarcode))
+    end
+
 
 end
 
@@ -184,20 +229,6 @@ function removeBarcodesThatBeginsBeforeGivenNumber(pers_barcode::PersistenceBarc
     return PersistenceBarcodes(newBarcodes, pers_barcode.dimensionOfBarcode)
 end
 
-# function writeBarcodesSortedAccordingToLengthToAFile(pers_barcode::PersistenceBarcodes,  filename::String )
-#
-#     # first sort the bars according to their length
-#     vector< MyPair> sortedBars;
-#     sortedBars.insert( sortedBars.end() , pers_barcode.barcodes.begin() , pers_barcode.barcodes.end() );
-#     sort( sortedBars.begin() , sortedBars.end() ,compareAccordingToLength );
-#
-#     ofstream out;
-#     out.open(filename);
-#     for i = 0:size(sortedBars,1)
-#         out << sortedBars[i].first << " " << sortedBars[i].second << endl;
-#     end
-#     out.close();
-# end
 
 # tested
 function putToBins(pers_barcode::PersistenceBarcodes, numberOfBins; dbg::Bool = false)
@@ -408,14 +439,6 @@ function setRange(pers_barcode::PersistenceBarcodes,  beginn::Real, endd::Real)
     return PersistenceBarcodes(new_pairs, pers_barcode.dimensionOfBarcode)
 end
 
-# function writeToFile(pers_barcode::PersistenceBarcodes,  filename::String )
-#     # ofstream out;
-#     out.open( filename );
-#     for i = 0:size(pers_barcode.barcodes,1)
-#         out << pers_barcode.barcodes[i].first << " " << pers_barcode.barcodes[i].second << endl;
-#     end
-#     out.close();
-# end
 
 function  computeAverageOfMidpointOfBarcodesWeightedByLength(pers_barcode::PersistenceBarcodes)::Float64
     averageBarcodeLength = 0.0; #::Float64
@@ -445,83 +468,6 @@ function compareForHistograms( f::MyPair, s::MyPair)::Bool
 end
 
 
-# ===-===-===-
-# Missin and new functions >>>
-function beginning(bars_length)
-    return true
-end
-
-function ending(bars_length)
-    return true
-end
-
-# Missin and new functions <<<
-# ===-===-===-
-function putToAFileHistogramOfBarcodesLengths(pers_barcode::PersistenceBarcodes, filename::String ,  howMany , shouldWeAlsoPutResponsibleBarcodes::Bool )
-
-    # std::vector<std::pair< double , std::pair<double,double> > > barsLenghts(this->barcodes.size());
-    # vector<MyPair< double , pair> > barsLenghts(pers_barcode.barcodes.size());
-
-    for i = 0:size(pers_barcode.barcodes,1)
-        barsLenghts[i] = make_MyPair(fabs(pers_barcode.barcodes[i].second - pers_barcode.barcodes[i].first) , make_pair( pers_barcode.barcodes[i].first , pers_barcode.barcodes[i].second ) );
-    end
-    sort( beginning(barsLenghts) , ending(barsLenghts) , compareForHistograms );
-    reverse( begining(barsLenghts) , ending(barsLenghts) );
-    # ofstream file;
-    # file.open(filename);
-    # if ( shouldWeAlsoPutResponsibleBarcodes )
-    #     for i = 0:size(minn(barsLenghts,1),howMany)
-    #         file << i << " " << barsLenghts[i].first << " " << barsLenghts[i].second.first << " " << barsLenghts[i].second.second << endl;
-    #     end
-    # else
-    #     for i = 0:size(minn(barsLenghts,1),howMany)
-    #         file << i << " " << barsLenghts[i].first << endl;
-    #     end
-    # end
-    # file.close();
-end # putToAFileHistogramOfBarcodesLengths
-
-
-function putToAFileHistogramOfBarcodesLengths(pers_barcode::PersistenceBarcodes,  filename::String ,  beginn ,  endd , shouldWeAlsoPutResponsibleBarcodes::Bool )
-    if ( beginn >= endd )
-        throw("Wrong parameters of putToAFileHistogramOfBarcodesLengths provedure. Begin points is greater that the end point. Program will now terminate")
-    end
-
-    # std::vector<std::pair< double , std::pair<double,double> > > barsLenghts(this->barcodes.size());
-    barsLenghts = size(pers_barcode.barcodes.size());
-
-    for i = 0:size(pers_barcode.barcodes,1)
-        barsLenghts[i] = make_MyPair(fabs(pers_barcode.barcodes[i].second - pers_barcode.barcodes[i].first) , make_pair( pers_barcode.barcodes[i].first , pers_barcode.barcodes[i].second ) );
-    end
-    sort( begining(barsLenghts) , ending(barsLenghts) , compareForHistograms );
-    reverse( begining(barsLenghts) , ending(barsLenghts) );
-    # ofstream file;
-    # file.open(filename);
-    # if ( shouldWeAlsoPutResponsibleBarcodes )
-    #     for i = minn(barsLenghts.size(),beginn):size(minn(barsLenghts,1),endd)
-    #         file << i << " " << barsLenghts[i].first << " " << barsLenghts[i].second.first << " " << barsLenghts[i].second.second << endl;
-    #     end
-    # else
-    #     for i = minn(barsLenghts.size(),beginn):size(minn(barsLenghts,1),endd)
-    #         file << i << " " << barsLenghts[i].first << endl;
-    #     end
-    # end
-    # file.close();
-    #=
-    vector<double> barsLenghts(pers_barcode.barcodes.size());
-    for i = 0:size(pers_barcode.barcodes,1)
-        barsLenghts[i] = fabs(pers_barcode.barcodes[i].second - pers_barcode.barcodes[i].first);
-    end
-    sort( begining(barsLenghts) , ending(barsLenghts) );
-    reverse( begining(barsLenghts) , ending(barsLenghts) );
-    ofstream file;
-    file.open(filename);
-    for i = minn(barsLenghts.size(),beginn):size(minn(barsLenghts,1),endd)
-        file << i << " " << barsLenghts[i] << endl;
-    end
-    file.close();
-    =#
-end # putToAFileHistogramOfBarcodesLengths
 
 
 function removeShortBarcodes(pers_barcode::PersistenceBarcodes,  minimalDiameterOfBarcode::Real)
@@ -600,86 +546,34 @@ end
 # TODO2 -- consider adding some instructions to remove anything that is not numeric from the input stream.
 # function PersistenceBarcodes(pers_barcode::PersistenceBarcodes, filename::String)
 
-function PersistenceBarcodes(pers_barcode::PersistenceBarcodes, filename::String , bbegin::Float64, step::Float64)
-    1+1
-end
-
-# function PersistenceBarcodes(bars::Vector{MyPair})
-function create_from_bars(bars::Vector{MyPair})
-
-    infty = 0.0;
-    pers_barcode.dimensionOfBarcode = 0;
-    sizeOfBarcode::UInt = 0;
-    for i = 0:size(bars,1)
-        if ( bars[i].second != infty )
-            sizeOfBarcode += 1
-        end
-        if ( bars[i].second < bars[i].first )
-            sec = bars[i].second; #::Float64
-            bars[i].second = bars[i].first;
-            bars[i].first = sec;
-        end
-    end
-    barcodes = MyPair[] #  ( sizeOfBarcode );
-    nr::Unt = 0;
-    for i = 0:size(bars,1)
-        if ( bars[i].second != infty )
-            # this is a finite interval
-            barcodes[nr] =  make_MyPair( bars[i].first , bars[i].second );
-            nr += 1
-        end
-        # to keep it all compact for now I am removing infinite intervals from consideration.
-        #=else
-            # this is infinite interval:
-            barcodes[i] =  make_MyPair( bars[i].first , INT_MAX );
-        }=#
-    end
-    # CHANGE
-    # pers_barcode.barcodes = barcodes;
-    pers_barcode.barcodes.swap( barcodes );
-end
 
 
-function PersistenceBarcodes(pers_barcode::PersistenceBarcodes, filename::String , dimensionOfBarcode::UInt )
- 1+1
-    # *this = PersistenceBarcodes(filename);
-    # pers_barcode.dimensionOfBarcode = dimensionOfBarcode;
-end
+function  produceBettiNumbersOnAGridFromMinToMaxRangeWithAStepBeingParameterOfThisFunction(pers_barcode::PersistenceBarcodes,  step::UInt  , minn::Float64, maxx::Float64; dbg::Bool = false)::Vector{UInt}
 
-function PersistenceBarcodes(pers_barcode::PersistenceBarcodes,  vect::Vector , dimensionOfBarcode::UInt )
-
-    1+1
-    # *this = PersistenceBarcodes(vect);
-    # pers_barcode.dimensionOfBarcode = dimensionOfBarcode;
-end
-
-function  produceBettiNumbersOnAGridFromMinToMaxRangeWithAStepBeingParameterOfThisFunction(pers_barcode::PersistenceBarcodes,  step::UInt  , minn::Float64, maxx::Float64)::Vector{UInt}
-
-    dbg::Bool = false;
-    minMax = MyPair(0,0) ;
-    if ( minn == INT_MAX )
-        minMax = pers_barcode.minMax();
+    if ( minn == Inf)
+        minMax_val = minMax(pers_barcode);
     else
-        minMax = make_MyPair( minn,maxx );
+        minMax_val = make_MyPair(minn, maxx);
     end
 
+    bettiNumbers = zeros(UInt, step)# (step+1);
+    # for j = 1:step
+    #     pusbettiNumbers[j] = 0;
+    # end
 
-    vector< unsigned > bettiNumbers(step+1);
-    for j = 0:step
-        bettiNumbers[j] = 0;
-    end
+    dx = (minMax_val.second-minMax_val.first)/step; # ::Float64
 
-    dx = (minMax.second-minMax.first)/step; # ::Float64
-
-    for i = 0:size(pers_barcode.barcodes,1)
+    for i = 1:size(pers_barcode.barcodes,1)
         @debug "i :size($(i), size(pers_barcode.barcodes,1)  $(pers_barcode.barcodes)"
         @debug "For a interval :$(pers_barcode.barcodes[i])we have : \n"
-        first::UInt = (pers_barcode.barcodes[i].first-minMax.first)/dx;
-        second::UInt = (pers_barcode.barcodes[i].second-minMax.first)/dx;
+
+        first = (pers_barcode.barcodes[i].first-minMax_val.first)/dx;
+        second = (pers_barcode.barcodes[i].second-minMax_val.first)/dx;
+
         @debug first , second
-        @debug getchar()
-        for j = first:second
-            bettiNumbers[j]+=1;
+        # @debug getchar()
+        for j = floor(Int, first):1:ceil(Int, second)
+            bettiNumbers[j] += 1
         end
     end
 
@@ -688,3 +582,112 @@ end# produceBettiNumbersOnAGridFromMinToMaxRangeWithAStepBeingParameterOfThisFun
 
 
 #endif
+
+# ===-===-===-===-===-===-===-===-===-===-===-
+# File operations >>>
+function writeBarcodesSortedAccordingToLengthToAFile(pers_barcode::PersistenceBarcodes,  filename::String )
+    1+1
+#
+#     # first sort the bars according to their length
+#     vector< MyPair> sortedBars;
+#     sortedBars.insert( sortedBars.end() , pers_barcode.barcodes.begin() , pers_barcode.barcodes.end() );
+#     sort( sortedBars.begin() , sortedBars.end() ,compareAccordingToLength );
+#
+#     ofstream out;
+#     out.open(filename);
+#     for i = 0:size(sortedBars,1)
+#         out << sortedBars[i].first << " " << sortedBars[i].second << endl;
+#     end
+#     out.close();
+end
+
+function writeToFile(pers_barcode::PersistenceBarcodes,  filename::String )
+    1+1
+#     # ofstream out;
+#     out.open( filename );
+#     for i = 0:size(pers_barcode.barcodes,1)
+#         out << pers_barcode.barcodes[i].first << " " << pers_barcode.barcodes[i].second << endl;
+#     end
+#     out.close();
+end
+
+function putToAFileHistogramOfBarcodesLengths(pers_barcode::PersistenceBarcodes, filename::String ,  howMany , shouldWeAlsoPutResponsibleBarcodes::Bool )
+    1+1
+
+    # std::vector<std::pair< double , std::pair<double,double> > > barsLenghts(this->barcodes.size());
+    # vector<MyPair< double , pair> > barsLenghts(pers_barcode.barcodes.size());
+
+    for i = 0:size(pers_barcode.barcodes,1)
+        barsLenghts[i] = make_MyPair(fabs(pers_barcode.barcodes[i].second - pers_barcode.barcodes[i].first) , make_pair( pers_barcode.barcodes[i].first , pers_barcode.barcodes[i].second ) );
+    end
+    sort( beginning(barsLenghts) , ending(barsLenghts) , compareForHistograms );
+    reverse( begining(barsLenghts) , ending(barsLenghts) );
+    # ofstream file;
+    # file.open(filename);
+    # if ( shouldWeAlsoPutResponsibleBarcodes )
+    #     for i = 0:size(minn(barsLenghts,1),howMany)
+    #         file << i << " " << barsLenghts[i].first << " " << barsLenghts[i].second.first << " " << barsLenghts[i].second.second << endl;
+    #     end
+    # else
+    #     for i = 0:size(minn(barsLenghts,1),howMany)
+    #         file << i << " " << barsLenghts[i].first << endl;
+    #     end
+    # end
+    # file.close();
+end # putToAFileHistogramOfBarcodesLengths
+
+
+function putToAFileHistogramOfBarcodesLengths(pers_barcode::PersistenceBarcodes,  filename::String ,  beginn ,  endd , shouldWeAlsoPutResponsibleBarcodes::Bool )
+    1+1
+    if ( beginn >= endd )
+        throw("Wrong parameters of putToAFileHistogramOfBarcodesLengths provedure. Begin points is greater that the end point. Program will now terminate")
+    end
+
+    # std::vector<std::pair< double , std::pair<double,double> > > barsLenghts(this->barcodes.size());
+    barsLenghts = size(pers_barcode.barcodes.size());
+
+    for i = 0:size(pers_barcode.barcodes,1)
+        barsLenghts[i] = make_MyPair(fabs(pers_barcode.barcodes[i].second - pers_barcode.barcodes[i].first) , make_pair( pers_barcode.barcodes[i].first , pers_barcode.barcodes[i].second ) );
+    end
+    sort( begining(barsLenghts) , ending(barsLenghts) , compareForHistograms );
+    reverse( begining(barsLenghts) , ending(barsLenghts) );
+    # ofstream file;
+    # file.open(filename);
+    # if ( shouldWeAlsoPutResponsibleBarcodes )
+    #     for i = minn(barsLenghts.size(),beginn):size(minn(barsLenghts,1),endd)
+    #         file << i << " " << barsLenghts[i].first << " " << barsLenghts[i].second.first << " " << barsLenghts[i].second.second << endl;
+    #     end
+    # else
+    #     for i = minn(barsLenghts.size(),beginn):size(minn(barsLenghts,1),endd)
+    #         file << i << " " << barsLenghts[i].first << endl;
+    #     end
+    # end
+    # file.close();
+    #=
+    vector<double> barsLenghts(pers_barcode.barcodes.size());
+    for i = 0:size(pers_barcode.barcodes,1)
+        barsLenghts[i] = fabs(pers_barcode.barcodes[i].second - pers_barcode.barcodes[i].first);
+    end
+    sort( begining(barsLenghts) , ending(barsLenghts) );
+    reverse( begining(barsLenghts) , ending(barsLenghts) );
+    ofstream file;
+    file.open(filename);
+    for i = minn(barsLenghts.size(),beginn):size(minn(barsLenghts,1),endd)
+        file << i << " " << barsLenghts[i] << endl;
+    end
+    file.close();
+    =#
+end # putToAFileHistogramOfBarcodesLengths
+
+
+function PersistenceBarcodes(pers_barcode::PersistenceBarcodes, filename::String , bbegin::Float64, step::Float64)
+    1+1
+end
+
+function PersistenceBarcodes(pers_barcode::PersistenceBarcodes, filename::String , dimensionOfBarcode::UInt )
+ 1+1
+    # *this = PersistenceBarcodes(filename);
+    # pers_barcode.dimensionOfBarcode = dimensionOfBarcode;
+end
+
+# File operations <<<

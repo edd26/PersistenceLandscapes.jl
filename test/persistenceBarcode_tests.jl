@@ -24,6 +24,16 @@ my_persi_barcode3  = PersistenceBarcodes([my_pair,
     @test typeof(my_pair.first) <: Float64
     @test typeof(my_pair.second) <: Float64
 
+    # TODO add test for the section below
+    # @testset "PersistenceBarcodes from PersistenceBarcodes test" begin
+    # end
+
+    @testset "PersistenceBarcodes from vector of MyPairs test" begin
+        new_pers_barcodes = PersistenceBarcodes([my_pair1, my_pair2, my_pair3 ])
+
+        @test PersistenceBarcodes([my_pair1, my_pair2, my_pair3 ]).barcodes == [my_pair1, my_pair2, my_pair3 ]
+        @test PersistenceBarcodes([my_pair1, my_pair2, my_pair3, MyPair(12, Inf)]).barcodes == [my_pair1, my_pair2, my_pair3 ]
+    end
 end
 
 @testset "PersistenceBarcodes Base functions tests" begin
@@ -374,5 +384,11 @@ end
     @test computeLandscapeIntegralFromBarcodes(my_persi_barcode3) == 8.75
 end
 
+
+# This function does not give correct results but it is untested from original code hwo it should work
+@testset "produceBettiNumbersOnAGridFromMinToMaxRangeWithAStepBeingParameterOfThisFunction tests" begin
+    produceBettiNumbersOnAGridFromMinToMaxRangeWithAStepBeingParameterOfThisFunction(my_persi_barcode, UInt(250), 0.0, 12.0)
+
+end
 # @testset "putToBins tests" begin
 # end

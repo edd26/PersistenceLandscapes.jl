@@ -24,7 +24,8 @@ module PersistenceLandscapes
             removeShortBarcodes,
             restrictBarcodesToGivenInterval,
             minMax,
-            computeLandscapeIntegralFromBarcodes
+            computeLandscapeIntegralFromBarcodes,
+            produceBettiNumbersOnAGridFromMinToMaxRangeWithAStepBeingParameterOfThisFunction
 
     include("PersistenceBarcode.jl")
 # Write your package code here.
