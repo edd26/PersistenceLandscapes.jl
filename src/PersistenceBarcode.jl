@@ -585,84 +585,81 @@ end# produceBettiNumbersOnAGridFromMinToMaxRangeWithAStepBeingParameterOfThisFun
 
 # ===-===-===-===-===-===-===-===-===-===-===-
 # File operations >>>
+# not tested
+
 function writeBarcodesSortedAccordingToLengthToAFile(pers_barcode::PersistenceBarcodes,  filename::String )
-    1+1
-#
 #     # first sort the bars according to their length
-#     vector< MyPair> sortedBars;
-#     sortedBars.insert( sortedBars.end() , pers_barcode.barcodes.begin() , pers_barcode.barcodes.end() );
-#     sort( sortedBars.begin() , sortedBars.end() ,compareAccordingToLength );
-#
-#     ofstream out;
-#     out.open(filename);
-#     for i = 0:size(sortedBars,1)
-#         out << sortedBars[i].first << " " << sortedBars[i].second << endl;
-#     end
-#     out.close();
+    sorted_bars = sort(pers_barcode)
+
+    open(filename, "w") do io
+        for i = 1:size(sorted_bars,1)
+            write(io, "$(sortedBars[i].first) $(sortedBars[i].second)")
+        end
+    end
 end
 
 function writeToFile(pers_barcode::PersistenceBarcodes,  filename::String )
-    1+1
-#     # ofstream out;
-#     out.open( filename );
-#     for i = 0:size(pers_barcode.barcodes,1)
-#         out << pers_barcode.barcodes[i].first << " " << pers_barcode.barcodes[i].second << endl;
-#     end
-#     out.close();
+    open(filename, "w") do io
+        for i = 1:size(sorted_bars,1)
+            write(io, "$(pers_barcode.barcodes[i].first) $(pers_barcode.barcodes[i].second)")
+        end
+    end
 end
 
-function putToAFileHistogramOfBarcodesLengths(pers_barcode::PersistenceBarcodes, filename::String ,  howMany , shouldWeAlsoPutResponsibleBarcodes::Bool )
-    1+1
+function putToAFileHistogramOfBarcodesLengths(pers_barcode::PersistenceBarcodes, filename::String ,  howMany::Real , shouldWeAlsoPutResponsibleBarcodes::Bool )
 
-    # std::vector<std::pair< double , std::pair<double,double> > > barsLenghts(this->barcodes.size());
-    # vector<MyPair< double , pair> > barsLenghts(pers_barcode.barcodes.size());
+    barsLenghts = Any[]
+    for i = 1:size(pers_barcode.barcodes,1)
+        bar_diff = abs(pers_barcode.barcodes[i].second - pers_barcode.barcodes[i].first)
 
-    for i = 0:size(pers_barcode.barcodes,1)
-        barsLenghts[i] = make_MyPair(fabs(pers_barcode.barcodes[i].second - pers_barcode.barcodes[i].first) , make_pair( pers_barcode.barcodes[i].first , pers_barcode.barcodes[i].second ) );
+        push!(barsLenghts, (bar_diff , MyPair(pers_barcode.barcodes[i].first , pers_barcode.barcodes[i].second )))
     end
-    sort( beginning(barsLenghts) , ending(barsLenghts) , compareForHistograms );
+
+    sorted = sort(pers_barcode.barcodes, by= x-> x[1])
     reverse( begining(barsLenghts) , ending(barsLenghts) );
-    # ofstream file;
-    # file.open(filename);
-    # if ( shouldWeAlsoPutResponsibleBarcodes )
-    #     for i = 0:size(minn(barsLenghts,1),howMany)
-    #         file << i << " " << barsLenghts[i].first << " " << barsLenghts[i].second.first << " " << barsLenghts[i].second.second << endl;
-    #     end
-    # else
-    #     for i = 0:size(minn(barsLenghts,1),howMany)
-    #         file << i << " " << barsLenghts[i].first << endl;
-    #     end
-    # end
-    # file.close();
+
+    open(filename, "w") do io
+        if shouldWeAlsoPutResponsibleBarcodes
+            for i = 1:min(length(barsLenghts), howMany)
+                write(io, "$(i) $(barsLenghts[i].first) $(barsLenghts[i].second.first) $(barsLenghts[i].second.second)")
+            end
+        else
+            for i = 1:min(length(barsLenghts), howMany)
+                write(io, "$(i) $(barsLenghts[i].first)")
+            end
+        end
+    end
 end # putToAFileHistogramOfBarcodesLengths
 
 
-function putToAFileHistogramOfBarcodesLengths(pers_barcode::PersistenceBarcodes,  filename::String ,  beginn ,  endd , shouldWeAlsoPutResponsibleBarcodes::Bool )
-    1+1
-    if ( beginn >= endd )
-        throw("Wrong parameters of putToAFileHistogramOfBarcodesLengths provedure. Begin points is greater that the end point. Program will now terminate")
+function putToAFileHistogramOfBarcodesLengths(pers_barcode::PersistenceBarcodes,  filename::String ,  beginn::Real ,  endd::Real , shouldWeAlsoPutResponsibleBarcodes::Bool )
+    if beginn >= endd
+        throw(DomainError("Wrong parameters of putToAFileHistogramOfBarcodesLengths procedure. Begin points is greater that the end point. Program will now terminate"))
     end
 
     # std::vector<std::pair< double , std::pair<double,double> > > barsLenghts(this->barcodes.size());
-    barsLenghts = size(pers_barcode.barcodes.size());
+    barsLenghts = Any[]
+    for i = 1:size(pers_barcode.barcodes,1)
+        bar_diff = abs(pers_barcode.barcodes[i].second - pers_barcode.barcodes[i].first)
 
-    for i = 0:size(pers_barcode.barcodes,1)
-        barsLenghts[i] = make_MyPair(fabs(pers_barcode.barcodes[i].second - pers_barcode.barcodes[i].first) , make_pair( pers_barcode.barcodes[i].first , pers_barcode.barcodes[i].second ) );
+        push!(barsLenghts, (bar_diff , MyPair(pers_barcode.barcodes[i].first , pers_barcode.barcodes[i].second )))
     end
-    sort( begining(barsLenghts) , ending(barsLenghts) , compareForHistograms );
-    reverse( begining(barsLenghts) , ending(barsLenghts) );
-    # ofstream file;
-    # file.open(filename);
-    # if ( shouldWeAlsoPutResponsibleBarcodes )
-    #     for i = minn(barsLenghts.size(),beginn):size(minn(barsLenghts,1),endd)
-    #         file << i << " " << barsLenghts[i].first << " " << barsLenghts[i].second.first << " " << barsLenghts[i].second.second << endl;
-    #     end
-    # else
-    #     for i = minn(barsLenghts.size(),beginn):size(minn(barsLenghts,1),endd)
-    #         file << i << " " << barsLenghts[i].first << endl;
-    #     end
-    # end
-    # file.close();
+    sorted = sort(pers_barcode.barcodes, by= x-> x[1])
+
+    # reverse
+    barsLenghts = barsLenghts[end:-1:1]
+
+    open(filename, "w") do io
+        if shouldWeAlsoPutResponsibleBarcodes
+            for i = min(length(barsLenghts),beginn):min(size(barsLenghts,1),endd)
+                write(io, "$(i) $(barsLenghts[i].first) $(barsLenghts[i].second.first) $(barsLenghts[i].second.second)")
+            end
+        else
+            for i = min(length(barsLenghts),beginn):min(size(barsLenghts,1),endd)
+                write(io, "$(i) $(barsLenghts[i].first)")
+            end
+        end
+    end
     #=
     vector<double> barsLenghts(pers_barcode.barcodes.size());
     for i = 0:size(pers_barcode.barcodes,1)
@@ -680,14 +677,43 @@ function putToAFileHistogramOfBarcodesLengths(pers_barcode::PersistenceBarcodes,
 end # putToAFileHistogramOfBarcodesLengths
 
 
-function PersistenceBarcodes(pers_barcode::PersistenceBarcodes, filename::String , bbegin::Float64, step::Float64)
-    1+1
+function PersistenceBarcodes(pers_barcode::PersistenceBarcodes, filename::String , startin_point::Float64, step::Float64)
+    barcodes= MyPair[]
+    infty = Inf;
+    dimensionOfBarcode = 0;
+    open(filename, "r") do io
+        # read till end of file
+        while !eof(io)
+            s = readline(f)
+            splitted = split(s, " ")
+            beginning = splitted[1]
+            ending= splitted[2]
+            if ending != infty
+                if ending < beginning
+                    z = ending;
+                    ending = beginning;
+                    beginning = z;
+                end
+                if ( begin != end )
+                    push!(barcodes, MyPair( startin_point+beginning*step,startin_point+ending*step ) )
+                end
+            end
+        end
+    end
+
 end
 
 function PersistenceBarcodes(pers_barcode::PersistenceBarcodes, filename::String , dimensionOfBarcode::UInt )
- 1+1
-    # *this = PersistenceBarcodes(filename);
-    # pers_barcode.dimensionOfBarcode = dimensionOfBarcode;
+    my_pairs = MyPair[]
+    open(filename, "r") do io
+        # read till end of file
+        while !eof(io)
+            s = readline(f)
+            splitted = split(s, " ")
+            push!(my_pairs, MyPair(splitted[1], splitted[2]))
+        end
+    end
+    return PersistenceBarcodes(my_pairs, dimensionOfBarcode)
 end
 
 # File operations <<<

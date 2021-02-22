@@ -26,8 +26,12 @@ module PersistenceLandscapes
             minMax,
             computeLandscapeIntegralFromBarcodes,
             produceBettiNumbersOnAGridFromMinToMaxRangeWithAStepBeingParameterOfThisFunction
+    # TODO add file writing functions here
+
+    export almostEqual
 
     include("PersistenceBarcode.jl")
+    include("PersistenceLandscape.jl")
 # Write your package code here.
 
 end

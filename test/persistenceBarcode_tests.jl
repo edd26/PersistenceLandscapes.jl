@@ -390,5 +390,6 @@ end
     produceBettiNumbersOnAGridFromMinToMaxRangeWithAStepBeingParameterOfThisFunction(my_persi_barcode, UInt(250), 0.0, 12.0)
 
 end
+
 # @testset "putToBins tests" begin
 # end
