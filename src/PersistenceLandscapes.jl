@@ -32,6 +32,5 @@ module PersistenceLandscapes
 
     include("PersistenceBarcode.jl")
     include("PersistenceLandscape.jl")
-# Write your package code here.
 
 end
