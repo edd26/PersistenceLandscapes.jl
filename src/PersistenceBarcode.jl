@@ -684,7 +684,7 @@ function PersistenceBarcodes(pers_barcode::PersistenceBarcodes, filename::String
     open(filename, "r") do io
         # read till end of file
         while !eof(io)
-            s = readline(f)
+            s = readline(io)
             splitted = split(s, " ")
             beginning = splitted[1]
             ending= splitted[2]
