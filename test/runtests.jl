@@ -7,6 +7,6 @@ end
 
 
 @testset "PersistenceLandscape tests" begin
-    include("persistenceLandscape_tests.jl")
+    include("persistenceLandscape_test.jl")
 end
 

@@ -28,9 +28,10 @@ module PersistenceLandscapes
             produceBettiNumbersOnAGridFromMinToMaxRangeWithAStepBeingParameterOfThisFunction
     # TODO add file writing functions here
 
-    export almostEqual
+    export almostEqual,
+           PersistenceLandscape
 
-    include("PersistenceBarcode.jl")
+    # include("PersistenceBarcode.jl")
     include("PersistenceLandscape.jl")
 
 end

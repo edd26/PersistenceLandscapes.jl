@@ -17,23 +17,24 @@
 #    You should have received a copy of the GNU Lesser General Public License
 #    along with PLT.  If not, see <http://www.gnu.org/licenses/>.
 
+include("Configure.jl")
 import Base.size, Base.isempty, Base.copy, Base.sort
+# import Base.abs
 
-#include "Configure.h"
 
 # code taken from http://ranger.uta.edu/~weems/NOTES5311/hungarian.c
 //#include "HungarianC.h"
 
 # tested
-struct MyPair
-    first::Float64
-    second::Float64
-end
-
-# tested
-function make_MyPair(val1, val2)
-    return MyPair(val1, val2)
-end
+# struct MyPair
+#     first::Float64
+#     second::Float64
+# end
+#
+# # tested
+# function make_MyPair(val1, val2)
+#     return MyPair(val1, val2)
+# end
 
 # tested
 struct PersistenceBarcodes
@@ -54,8 +55,8 @@ struct PersistenceBarcodes
 
     # This is constructor function and should be put in the struct
     function PersistenceBarcodes(pers_barcode::PersistenceBarcodes)
-        @info typeof(pers_barcodes.barcodes)
-        @info typeof(pers_barcodes.dimensionOfBarcode)
+        # @info typeof(pers_barcodes.barcodes)
+        # @info typeof(pers_barcodes.dimensionOfBarcode)
         new(pers_barcode.barcodes, UInt(pers_barcode.dimensionOfBarcode))
     end
 
@@ -295,7 +296,7 @@ function compare(pers_barcode::PersistenceBarcodes,  b::PersistenceBarcodes; dbg
     end
 
     if ( size(pers_barcode.barcodes,1) != size(b.barcodes, 1) )
-        @info "size missmatch"
+        # @info "size missmatch"
         return false
     end
 
