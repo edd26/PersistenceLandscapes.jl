@@ -1,18 +1,18 @@
 #=     Copyright 2013-2014 University of Pennsylvania
 #     Created by Pawel Dlotko
-# 
+#
 #     This file is part of Persistence Landscape Toolbox (PLT).
-# 
+#
 #     PLT is free software: you can redistribute it and/or modify
 #     it under the terms of the GNU Lesser General Public License as published by
 #     the Free Software Foundation, either version 3 of the License, or
 #     (at your option) any later version.
-# 
+#
 #     PLT is distributed in the hope that it will be useful,
 #     but WITHOUT ANY WARRANTY; without even the implied warranty of
 #     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #     GNU Lesser General Public License for more details.
-# 
+#
 #     You should have received a copy of the GNU Lesser General Public License
 #     along with PLT.  If not, see <http:# www.gnu.org/licenses/>.
 =#
@@ -220,29 +220,27 @@ end
 #     return this == rhs
 # end
 
-function Base.== (lhs::PersistenceLandscape, rhs ::PersistenceLandscape)
-    if size(lhs.land,1) != rhs.land.size()
-        if operatorEqualDbg
-            println("1")
-        end
+function Base.== (lhs::PersistenceLandscape, rhs ::PersistenceLandscape; operatorEqualDbg=false)
+    if size(lhs.land,1) != size(rhs.land,1)
+        operatorEqualDbg && println("1")
         return false
     end
 
     # check if every elements are the same
     @error "This function is not fully translated!!!"
     for level = 1 : size(lhs.land,1)
-        if this->land[level].size() != rhs.land[level].size()
+        if size(lhs.land[level]) != size(rhs.land[level])
             if (operatorEqualDbg)
-                println("this->land[level].size() : $(this->land[level].size())")
-                println("rhs.land[level].size() : $(rhs.land[level].size())")
+                println("size(lhs.land[level]) : $(size(lhs.land[level]))")
+                println("size(rhs.land[level]) : $(size(rhs.land[level]))")
                 println("2")
             end
             return false
         end
-        for i = 0 : this->land[level].size() 
-            if this->land[level][i] != rhs.land[level][i]
+        for i = 1 : size(land[level])
+            if lhs.land[level][i] != rhs.land[level][i]
                 if (operatorEqualDbg)
-                    println("this->land[level][i] : $(this->land[level][i])")
+                    println("lhs.land[level][i] : $(lhs.land[level][i])")
                     println("rhs.land[level][i] : $(rhs.land[level][i])")
                     println("3")
                 end
@@ -253,17 +251,9 @@ function Base.== (lhs::PersistenceLandscape, rhs ::PersistenceLandscape)
     return true
 end
 
-PersistenceLandscape PersistenceLandscape::operator=(oryginal::PersistenceLandscape)
-    this->dimension = oryginal.dimension
-    vector< vector< std::pair > > land( oryginal.land.size() )
-    for i = 0 : oryginal.land.size() 
-        land[i].insert( land[i].end() , oryginal.land[i].begin() , oryginal.land[i].end() )
-    end
-    # CHANGE
-    # this->land = land
-    this->land.swap(land)
-    return *this
-end
+# function operator=(land::PersistenceLandscape, oryginal::PersistenceLandscape)
+    # remved, vbecause unnecesssary 
+# end
 
 # Basic operations on PersistenceLandscape <<<
 # ===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-
@@ -323,53 +313,18 @@ end
 # To be created in Julia
 
 
-# function PersistenceLandscape::plot( char* filename ,  from,  to ,xRangeBegin ,xRangeEnd ,yRangeBegin ,yRangeEnd )
-#
-#     # this program create a gnuplot script file that allows to plot persistence diagram.
-#     ofstream out
-#
-#     ostringstream nameSS
-#     nameSS << filename << "_GnuplotScript"
-#     string nameStr = nameSS.str()
-#     out.open( (char*)nameStr.c_str() )
-#
-#     if (xRangeBegin != -1) || (xRangeEnd != -1) || (yRangeBegin != -1) || (yRangeEnd != -1) 
-#         out << "set xrange [$(xRangeBegin) $(xRangeEnd)]"
-#         out << "set yrange [$(yRangeBegin) $(yRangeEnd)]"
-#     end
-#
-#     if ( from == -1 )from = 0;end
-#     if ( to == -1 )to = size(land,1);end
-#
-#     out << "plot "
-#     for lambda= min(from,size(land,1)) : min(to,size(land,1)) 
-#         out << "     '-' using 1:2 title 'l" << lambda << "' with lp"
-#         if lambda+1 != min(to,size(land,1))
-#             out << ", \\"
-#         end
-#         out
-#     end
-#
-#     for lambda= min(from,size(land,1)) : min(to,size(land,1)) 
-#         for i = 1 : this->land[lambda].size()-1 
-#             out << this->land[lambda][i].first << " " << this->land[lambda][i].second
-#         end
-#         out << "EOF"
-#     end
-#     println("Gnuplot script to visualize persistence diagram written to the file: $(nameStr) $(nameStr)' in gnuplot to visualize.")
-# end
 # ===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-
 
 # constructor
 function PersistenceLandscape(land::::PersistenceLandscape, landscapePointsWithoutInfinities::Vector{Vector{MyPair}})
     for level = 0:size(landscapePointsWithoutInfinities)
         vector< pair > v
-        v.push_back(make_pair(INT_MIN,0))
+        push!(v, make_pair(INT_MIN,0))
         v.insert( v.end(), landscapePointsWithoutInfinities[level].begin(), landscapePointsWithoutInfinities[level].end() )
-        v.push_back(make_pair(INT_MAX,0))
+        push!(v, make_pair(INT_MAX,0))
         push!(land, v )
     end
-    this->dimension = 0
+    land.dimension = 0
 end
 
 function gimmeProperLandscapePoints(land::PersistenceLandscape)::Vector{MyPair[]}
@@ -452,38 +407,37 @@ function PersistenceLandscape(land::PersistenceLandscape, filename::String;    b
     return PersistenceLandscape(land_vecto, dimension)
 end
 
-operatorEqualDbg::Bool = false
 
 # this function find maximum of lambda_n
-function PersistenceLandscape::findMax( unsigned lambda )const
+function findMax(land::PersistenceLandscape, unsigned lambda )const
     if ( size(land,1) < lambda )return 0
    maximum = INT_MIN
-    for i = 0 : this->land[lambda].size()
-        if this->land[lambda][i].second > maximum
-            maximum = this->land[lambda][i].second
+    for i = 0 : land.land[lambda].size()
+        if land.land[lambda][i].second > maximum
+            maximum = land.land[lambda][i].second
         end
     end
     return maximum
 end
 
 # this function compute n-th moment of lambda_level
-bool computeNthMomentDbg = false
-function PersistenceLandscape::computeNthMoment( unsigned n , center , unsigned level )const
+bool 
+function computeNthMoment(land::PersistenceLandscape, unsigned n , center , unsigned level; computeNthMomentDbg = false)
     if n < 1
         println("Cannot compute n-th moment for  n = $(n << ". The program will now terminate")")
         throw("Cannot compute n-th moment. The program will now terminate")
     end
    result = 0
     if size(land,1) > level
-        for i = 2 : this->land[level].size()-1 
-            if this->land[level][i].first - this->land[level][i-1].first == 0
+        for i = 2 : land.land[level].size()-1 
+            if land.land[level][i].first - this->land[level][i-1].first == 0
                 continue
             end
-            # between this->land[level][i] and this->land[level][i-1] the lambda_level is of the form ax+b. First we need to find a and b.
-            a = (this->land[level][i].second - this->land[level][i-1].second)/(this->land[level][i].first - this->land[level][i-1].first)
-            b = this->land[level][i-1].second - a*this->land[level][i-1].first
-            x1 = this->land[level][i-1].first
-            x2 = this->land[level][i].first
+            # between land.land[level][i] and this->land[level][i-1] the lambda_level is of the form ax+b. First we need to find a and b.
+            a = (land.land[level][i].second - this->land[level][i-1].second)/(this->land[level][i].first - this->land[level][i-1].first)
+            b = land.land[level][i-1].second - a*this->land[level][i-1].first
+            x1 = land.land[level][i-1].first
+            x2 = land.land[level][i].first
             #first = b*(pow((x2-center),(double)(n+1))/(n+1)-pow((x1-center),(double)(n+1))/(n+1))
             #second = a/(n+1)*((x2*pow((x2-center),(double)(n+1))) - (x1*pow((x1-center),(double)(n+1))) )
             #               +
@@ -509,38 +463,38 @@ function PersistenceLandscape::computeNthMoment( unsigned n , center , unsigned 
     return result
 end# computeNthMoment
 
-function PersistenceLandscape::testLandscape( PersistenceBarcodes& b )
+function testLandscape(land::PersistenceLandscape, PersistenceBarcodes& b )
     for level = 1 : size(land,1) 
-        for i = 1 : this->land[level].size()-1 
-            if this->land[level][i].second < epsi
+        for i = 1 : land.land[level].size()-1 
+            if land.land[level][i].second < epsi
                 continue
             end
-            # check if over this->land[level][i].first-this->land[level][i].second , this->land[level][i].first+this->land[level][i].second] there are level barcodes.
+            # check if over land.land[level][i].first-this->land[level][i].second , this->land[level][i].first+this->land[level][i].second] there are level barcodes.
             nrOfOverlapping = 0
             for nr = 1 : b.barcodes.size() 
-                if ( b.barcodes[nr].first-epsi <= this->land[level][i].first-this->land[level][i].second
+                if ( b.barcodes[nr].first-epsi <= land.land[level][i].first-this->land[level][i].second
                       &&
-                      ( b.barcodes[nr].second+epsi >= this->land[level][i].first+this->land[level][i].second )
+                      ( b.barcodes[nr].second+epsi >= land.land[level][i].first+this->land[level][i].second )
                    )
                     ++nrOfOverlapping
                 end
             end
             if nrOfOverlapping != level+1
                 println("We have a problem :")
-                println("this->land[level][i].first : $(this->land[level][i].first)")
-                println("this->land[level][i].second : $(this->land[level][i].second)")
-                println("[$(this->land[level][i].first-this->land[level][i].second) $(this->land[level][i].first+this->land[level][i].second)]")
+                println("land.land[level][i].first : $(this->land[level][i].first)")
+                println("land.land[level][i].second : $(this->land[level][i].second)")
+                println("[$(land.land[level][i].first-this->land[level][i].second) $(this->land[level][i].first+this->land[level][i].second)]")
                 println("level : $(level) , nrOfOverlapping: $(nrOfOverlapping)")
                 # getchar()
                 for nr = 1 : b.barcodes.size() 
-                    if ( b.barcodes[nr].first <= this->land[level][i].first-this->land[level][i].second
+                    if ( b.barcodes[nr].first <= land.land[level][i].first-this->land[level][i].second
                           &&
-                          ( b.barcodes[nr].second >= this->land[level][i].first+this->land[level][i].second )
+                          ( b.barcodes[nr].second >= land.land[level][i].first+this->land[level][i].second )
                        )
                         println("($(b.barcodes[nr].first) $(b.barcodes[nr].second))")
                     end
-                    # this->printToFiles("out")
-                    # this->generateGnuplotCommandToPlot("out")
+                    # land.printToFiles("out")
+                    # land.generateGnuplotCommandToPlot("out")
                     # # getchar();getchar();getchar()
                 end
             end
@@ -550,7 +504,7 @@ function PersistenceLandscape::testLandscape( PersistenceBarcodes& b )
 end
 
 computeLandscapeOnDiscreteSetOfPointsDBG = false
-function PersistenceLandscape::computeLandscapeOnDiscreteSetOfPoints( PersistenceBarcodes& b ,dx )
+function computeLandscapeOnDiscreteSetOfPoints(land::PersistenceLandscape, PersistenceBarcodes& b ,dx )
      pair miMa = b.minMax()
     bmin = miMa.first
     bmax = miMa.second
@@ -614,53 +568,53 @@ function PersistenceLandscape::computeLandscapeOnDiscreteSetOfPoints( Persistenc
      for  dim = 0 : indexOfLastNonzeroLandscape 
          land[dim].push_back( make_pair( INT_MAX,0 ) )
      end
-     this->land.clear()
-     this->land.swap(land)
-     this->reduceAlignedPoints()
+     land.land.clear()
+     land.land.swap(land)
+     land.reduceAlignedPoints()
 end
 
 bool multiplyByIndicatorFunctionBDG = false
-function PersistenceLandscape::multiplyByIndicatorFunction( vector<pair > indicator )const
+function multiplyByIndicatorFunction(land::PersistenceLandscape, vector<pair > indicator )const
     PersistenceLandscape result
     for dim = 0 : size(land,1) 
         if(multiplyByIndicatorFunctionBDG)println("dim : $(dim)")end
         vector< pair > lambda_n
-        lambda_n.push_back( make_pair( 0 , INT_MIN ) )
+        push!(lambda_n,  make_pair( 0 , INT_MIN ) )
         if indicator.size() > dim
             if (multiplyByIndicatorFunctionBDG)
                 println("There is nonzero indicator in this dimension")
                 println("[ $(indicator[dim].first) $(indicator[dim].second)]")
             end
-            for nr = 0 : this->land[dim].size() 
+            for nr = 0 : land.land[dim].size() 
                 if (multiplyByIndicatorFunctionBDG)
-                    cout << "this->land[dim][nr] : $(this->land[dim][nr].first) $(this->land[dim][nr].second)"
+                    cout << "land.land[dim][nr] : $(this->land[dim][nr].first) $(this->land[dim][nr].second)"
                 end
-                if this->land[dim][nr].first < indicator[dim].first
+                if land.land[dim][nr].first < indicator[dim].first
                     if (multiplyByIndicatorFunctionBDG)
                         cout << "Below treshold"
                     end
                     continue
                 end
-                if this->land[dim][nr].first > indicator[dim].second
+                if land.land[dim][nr].first > indicator[dim].second
                     if (multiplyByIndicatorFunctionBDG)println("Just pass above treshold")end
-                    lambda_n.push_back( make_pair( indicator[dim].second , functionValue ( this->land[dim][nr-1] , this->land[dim][nr] , indicator[dim].second ) ) )
-                    lambda_n.push_back( make_pair( indicator[dim].second , 0 ) )
+                    push!(lambda_n,  make_pair( indicator[dim].second , functionValue ( land.land[dim][nr-1] , this->land[dim][nr] , indicator[dim].second ) ) )
+                    push!(lambda_n,  make_pair( indicator[dim].second , 0 ) )
                     break
                 end
-                if (this->land[dim][nr].first >= indicator[dim].first) && (this->land[dim][nr-1].first <= indicator[dim].first)
+                if (land.land[dim][nr].first >= indicator[dim].first) && (this->land[dim][nr-1].first <= indicator[dim].first)
                     if (multiplyByIndicatorFunctionBDG)
                         cout << "Entering the indicator"
                     end
-                    lambda_n.push_back( make_pair( indicator[dim].first , 0 ) )
-                    lambda_n.push_back( make_pair( indicator[dim].first , functionValue(this->land[dim][nr-1],this->land[dim][nr],indicator[dim].first) ) )
+                    push!(lambda_n,  make_pair( indicator[dim].first , 0 ) )
+                    push!(lambda_n,  make_pair( indicator[dim].first , functionValue(land.land[dim][nr-1],this->land[dim][nr],indicator[dim].first) ) )
                 end
                 if (multiplyByIndicatorFunctionBDG)
                     cout << "We are here"
                 end
-                lambda_n.push_back( make_pair( this->land[dim][nr].first , this->land[dim][nr].second ) )
+                push!(lambda_n,  make_pair( land.land[dim][nr].first , this->land[dim][nr].second ) )
             end
         end
-        lambda_n.push_back( make_pair( 0 , INT_MIN ) )
+        push!(lambda_n,  make_pair( 0 , INT_MIN ) )
         if lambda_n.size() > 2
             result.land.push_back( lambda_n )
         end
@@ -668,102 +622,18 @@ function PersistenceLandscape::multiplyByIndicatorFunction( vector<pair > indica
     return result
 end
 
-# ===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-
-# File operations >>>
-function PersistenceLandscape::printToFiles( char* filename , from::UInt, unsigned to )const
-    if ( from > to )throw("Error printToFiles printToFile( char* filename , from::UInt, unsigned to ). 'from' cannot be greater than 'to'.")
-    # if ( to > size(land,1) )throw("Error in printToFiles( char* filename , from::UInt, unsigned to ). 'to' is out of range.")
-    if ( to > size(land,1) )to = size(land,1);end
-    ofstream write
-    for dim = from :to 
-        ostringstream name
-        name << filename << "_" << dim << ".dat"
-        string fName = name.str()
-        char* FName = fName.c_str()
-        write.open(FName)
-        write << "#lambda_" << dim
-        for i = 1 : this->land[dim].size()-1 
-            write << this->land[dim][i].first << "  " << this->land[dim][i].second
-        end
-        write.close()
-    end
-end
-
-function PersistenceLandscape::printToFiles( char* filename, int numberOfElementsLater ,  ... )const
-  va_list arguments
-  va_start ( arguments, numberOfElementsLater )
-  ofstream write
-  for ( int x = 0; x < numberOfElementsLater; x++ )
-       dim = va_arg ( arguments, unsigned )
-       if ( dim > size(land,1) )throw("In function generateGnuplotCommandToPlot(char* filename,int numberOfElementsLater,  ... ), one of the number provided is greater than number of nonzero landscapes")
-        ostringstream name
-       name << filename << "_" << dim << ".dat"
-       string fName = name.str()
-       char* FName = fName.c_str()
-       write.open(FName)
-       write << "#lambda_" << dim
-       for i = 1 : this->land[dim].size()-1 
-           write << this->land[dim][i].first << "  " << this->land[dim][i].second
-       end
-       write.close()
-  end
-  va_end ( arguments )
-end
-
-function PersistenceLandscape::printToFiles( char* filename )const
-    this->printToFiles(filename , (unsigned)0 , (unsigned)size(land,1) )
-end
-
-function PersistenceLandscape::printToFile( char* filename , from::UInt, unsigned to )const
-    if ( from > to )throw("Error in printToFile( char* filename , from::UInt, unsigned to ). 'from' cannot be greater than 'to'.")
-    if ( to > size(land,1) )throw("Error in printToFile( char* filename , from::UInt, unsigned to ). 'to' is out of range.")
-    ofstream write
-    write.open(filename)
-    write << this->dimension
-    for dim = from : to 
-        write << "#lambda_" << dim
-        for i = 1 : this->land[dim].size()-1 
-            write << this->land[dim][i].first << "  " << this->land[dim][i].second
-        end
-    end
-    write.close()
-end
-
-function PersistenceLandscape::printToFile( char* filename  )const
-    this->printToFile(filename,0,size(land,1))
-end
-
-# ===-===-===-===-
-# GNUplots >>>
-# function PersistenceLandscape::generateGnuplotCommandToPlot( char* filename, from::UInt, unsigned to )const
-#     # function body removed
-# end
-#
-# function PersistenceLandscape::generateGnuplotCommandToPlot(char* filename,int numberOfElementsLater,  ... )const
-#     # function body removed
-# end
-#
-# function PersistenceLandscape::generateGnuplotCommandToPlot( char* filename )const
-#     # function body removed
-# end
-
-# GNUplots <<<
-# ===-===-===-===-
-
-# File operations <<<
-# ===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-
 
 # constructor
 PersistenceLandscape(land::PersistenceLandscape, PersistenceLandscape& oryginal)
     # println("Running copy constructor")
-    this->dimension = oryginal.dimension
+    land.dimension = oryginal.dimension
     vector< vector< std::pair > > land( oryginal.land.size() )
     for i = 0 : oryginal.land.size() 
         land[i].insert( land[i].end() , oryginal.land[i].begin() , oryginal.land[i].end() )
     end
     # CHANGE
-    # this->land = land
-    this->land.swap(land)
+    # land.land = land
+    land.land.swap(land)
 end
 
 
@@ -790,7 +660,7 @@ PersistenceLandscape(land::PersistenceLandscape,  PersistenceBarcodes& p )
             println("PL version")
         end
         # this is a general algorithm to construct persistence landscapes.
-        this->dimension = p.dimensionOfBarcode
+        land.dimension = p.dimensionOfBarcode
         vector< pair > bars
         bars.insert( bars.begin() , p.barcodes.begin() , p.barcodes.end() )
         sort( bars.begin() , bars.end() , comparePoints2 )
@@ -814,9 +684,9 @@ PersistenceLandscape(land::PersistenceLandscape,  PersistenceBarcodes& p )
                 cin.ignore()
             end
             vector< pair > lambda_n
-            lambda_n.push_back( make_pair( INT_MIN , 0 ) )
-            lambda_n.push_back( make_pair(birth(characteristicPoints[0]),0) )
-            lambda_n.push_back( characteristicPoints[0] )
+            push!(lambda_n,  make_pair( INT_MIN , 0 ) )
+            push!(lambda_n,  make_pair(birth(characteristicPoints[0]),0) )
+            push!(lambda_n,  characteristicPoints[0] )
             if (dbg)
                 println("1 Adding to lambda_n : ($(make_pair( INT_MIN , 0 ))) , ($(std::make_pair(birth(characteristicPoints[0]),0)) $(characteristicPoints[0]))")")
             end
@@ -827,7 +697,7 @@ PersistenceLandscape(land::PersistenceLandscape,  PersistenceBarcodes& p )
                 if birth(characteristicPoints[i]) >= birth(lambda_n[lambda_n.size()-1])) && (death(characteristicPoints[i]) > death(lambda_n[lambda_n.size()-1])
                     if birth(characteristicPoints[i]) < death(lambda_n[lambda_n.size()-1])
                         po::MyPairint = make_pair( (birth(characteristicPoints[i])+death(lambda_n[lambda_n.size()-1]))/2 , (death(lambda_n[lambda_n.size()-1])-birth(characteristicPoints[i]))/2 )
-                        lambda_n.push_back( point )
+                        push!(lambda_n,  point )
                         if (dbg)
                             println("2 Adding to lambda_n : ($(point))")
                         end
@@ -839,19 +709,19 @@ PersistenceLandscape(land::PersistenceLandscape,  PersistenceBarcodes& p )
                         end
 
                         while ( (i+p < characteristicPoints.size() ) && ( almostEqual(birth(point),birth(characteristicPoints[i+p])) ) && ( death(point) <= death(characteristicPoints[i+p]) ) )
-                            newCharacteristicPoints.push_back( characteristicPoints[i+p] )
+                            push!(newCharacteristicPoints,  characteristicPoints[i+p] )
                             if (dbg)
                                 println("3.5 Adding to newCharacteristicPoints : ($(characteristicPoints[i+p]))")
                                 # getchar()
                             end
                             ++p
                         end
-                        newCharacteristicPoints.push_back( point )
+                        push!(newCharacteristicPoints,  point )
                         if (dbg)
                             println("4 Adding to newCharacteristicPoints : ($(point))")
                         end
                         while ( (i+p < characteristicPoints.size() ) && ( birth(point) <= birth(characteristicPoints[i+p]) ) && (death(point)>=death(characteristicPoints[i+p])) )
-                            newCharacteristicPoints.push_back( characteristicPoints[i+p] )
+                            push!(newCharacteristicPoints,  characteristicPoints[i+p] )
                             if (dbg)
                                 println("characteristicPoints[i+p] : $(characteristicPoints[i+p])")
                                 println("point : $(point)")
@@ -864,27 +734,27 @@ PersistenceLandscape(land::PersistenceLandscape,  PersistenceBarcodes& p )
                             ++p
                         end
                     else
-                        lambda_n.push_back( make_pair( death(lambda_n[lambda_n.size()-1]) , 0 ) )
-                        lambda_n.push_back( make_pair( birth(characteristicPoints[i]) , 0 ) )
+                        push!(lambda_n,  make_pair( death(lambda_n[lambda_n.size()-1]) , 0 ) )
+                        push!(lambda_n,  make_pair( birth(characteristicPoints[i]) , 0 ) )
                         if (dbg)
                             println("5 Adding to lambda_n : ($(make_pair( death(lambda_n[lambda_n.size()-1]) , 0 )))")
                             println("5 Adding to lambda_n : ($(make_pair( birth(characteristicPoints[i]) , 0 )))")
                         end
                     end
-                    lambda_n.push_back( characteristicPoints[i] )
+                    push!(lambda_n,  characteristicPoints[i] )
                     if (dbg)
                         println("6 Adding to lambda_n : ($(characteristicPoints[i]))")
                     end
                 else
-                    newCharacteristicPoints.push_back( characteristicPoints[i] )
+                    push!(newCharacteristicPoints,  characteristicPoints[i] )
                     if (dbg)
                         println("7 Adding to newCharacteristicPoints : ($(characteristicPoints[i]))")
                     end
                 end
                 i = i+p
             end
-            lambda_n.push_back( make_pair(death(lambda_n[lambda_n.size()-1]),0) )
-            lambda_n.push_back( make_pair( INT_MAX , 0 ) )
+            push!(lambda_n,  make_pair(death(lambda_n[lambda_n.size()-1]),0) )
+            push!(lambda_n,  make_pair( INT_MAX , 0 ) )
             # CHANGE
             characteristicPoints = newCharacteristicPoints
             # characteristicPoints.swap(newCharacteristicPoints)
@@ -895,39 +765,39 @@ PersistenceLandscape(land::PersistenceLandscape,  PersistenceBarcodes& p )
 				println("Constructing persistence landscape based on a grid";# getchar())
         # in this case useGridInComputations is true, therefore we will build a landscape on a grid.
         externgridDiameter
-        this->dimension = p.dimensionOfBarcode
+        land.dimension = p.dimensionOfBarcode
         pair minMax = p.minMax()
          numberOfBins = 2*((minMax.second - minMax.first)/gridDiameter)+1
         # first element of a pa::MyPairir<, vector<double> > is a x-value. Second element is a vector of values of landscapes.
         vector< pair<, std::vector<double> > > criticalValuesOnPointsOfGrid(numberOfBins)
         # filling up the bins:
-        # Now, the idea is to iterate on this->land[lambda-1] and use only points over there. The problem is at the very beginning, when there is nothing
-        # in this->land. That is why over here, we make a fate this->land[0]. It will be later deteted before moving on.
+        # Now, the idea is to iterate on land.land[lambda-1] and use only points over there. The problem is at the very beginning, when there is nothing
+        # in land.land. That is why over here, we make a fate this->land[0]. It will be later deteted before moving on.
         vector< pair > aa
-        aa.push_back( make_pair( INT_MIN , 0 ) )
+        push!(aa,  make_pair( INT_MIN , 0 ) )
         x = minMax.first
         for i = 0 : numberOfBins 
             vector<double> v
             pair<, vector<double> > p = std::make_pair( x , v )
-            aa.push_back( make_pair( x , 0 ) )
+            push!(aa,  make_pair( x , 0 ) )
             criticalValuesOnPointsOfGrid[i] = p
             if dbg
 				println("x : $(x)")
             x += 0.5*gridDiameter
         end
-        aa.push_back( make_pair( INT_MAX , 0 ) )
+        push!(aa,  make_pair( INT_MAX , 0 ) )
         if dbg
 				println("Grid has been created. Now, begin to add intervals")
         # for every peristent interval
-        for intervalNo = 0 : p.size() 
+        forervalNo = 0 : p.size() 
              beginn = ()(2*( p.barcodes[intervalNo].first-minMax.first )/( gridDiameter ))+1
             if dbg
 				println("We are considering interval : [$(p.barcodes[intervalNo].first),$(p.barcodes[intervalNo].second) $(beginn) in the grid")")
             while ( criticalValuesOnPointsOfGrid[beginn].first < p.barcodes[intervalNo].second )
                 if dbg
-                    println("Adding a value : ($(criticalValuesOnPointsOfGrid[beginn].first) $(min( fabs(criticalValuesOnPointsOfGrid[beginn].first-p.barcodes[intervalNo].first) ,fabs(criticalValuesOnPointsOfGrid[beginn].first-p.barcodes[intervalNo].second) ))) ")
+                    println("Adding a value : ($(criticalValuesOnPointsOfGrid[beginn].first) $(min( abs(criticalValuesOnPointsOfGrid[beginn].first-p.barcodes[intervalNo].first) ,abs(criticalValuesOnPointsOfGrid[beginn].first-p.barcodes[intervalNo].second) ))) ")
                 end
-                criticalValuesOnPointsOfGrid[beginn].second.push_back(min( fabs(criticalValuesOnPointsOfGrid[beginn].first-p.barcodes[intervalNo].first) ,fabs(criticalValuesOnPointsOfGrid[beginn].first-p.barcodes[intervalNo].second) ) )
+                criticalValuesOnPointsOfGrid[beginn].second.push_back(min( abs(criticalValuesOnPointsOfGrid[beginn].first-p.barcodes[intervalNo].first) ,abs(criticalValuesOnPointsOfGrid[beginn].first-p.barcodes[intervalNo].second) ) )
                 ++beginn
             end
         end
@@ -953,33 +823,33 @@ PersistenceLandscape(land::PersistenceLandscape,  PersistenceBarcodes& p )
             if dbg
 				println("Constructing lambda_$(lambda)")
             vector< pair >  nextLambbda
-            nextLambbda.push_back( make_pair(INT_MIN,0) )
+            push!(nextLambbda,  make_pair(INT_MIN,0) )
             # for every element in the domain for which the previous landscape is nonzero.
             bool wasPrevoiusStepZero = true
              nr = 1
-            while (  nr < this->land[ size(land,1)-1 ].size()-1 )
+            while (  nr < land.land[ size(land,1)-1 ].size()-1 )
                 if (dbg) println("nr : $(nr)")
-                 address = ()(2*( this->land[ size(land,1)-1 ][nr].first-minMax.first )/( gridDiameter ))
+                 address = ()(2*( land.land[ size(land,1)-1 ][nr].first-minMax.first )/( gridDiameter ))
                 if dbg
-                    println("We are considering the element x : $(this->land[ size(land,1)-1 ][nr].first). Its position in the structure is : $(address)")
+                    println("We are considering the element x : $(land.land[ size(land,1)-1 ][nr].first). Its position in the structure is : $(address)")
                 end
                 if  criticalValuesOnPointsOfGrid[address].second.size() <= lambda 
                     if (!wasPrevoiusStepZero)
                         wasPrevoiusStepZero = true
                         if dbg
 				println("AAAdding : ($(criticalValuesOnPointsOfGrid[address].first) $(0)) to lambda_$(lambda;# getchar())")
-                        nextLambbda.push_back( make_pair( criticalValuesOnPointsOfGrid[address].first , 0 ) )
+                        push!(nextLambbda,  make_pair( criticalValuesOnPointsOfGrid[address].first , 0 ) )
                     end
                 else
                      if wasPrevoiusStepZero
                          if dbg
 				println("Adding : ($(criticalValuesOnPointsOfGrid[address-1].first) $(0)) to lambda_$(lambda;# getchar())")
-                         nextLambbda.push_back( make_pair( criticalValuesOnPointsOfGrid[address-1].first , 0 ) )
+                         push!(nextLambbda,  make_pair( criticalValuesOnPointsOfGrid[address-1].first , 0 ) )
                          wasPrevoiusStepZero = false
                      end
                      if dbg
 				println("AAdding : ($(criticalValuesOnPointsOfGrid[address].first) $(criticalValuesOnPointsOfGrid[address].second[lambda])) to lambda_$(lambda;# getchar())")
-                     nextLambbda.push_back( make_pair( criticalValuesOnPointsOfGrid[address].first , criticalValuesOnPointsOfGrid[address].second[lambda] ) )
+                     push!(nextLambbda,  make_pair( criticalValuesOnPointsOfGrid[address].first , criticalValuesOnPointsOfGrid[address].second[lambda] ) )
                 end
                 ++nr
             end
@@ -987,21 +857,21 @@ PersistenceLandscape(land::PersistenceLandscape,  PersistenceBarcodes& p )
 				println("Done with : lambda_$(lambda;# getchar();getchar();getchar())")
             if lambda == 0
                 # removing the first, fake, landscape
-                this->land.clear()
+                land.land.clear()
             end
-            nextLambbda.push_back( make_pair(INT_MAX,0) )
+            push!(nextLambbda,  make_pair(INT_MAX,0) )
             nextLambbda.erase( unique( nextLambbda.begin(), nextLambbda.end() ), nextLambbda.end() )
             push!(land, nextLambbda )
         end
     end
 end
 
-function PersistenceLandscape::computeIntegralOfLandscape()const
+function computeIntegralOfLandscape(land::PersistenceLandscape,)const
    result = 0
     for i = 0 : size(land,1) 
-        for nr = 2 : this->land[i].size()-1 
+        for nr = 2 : land.land[i].size()-1 
             # it suffices to compute every planar integral and then sum them ap for each lambda_n
-            result += 0.5*( this->land[i][nr].first - this->land[i][nr-1].first )*(this->land[i][nr].second + this->land[i][nr-1].second)
+            result += 0.5*( land.land[i][nr].first - this->land[i][nr-1].first )*(this->land[i][nr].second + this->land[i][nr-1].second)
         end
     end
     return result
@@ -1019,22 +889,22 @@ pair computeParametersOfALine( p1::MyPair , std::p2::MyPair )
 end
 
 bool computeIntegralOfLandscapeDbg = false
-function PersistenceLandscape::computeIntegralOfLandscape( p::Float64 )const
+function computeIntegralOfLandscape(land::PersistenceLandscape, p::Float64 )const
    result = 0
     for i = 0 : size(land,1) 
-        for nr = 2 : this->land[i].size()-1 
+        for nr = 2 : land.land[i].size()-1 
             if (computeIntegralOfLandscapeDbg)println("nr : $(nr)")
             # In this interval, the landscape has a form f(x) = ax+b. We want to compute integral of (ax+b)^p = 1/a * (ax+b)^p+1end/(p+1)
-            pair coef = computeParametersOfALine( this->land[i][nr] , this->land[i][nr-1] )
+            pair coef = computeParametersOfALine( land.land[i][nr] , this->land[i][nr-1] )
             a = coef.first
             b = coef.second
-            if (computeIntegralOfLandscapeDbg)println("($(this->land[i][nr].first << ",$(this->land[i][nr].second)) , " << this->land[i][nr-1].first) $(this->land[i][nr].second))")")
-            if ( this->land[i][nr].first == this->land[i][nr-1].first )continue
+            if (computeIntegralOfLandscapeDbg)println("($(land.land[i][nr].first << ",$(this->land[i][nr].second)) , " << this->land[i][nr-1].first) $(this->land[i][nr].second))")")
+            if ( land.land[i][nr].first == this->land[i][nr-1].first )continue
             if a != 0
-                result += 1/(a*(p+1)) * ( pow((a*this->land[i][nr].first+b),p+1) - pow((a*this->land[i][nr-1].first+b),p+1))
+                result += 1/(a*(p+1)) * ( pow((a*land.land[i][nr].first+b),p+1) - pow((a*this->land[i][nr-1].first+b),p+1))
             end
             else
-                result += ( this->land[i][nr].first - this->land[i][nr-1].first )*( pow(this->land[i][nr].second,p) )
+                result += ( land.land[i][nr].first - this->land[i][nr-1].first )*( pow(this->land[i][nr].second,p) )
             end
             if computeIntegralOfLandscapeDbg
                 println("a : " <<a << " , b : $(b)")
@@ -1046,13 +916,13 @@ function PersistenceLandscape::computeIntegralOfLandscape( p::Float64 )const
     return result
 end
 
-function PersistenceLandscape::computeIntegralOfLandscapeMultipliedByIndicatorFunction( vector<pair > indicator )const
-    PersistenceLandscape l = this->multiplyByIndicatorFunction(indicator)
+function computeIntegralOfLandscapeMultipliedByIndicatorFunction(land::PersistenceLandscape, vector<pair > indicator )const
+    PersistenceLandscape l = land.multiplyByIndicatorFunction(indicator)
     return l.computeIntegralOfLandscape()
 end
 
-function PersistenceLandscape::computeIntegralOfLandscapeMultipliedByIndicatorFunction( vector<pair > indicator , p::Float64 )const# this function compute integral of p-th power of landscape.
-    PersistenceLandscape l = this->multiplyByIndicatorFunction(indicator)
+function computeIntegralOfLandscapeMultipliedByIndicatorFunction(land::PersistenceLandscape, vector<pair > indicator , p::Float64 )const# this function compute integral of p-th power of landscape.
+    PersistenceLandscape l = land.multiplyByIndicatorFunction(indicator)
     return l.computeIntegralOfLandscape(p)
 end
 
@@ -1063,16 +933,16 @@ end
 unsigned PersistenceLandscape::removePairsOfLocalMaximumMinimumOfEpsPersistence(e::Float64psilon)
     numberOfReducedPairs = 0
     for dim = 0  : size(land,1) 
-        if ( 2 > this->land[dim].size()-3 )continue; #  to make sure that the loop in below is not infinite.
-        for nr = 2 : this->land[dim].size()-3 
-            if fabs(this->land[dim][nr].second - this->land[dim][nr+1].second) < epsilon) && (this->land[dim][nr].second != this->land[dim][nr+1].second
+        if ( 2 > land.land[dim].size()-3 )continue; #  to make sure that the loop in below is not infinite.
+        for nr = 2 : land.land[dim].size()-3 
+            if abs(land.land[dim][nr].second - this->land[dim][nr+1].second) < epsilon) && (this->land[dim][nr].second != this->land[dim][nr+1].second
                 # right now we modify only the lalues of a points. That means that angles of lines in the landscape changes a bit. This is the easiest computational
                 # way of doing this. But I am not sure if this is the best way of doing such a reduction of nonessential critical points. Think about this!
-                if this->land[dim][nr].second < this->land[dim][nr+1].second
-                    this->land[dim][nr].second = this->land[dim][nr+1].second
+                if land.land[dim][nr].second < this->land[dim][nr+1].second
+                    land.land[dim][nr].second = this->land[dim][nr+1].second
                 end
                 else
-                    this->land[dim][nr+1].second = this->land[dim][nr].second
+                    land.land[dim][nr+1].second = this->land[dim][nr].second
                 end
                 ++numberOfReducedPairs
             end
@@ -1082,38 +952,38 @@ unsigned PersistenceLandscape::removePairsOfLocalMaximumMinimumOfEpsPersistence(
 end
 
 # this procedure redue all critical points of low persistence.
-function PersistenceLandscape::reduceAllPairsOfLowPersistenceMaximaMinima(epsilon )
+function reduceAllPairsOfLowPersistenceMaximaMinima(land::PersistenceLandscape,epsilon )
     numberOfReducedPoints = 1
     while ( numberOfReducedPoints )
-        numberOfReducedPoints = this->removePairsOfLocalMaximumMinimumOfEpsPersistence( epsilon )
+        numberOfReducedPoints = land.removePairsOfLocalMaximumMinimumOfEpsPersistence( epsilon )
     end
 end
 
 # It may happened that some landscape points obtained as a aresult of an algorithm lies in a line. In this case, the following procedure allows to
 # remove unnecesary points.
 bool reduceAlignedPointsBDG = false
-function PersistenceLandscape::reduceAlignedPoints(tollerance )# this parapeter says how much the coeficients a and b in a formula y=ax+b may be different to consider points aligned.
+function reduceAlignedPoints(land::PersistenceLandscape,tollerance )# this parapeter says how much the coeficients a and b in a formula y=ax+b may be different to consider points aligned.
     for dim = 0  : size(land,1) 
          nr = 1
         vector< pair > lambda_n
-        lambda_n.push_back( this->land[dim][0] )
-        while ( nr != this->land[dim].size()-2 )
-            # first, compute a and b in formula y=ax+b of a line crossing this->land[dim][nr] and this->land[dim][nr+1].
-            pair res = computeParametersOfALine( this->land[dim][nr] , this->land[dim][nr+1] )
+        push!(lambda_n,  land.land[dim][0] )
+        while ( nr != land.land[dim].size()-2 )
+            # first, compute a and b in formula y=ax+b of a line crossing land.land[dim][nr] and this->land[dim][nr+1].
+            pair res = computeParametersOfALine( land.land[dim][nr] , this->land[dim][nr+1] )
             if reduceAlignedPointsBDG
-                println("Considering points : $(this->land[dim][nr]) and $(this->land[dim][nr+1])")
-                println("Adding : $(this->land[dim][nr] << " to lambda_n.")")
+                println("Considering points : $(land.land[dim][nr]) and $(this->land[dim][nr+1])")
+                println("Adding : $(land.land[dim][nr] << " to lambda_n.")")
             end
-            lambda_n.push_back( this->land[dim][nr] )
+            push!(lambda_n,  land.land[dim][nr] )
             a = res.first
             b = res.second
             int i = 1
-            while ( nr+i != this->land[dim].size()-2 )
+            while ( nr+i != land.land[dim].size()-2 )
                 if reduceAlignedPointsBDG
-                    println("Checking if : $(this->land[dim][nr+i+1] << " is aligned with them ")")
+                    println("Checking if : $(land.land[dim][nr+i+1] << " is aligned with them ")")
                 end
-                pair res1 = computeParametersOfALine( this->land[dim][nr] , this->land[dim][nr+i+1] )
-                if fabs(res1.first-a) < tollerance) && (fabs(res1.second-b)<tollerance
+                pair res1 = computeParametersOfALine( land.land[dim][nr] , this->land[dim][nr+i+1] )
+                if abs(res1.first-a) < tollerance) && (abs(res1.second-b)<tollerance
                     if ( reduceAlignedPointsBDG )println("It is aligned ")end
                     ++i
                 end
@@ -1128,16 +998,16 @@ function PersistenceLandscape::reduceAlignedPoints(tollerance )# this parapeter 
         end
         if reduceAlignedPointsBDG
             println("Out  of main while loop, done with this dimension ")
-            println("Adding : $(this->land[dim][ this->land[dim].size()-2 ] << " to lamnda_n ")")
-            println("Adding : $(this->land[dim][ this->land[dim].size()-1 ] << " to lamnda_n ")")
+            println("Adding : $(land.land[dim][ this->land[dim].size()-2 ] << " to lamnda_n ")")
+            println("Adding : $(land.land[dim][ this->land[dim].size()-1 ] << " to lamnda_n ")")
             cin.ignore()
         end
-        lambda_n.push_back( this->land[dim][ this->land[dim].size()-2 ] )
-        lambda_n.push_back( this->land[dim][ this->land[dim].size()-1 ] )
-        # if something was reduced, then replace this->land[dim] with the new lambda_n.
-        if lambda_n.size() < this->land[dim].size()
+        push!(lambda_n,  land.land[dim][ this->land[dim].size()-2 ] )
+        push!(lambda_n,  land.land[dim][ this->land[dim].size()-1 ] )
+        # if something was reduced, then replace land.land[dim] with the new lambda_n.
+        if lambda_n.size() < land.land[dim].size()
             if lambda_n.size() > 4
-                this->land[dim].swap(lambda_n)
+                land.land[dim].swap(lambda_n)
             end
         end
     end
@@ -1148,7 +1018,7 @@ end
 # The question we are asking here is -- can we remove the point B and draw a line from A to C such that the difference in a landscape will be not greater than epsilon?
 # To measure the penalty of removing B, the funcion penalty. In below, the simplese example is given:
 function penalty(pair A,pair B, std::pair C)
-    return fabs(functionValue(A,C,B.first)-B.second)
+    return abs(functionValue(A,C,B.first)-B.second)
 end# penalty
 bool reducePointsDBG = false
 unsigned PersistenceLandscape::reducePoints(tollerance ,(*penalty)(pair ,pair,std::pair) )
@@ -1156,30 +1026,30 @@ unsigned PersistenceLandscape::reducePoints(tollerance ,(*penalty)(pair ,pair,st
     for dim = 0  : size(land,1) 
          nr = 1
         vector< pair > lambda_n
-        if ( reducePointsDBG )println("Adding point to lambda_n : $(this->land[dim][0])")
-        lambda_n.push_back( this->land[dim][0] )
-        while ( nr <= this->land[dim].size()-2 )
-            if ( reducePointsDBG )println("Adding point to lambda_n : $(this->land[dim][nr])")
-            lambda_n.push_back( this->land[dim][nr] )
-            if penalty( this->land[dim][nr],this->land[dim][nr+1],this->land[dim][nr+2] ) < tollerance
+        if ( reducePointsDBG )println("Adding point to lambda_n : $(land.land[dim][0])")
+        push!(lambda_n,  land.land[dim][0] )
+        while ( nr <= land.land[dim].size()-2 )
+            if ( reducePointsDBG )println("Adding point to lambda_n : $(land.land[dim][nr])")
+            push!(lambda_n,  land.land[dim][nr] )
+            if penalty( land.land[dim][nr],this->land[dim][nr+1],this->land[dim][nr+2] ) < tollerance
                 ++nr
                 ++numberOfPointsReduced
             end
             ++nr
         end
-        if ( reducePointsDBG )println("Adding point to lambda_n : $(this->land[dim][nr])")
-        if ( reducePointsDBG )println("Adding point to lambda_n : " <<this->land[dim][nr])
-        lambda_n.push_back( this->land[dim][ this->land[dim].size()-2 ] )
-        lambda_n.push_back( this->land[dim][ this->land[dim].size()-1 ] )
-        # if something was reduced, then replace this->land[dim] with the new lambda_n.
-        if lambda_n.size() < this->land[dim].size()
+        if ( reducePointsDBG )println("Adding point to lambda_n : $(land.land[dim][nr])")
+        if ( reducePointsDBG )println("Adding point to lambda_n : " <<land.land[dim][nr])
+        push!(lambda_n,  land.land[dim][ this->land[dim].size()-2 ] )
+        push!(lambda_n,  land.land[dim][ this->land[dim].size()-1 ] )
+        # if something was reduced, then replace land.land[dim] with the new lambda_n.
+        if lambda_n.size() < land.land[dim].size()
             if lambda_n.size() > 4
                 # CHANGE
-                # this->land[dim] = lambda_n
-                this->land[dim].swap(lambda_n)
+                # land.land[dim] = lambda_n
+                land.land[dim].swap(lambda_n)
             end
             else
-                this->land[dim].clear()
+                land.land[dim].clear()
             end
         end
     end
@@ -1190,7 +1060,7 @@ function findZeroOfALineSegmentBetweenThoseTwoPoints ( p1::MyPair, p2::MyPair )
     if ( p1.first == p2.first )return p1.first
     if p1.second*p2.second > 0
         ostringstream errMessage
-        errMessage <<"In function findZeroOfALineSegmentBetweenThoseTwoPoints the agguments are: ($(p1.first << ",$(p1.second)) and (" << p2.first) $(p2.second))"). There is no zero in line between those two points. Program terminated."
+        errMessage("In function findZeroOfALineSegmentBetweenThoseTwoPoints the agguments are: ($(p1.first)),$(p1.second)) and ($(p2.first), $(p2.second)). There is no zero in line between those two points. Program terminated.")
         string errMessageStr = errMessage.str()
         char* err = errMessageStr.c_str()
         throw(err)
@@ -1203,53 +1073,53 @@ function findZeroOfALineSegmentBetweenThoseTwoPoints ( p1::MyPair, p2::MyPair )
     return -b/a
 end
 
-# this is O(log(n)) algorithm, where n is number of points in this->land.
+# this is O(log(n)) algorithm, where n is number of points in land.land.
 bool computeValueAtAGivenPointDbg = false
-function PersistenceLandscape::computeValueAtAGivenPoint( level::UInt, x::Float64 )const
+function computeValueAtAGivenPoint(land::PersistenceLandscape, level::UInt, x::Float64 )const
     # in such a case lambda_level = 0.
     if ( level > size(land,1) ) return 0
-    # we know that the points in this->land[level] are ordered according to x coordinate. Therefore, we can find the point by using bisection:
+    # we know that the points in land.land[level] are ordered according to x coordinate. Therefore, we can find the point by using bisection:
     coordBegin = 1
-    coordEnd = this->land[level].size()-2
+    coordEnd = land.land[level].size()-2
     if computeValueAtAGivenPointDbg
         println("Tutaj")
         println("x : $(x)")
-        println("this->land[level][coordBegin].first : $(this->land[level][coordBegin].first)")
-        println("this->land[level][coordEnd].first : $(this->land[level][coordEnd].first)")
+        println("land.land[level][coordBegin].first : $(this->land[level][coordBegin].first)")
+        println("land.land[level][coordEnd].first : $(this->land[level][coordEnd].first)")
     end
     # in this case x is outside the support of the landscape, therefore the value of the landscape is 0.
-    if ( x <= this->land[level][coordBegin].first )return 0
-    if ( x >= this->land[level][coordEnd].first )return 0
+    if ( x <= land.land[level][coordBegin].first )return 0
+    if ( x >= land.land[level][coordEnd].first )return 0
     if (computeValueAtAGivenPointDbg)println("Entering to the while loop")
     while ( coordBegin+1 != coordEnd )
         if (computeValueAtAGivenPointDbg)
             println("coordBegin : $(coordBegin)")
             println("coordEnd : $(coordEnd)")
-            println("this->land[level][coordBegin].first : $(this->land[level][coordBegin].first)")
-            println("this->land[level][coordEnd].first : $(this->land[level][coordEnd].first)")
+            println("land.land[level][coordBegin].first : $(this->land[level][coordBegin].first)")
+            println("land.land[level][coordEnd].first : $(this->land[level][coordEnd].first)")
         end
         newCord = (unsigned)floor((coordEnd+coordBegin)/2.0)
         if (computeValueAtAGivenPointDbg)
             println("newCord : $(newCord)")
-            println("this->land[level][newCord].first : $(this->land[level][newCord].first)")
+            println("land.land[level][newCord].first : $(this->land[level][newCord].first)")
             cin.ignore()
         end
-        if this->land[level][newCord].first <= x
+        if land.land[level][newCord].first <= x
             coordBegin = newCord
-            if ( this->land[level][newCord].first == x )return this->land[level][newCord].second
+            if ( land.land[level][newCord].first == x )return this->land[level][newCord].second
         end
         else
             coordEnd = newCord
         end
     end
     if (computeValueAtAGivenPointDbg)
-        println("x : $(x) is between : $(this->land[level][coordBegin].first) $(this->land[level][coordEnd].first))")
-        println("the y coords are : $(this->land[level][coordBegin].second) $(this->land[level][coordEnd].second)")
+        println("x : $(x) is between : $(land.land[level][coordBegin].first) $(this->land[level][coordEnd].first))")
+        println("the y coords are : $(land.land[level][coordBegin].second) $(this->land[level][coordEnd].second)")
         println("coordBegin : $(coordBegin)")
         println("coordEnd : $(coordEnd)")
         cin.ignore()
     end
-    return functionValue( this->land[level][coordBegin] , this->land[level][coordEnd] , x )
+    return functionValue( land.land[level][coordBegin] , this->land[level][coordEnd] , x )
 end
 
 ostream& operator<<(ostream& out,land::PersistenceLandscape)
@@ -1271,10 +1141,10 @@ ostream& operator<<(ostream& out,land::PersistenceLandscape)
     return out
 end
 
-function PersistenceLandscape::multiplyLanscapeByRealNumberOverwrite( x::Float64 )
+function multiplyLanscapeByRealNumberOverwrite(land::PersistenceLandscape, x::Float64 )
     for dim = 0 : size(land,1) 
-        for i = 0 : this->land[dim].size() 
-             this->land[dim][i].second *= x
+        for i = 0 : land.land[dim].size() 
+             land.land[dim][i].second *= x
         end
     end
 end
@@ -1285,28 +1155,28 @@ PersistenceLandscape PersistenceLandscape::abs()
     for level = 0 : size(land,1) 
         if ( AbsDbg ) println("level: $(level)") end
         vector< pair > lambda_n
-        lambda_n.push_back( make_pair( INT_MIN , 0 ) )
-        for i = 1 : this->land[level].size() 
-            if ( AbsDbg )println("this->land[$(level) $(i)] : $(this->land[level][i])")end
-            # if a line segment between this->land[level][i-1] and this->land[level][i] crosses the x-axis, then we have to add one landscape point t oresult
-            if (this->land[level][i-1].second)*(this->land[level][i].second)  < 0
-               zero = findZeroOfALineSegmentBetweenThoseTwoPoints( this->land[level][i-1] , this->land[level][i] )
-                lambda_n.push_back( make_pair(zero , 0) )
-                lambda_n.push_back( make_pair(this->land[level][i].first , fabs(this->land[level][i].second)) )
+        push!(lambda_n,  make_pair( INT_MIN , 0 ) )
+        for i = 1 : land.land[level].size() 
+            if ( AbsDbg )println("land.land[$(level) $(i)] : $(this->land[level][i])")end
+            # if a line segment between land.land[level][i-1] and this->land[level][i] crosses the x-axis, then we have to add one landscape point t oresult
+            if (land.land[level][i-1].second)*(this->land[level][i].second)  < 0
+               zero = findZeroOfALineSegmentBetweenThoseTwoPoints( land.land[level][i-1] , this->land[level][i] )
+                push!(lambda_n,  make_pair(zero , 0) )
+                push!(lambda_n,  make_pair(land.land[level][i].first , abs(this->land[level][i].second)) )
                 if AbsDbg
                     println("Adding pair : ($(zero << ",0)")")
-                    println("In the same step adding pair : ($(this->land[level][i].first) $(fabs(this->land[level][i].second))) ")
+                    println("In the same step adding pair : ($(land.land[level][i].first) $(abs(this->land[level][i].second))) ")
                     cin.ignore()
                 end
             else
-                lambda_n.push_back( make_pair(this->land[level][i].first , fabs(this->land[level][i].second)) )
+                push!(lambda_n,  make_pair(land.land[level][i].first , abs(this->land[level][i].second)) )
                 if AbsDbg
-                    println("Adding pair : ($(this->land[level][i].first) $(fabs(this->land[level][i].second))) ")
+                    println("Adding pair : ($(land.land[level][i].first) $(abs(this->land[level][i].second))) ")
                     cin.ignore()
                 end
             end
         end
-        result.land.push_back( lambda_n )
+        push!(result_land,  lambda_n )
     end
     return result
 end
@@ -1314,26 +1184,29 @@ end
 PersistenceLandscape PersistenceLandscape::multiplyLanscapeByRealNumberNotOverwrite(x )const
     vector< std::vector< std::pair > > result(size(land,1))
     for dim = 0 : size(land,1) 
-        vector< std::pair > lambda_dim( this->land[dim].size() )
-        for i = 0 : this->land[dim].size() 
-            lambda_dim[i] = make_pair( this->land[dim][i].first , x*this->land[dim][i].second )
+        vector< std::pair > lambda_dim( land.land[dim].size() )
+        for i = 0 : land.land[dim].size() 
+            lambda_dim[i] = make_pair( land.land[dim][i].first , x*this->land[dim][i].second )
         end
         result[dim] = lambda_dim
     end
     PersistenceLandscape res
-    res.dimension = this->dimension
+    res.dimension = land.dimension
     # CHANGE
     # res.land = result
     res.land.swap(result)
     return res
 end# multiplyLanscapeByRealNumberOverwrite
 
-bool operationOnPairOfLandscapesDBG = false
-function operationOnPairOfLandscapes ( land1::PersistenceLandscape, land2::PersistenceLandscape,(*oper)()::PersistenceLandscape)
-    if ( operationOnPairOfLandscapesDBG )println("operationOnPairOfLandscapes";std::cin.ignore())end
+function operationOnPairOfLandscapes ( land1::PersistenceLandscape, land2::PersistenceLandscape, oper; operationOnPairOfLandscapesDBG = false)
+    operationOnPairOfLandscapesDBG && println("operationOnPairOfLandscapes")
+
     PersistenceLandscape result
+    pairs_for_result = MyPair[]
+
     vector< std::vector< std::pair > > land( std::max( land1.land.size() , land2.land.size() ) )
     result.land = land
+
     for i = 0 : min( land1.land.size() , land2.land.size() ) 
         vector< std::pair > lambda_n
         int p = 0
@@ -1351,7 +1224,7 @@ function operationOnPairOfLandscapes ( land1::PersistenceLandscape, land2::Persi
                     println(" functionValue(land2.land[i][q-1],land2.land[i][q],land1.land[i][p].first) : "<<  functionValue(land2.land[i][q-1],land2.land[i][q],land1.land[i][p].first) << "")
                     println("oper( $(land1.land[i][p].second),$(functionValue(land2.land[i][q-1],land2.land[i][q],land1.land[i][p].first)) $(oper( land1.land[i][p].second , functionValue(land2.land[i][q-1],land2.land[i][q],land1.land[i][p].first) ))")
                 end
-                lambda_n.push_back( make_pair( land1.land[i][p].first , oper( land1.land[i][p].second , functionValue(land2.land[i][q-1],land2.land[i][q],land1.land[i][p].first) ) ) )
+                push!(lambda_n,  make_pair( land1.land[i][p].first , oper( land1.land[i][p].second , functionValue(land2.land[i][q-1],land2.land[i][q],land1.land[i][p].first) ) ) )
                 ++p
                 continue
             end
@@ -1361,13 +1234,13 @@ function operationOnPairOfLandscapes ( land1::PersistenceLandscape, land2::Persi
                     println("functionValue("<< land1.land[i][p-1]<<" ,"<< land1.land[i][p]<<", $(land2.land[i][q].first<<" ) : " << functionValue( land1.land[i][p-1] , land1.land[i][p-1] ,land2.land[i][q].first ))")
                     println("oper( $(functionValue( land1.land[i][p] , land1.land[i][p-1] ,land2.land[i][q].first ) <<",$(land2.land[i][q].second) : " << oper( land2.land[i][q].second , functionValue( land1.land[i][p] , land1.land[i][p-1] ,land2.land[i][q].first ) )))")
                 end
-                lambda_n.push_back( make_pair( land2.land[i][q].first , oper( functionValue( land1.land[i][p] , land1.land[i][p-1] ,land2.land[i][q].first ) , land2.land[i][q].second )  )  )
+                push!(lambda_n,  make_pair( land2.land[i][q].first , oper( functionValue( land1.land[i][p] , land1.land[i][p-1] ,land2.land[i][q].first ) , land2.land[i][q].second )  )  )
                 ++q
                 continue
             end
             if land1.land[i][p].first == land2.land[i][q].first
                 if (operationOnPairOfLandscapesDBG)println("Third")
-                lambda_n.push_back( make_pair( land2.land[i][q].first , oper( land1.land[i][p].second , land2.land[i][q].second ) ) )
+                push!(lambda_n,  make_pair( land2.land[i][q].first , oper( land1.land[i][p].second , land2.land[i][q].second ) ) )
                 ++p;++q
             end
             if (operationOnPairOfLandscapesDBG)
@@ -1380,17 +1253,17 @@ function operationOnPairOfLandscapes ( land1::PersistenceLandscape, land2::Persi
             if (operationOnPairOfLandscapesDBG)
                 println("New point : $(land1.land[i][p].first)  oper(land1.land[i][p].second,0) : $( oper(land1.land[i][p].second,0))")
             end
-            lambda_n.push_back( make_pair(land1.land[i][p].first , oper(land1.land[i][p].second,0) ) )
+            push!(lambda_n,  make_pair(land1.land[i][p].first , oper(land1.land[i][p].second,0) ) )
             ++p
         end
         while ( (p+1 >= land1.land[i].size())&&(q+1 < land2.land[i].size()) )
             if (operationOnPairOfLandscapesDBG)
                 println("New point : $(land2.land[i][q].first) oper(0,land2.land[i][q].second) : $( oper(0,land2.land[i][q].second))")
             end
-            lambda_n.push_back( make_pair(land2.land[i][q].first , oper(0,land2.land[i][q].second) ) )
+            push!(lambda_n,  make_pair(land2.land[i][q].first , oper(0,land2.land[i][q].second) ) )
             ++q
         end
-        lambda_n.push_back( make_pair( INT_MAX , 0 ) )
+        push!(lambda_n,  make_pair( INT_MAX , 0 ) )
         # CHANGE
         # result.land[i] = lambda_n
         result.land[i].swap(lambda_n)
@@ -1423,18 +1296,31 @@ function operationOnPairOfLandscapes ( land1::PersistenceLandscape, land2::Persi
     return result
 end# operationOnPairOfLandscapes
 
-function computeMaximalDistanceNonSymmetric( pl1,pl2 , unsigned& nrOfLand , double&x::PersistenceLandscape, double& y1, double& y2::PersistenceLandscape)
+# original function took arguments which were m,odified in the function. Now it returns values required
+# function computeMaximalDistanceNonSymmetric( pl1::PersistenceLandscape, pl2::PersistenceLandscape , nrOfLand::UInt , x::Float64, y1::Float64, y2::Float64)::PersistenceLandscape
+function computeMaximalDistanceNonSymmetric( pl1::PersistenceLandscape, pl2::PersistenceLandscape)# , nrOfLand::UInt , x::Float64, y1::Float64, y2::Float64)
     # this distance is not symmetric. It compute ONLY distance between inflection points of pl1 and pl2.
    maxDist = 0
-    int minimalNumberOfLevels = min( pl1.land.size() , pl2.land.size() )
-    for  int level = 0 : minimalNumberOfLevels 
-        int p2Count = 0
-        for  int i = 1 : pl1.land[level].size()-1  # w tym przypadku nie rozwarzam punktow w nieskocznosci
+    int minimalNumberOfLevels = min( size(pl1.land,1) , pl2.land.size() )
+    for level = 1 : minimalNumberOfLevels 
+        p2Count = 0
+        for i = 1 : size(l1.land[level],1)-1  # w tym przypadku nie rozwarzam punktow w nieskocznosci
             while ( true )
-                if (  (pl1.land[level][i].first>=pl2.land[level][p2Count].first) && (pl1.land[level][i].first<=pl2.land[level][p2Count+1].first)  )break
+                if (
+                    (pl1.land[level][i].first>=pl2.land[level][p2Count].first)
+                    &&
+                    (pl1.land[level][i].first<=pl2.land[level][p2Count+1].first)
+                   )
+                    break
+                end
                 p2Count++
             end
-           val = fabs( functionValue( pl2.land[level][p2Count] , pl2.land[level][p2Count+1] , pl1.land[level][i].first ) - pl1.land[level][i].second)
+           val = abs(
+                     functionValue(pl2.land[level][p2Count],
+                                   pl2.land[level][p2Count+1],
+                                   pl1.land[level][i].first
+                                  ) - pl1.land[level][i].second
+                    )
             # println("functionValue( pl2.land[level][p2Count] , pl2.land[level][p2Count+1] , pl1.land[level][i].first ) : $(functionValue( pl2.land[level][p2Count] , pl2.land[level][p2Count+1] , pl1.land[level][i].first ))")
             # println("pl1.land[level][i].second : $(pl1.land[level][i].second)")
             # println("pl1.land[level][i].first :$(pl1.land[level][i].first)")
@@ -1448,9 +1334,9 @@ function computeMaximalDistanceNonSymmetric( pl1,pl2 , unsigned& nrOfLand , doub
             end
        end
     end
-    if minimalNumberOfLevels < pl1.land.size()
-        for  int level = minimalNumberOfLevels : pl1.land.size() 
-            for  int i = 0 : pl1.land[level].size() 
+    if minimalNumberOfLevels < size(pl1.land,1)
+        for level = minimalNumberOfLevels : size(pl1.land,1)
+            for i = 1 : psize(l1.land[level]) 
                 if maxDist < pl1.land[level][i].second
                     maxDist = pl1.land[level][i].second
                     nrOfLand = level
@@ -1461,16 +1347,17 @@ function computeMaximalDistanceNonSymmetric( pl1,pl2 , unsigned& nrOfLand , doub
             end
         end
     end
-    return maxDist
+    return maxDist, nrOfLand, x, y1, y2
 end
 
-function computeMaxNormDiscanceOfLandscapes( first,second , unsigned& nrOfLand , double&x::PersistenceLandscape, double& y1, double& y2::PersistenceLandscape)
-    unsigned nrOfLandFirst
-   xFirst, y1First, y2First
-   dFirst = computeMaximalDistanceNonSymmetric(first,second,nrOfLandFirst,xFirst, y1First, y2First)
-    unsigned nrOfLandSecond
-   xSecond, y1Second, y2Second
-   dSecond = computeMaximalDistanceNonSymmetric(second,first,nrOfLandSecond,xSecond, y1Second, y2Second)
+function computeMaxNormDiscanceOfLandscapes(first, second, nrOfLand , x::Float64, y1::Float64, y2::Float64)::PersistenceLandscape
+
+    dFirst, nrOfLandFirst, xFirst, y1First, y2First = computeMaximalDistanceNonSymmetric(first,second)
+    #,nrOfLandFirst,xFirst, y1First, y2First)
+
+    dSecond, nrOfLandSecond, xSecond, y1Second, y2Second= computeMaximalDistanceNonSymmetric(second,first)
+    #,nrOfLandSecond,xSecond, y1Second, y2Second)
+
     if dFirst > dSecond
         nrOfLand = nrOfLandFirst
         x = xFirst
@@ -1485,108 +1372,152 @@ function computeMaxNormDiscanceOfLandscapes( first,second , unsigned& nrOfLand ,
         # y1 = y1Second
         # y2 = y2Second
     end
-    return max( dFirst , dSecond )
+    return max(dFirst, dSecond)
 end
 
-function computeMaximalDistanceNonSymmetric(pl1, PersistenceLandscape& pl2::PersistenceLandscape)
-    bool dbg = false
-    if (dbg)println(" computeMaximalDistanceNonSymmetric")
+function computeMaximalDistanceNonSymmetric(pl1::PersistenceLandscape, pl2::PersistenceLandscape; dbg = false)
+    dbg && println(" computeMaximalDistanceNonSymmetric")
+
     # this distance is not symmetric. It compute ONLY distance between inflection points of pl1 and pl2.
-   maxDist = 0
-    int minimalNumberOfLevels = min( pl1.land.size() , pl2.land.size() )
-    for  int level = 0 : minimalNumberOfLevels 
+    maxDist = 0
+    minimalNumberOfLevels = min( size(pl1.land) , size(pl2.land))
+    for  level = 1 : minimalNumberOfLevels
         if (dbg)
             println("Level : $(level)")
             println("PL1 :")
-            for  int i = 0 : pl1.land[level].size() 
+            for i = 0 : psize(l1.land[level]) 
                 println("($(pl1.land[level][i].first),$(pl1.land[level][i].second))")
             end
             println("PL2 :")
-            for  int i = 0 : pl2.land[level].size()
+            for i = 0 : psize(l2.land[level])
                 println("($(pl2.land[level][i].first),$(pl2.land[level][i].second))")
             end
-            cin.ignore()
+            # cin.ignore()
         end
-        int p2Count = 0
-        for  int i = 1 : pl1.land[level].size()-1  # w tym przypadku nie rozwarzam punktow w nieskocznosci
+
+        p2Count = 0
+        for i = 1 : size(l1.land[level],1)-1  # w tym przypadku nie rozwarzam punktow w nieskocznosci
             while ( true )
-                if (  (pl1.land[level][i].first>=pl2.land[level][p2Count].first) && (pl1.land[level][i].first<=pl2.land[level][p2Count+1].first)  )break
+                if (pl1.land[level][i].first >= pl2.land[level][p2Count].first)
+                    &&
+                    (pl1.land[level][i].first <= pl2.land[level][p2Count+1].first)
+                    break
+                end
                 p2Count++
             end
-           val = fabs( functionValue( pl2.land[level][p2Count] , pl2.land[level][p2Count+1] , pl1.land[level][i].first ) - pl1.land[level][i].second)
-            if ( maxDist <= val )maxDist = val
+            val = abs(
+                     functionValue(pl2.land[level][p2Count],
+                                   pl2.land[level][p2Count+1],
+                                   pl1.land[level][i].first
+                                  ) - pl1.land[level][i].second
+                    )
+            if maxDist <= val
+                maxDist = val
+            end
+
             if (dbg)
                 println(pl1.land[level][i].first <<"in [$(pl2.land[level][p2Count].first),$( pl2.land[level][p2Count+1].first)]")")
                 println("pl1[level][i].second : $(pl1.land[level][i].second)")
                 println("functionValue( pl2[level][p2Count] , pl2[level][p2Count+1] , pl1[level][i].first ) : $(functionValue( pl2.land[level][p2Count] , pl2.land[level][p2Count+1] , pl1.land[level][i].first ))")
                 println("val : $(val))
-                cin.ignore()
+                # cin.ignore()
             end
         end
     end
-    if (dbg)println("minimalNumberOfLevels : $(minimalNumberOfLevels)")
-    if minimalNumberOfLevels < pl1.land.size()
-        for  int level = minimalNumberOfLevels : pl1.land.size() 
-            for  int i = 0 : pl1.land[level].size() 
-                if (dbg)println("pl1[level][i].second  : $(pl1.land[level][i].second)")
-                if ( maxDist < pl1.land[level][i].second )maxDist = pl1.land[level][i].second
+
+    dbg && println("minimalNumberOfLevels : $(minimalNumberOfLevels)")
+
+    if minimalNumberOfLevels < size(pl1.land,1)
+        for level = minimalNumberOfLevels : size(pl1.land,1)
+            for i = 1 : size(l1.land[level],1)
+                dbg && println("pl1[level][i].second  : $(pl1.land[level][i].second)")
+                if  maxDist < pl1.land[level][i].second
+                    maxDist = pl1.land[level][i].second
+                end
             end
         end
     end
     return maxDist
 end
 
-function computeDiscanceOfLandscapes( first,second::PersistenceLandscape, unsigned p::PersistenceLandscape)
+function computeDiscanceOfLandscapes(first::PersistenceLandscape ,second::PersistenceLandscape, p::UInt)
     # This is what we want to compute: (\int_- \inftyend^+\inftyend| first-second |^p)^(1/p). We will do it one step at a time:
     # first-second :
-    PersistenceLandscape lan = first-second
+    lan = first-second
     # | first-second |:
-    lan = lan.abs()
+    lan = abs(lan)
     # \int_- \inftyend^+\inftyend| first-second |^p
-   result
     if p != 1
-        result = lan.computeIntegralOfLandscape(p)
+        result = computeIntegralOfLandscape(lan, p)
     else
-        result = lan.computeIntegralOfLandscape()
+        result = computeIntegralOfLandscape(lan)
     end
+
     # (\int_- \inftyend^+\inftyend| first-second |^p)^(1/p)
-    return pow( result , 1/(double)p )
+    return result^(1/p )
 end
 
-function computeMaxNormDiscanceOfLandscapes(first, PersistenceLandscape& second::PersistenceLandscape)
-    return max( computeMaximalDistanceNonSymmetric(first,second) , computeMaximalDistanceNonSymmetric(second,first) )
+function computeMaxNormDiscanceOfLandscapes(first::PersistenceLandscape, second::PersistenceLandscape)::PersistenceLandscape
+    @warn "This function may not work, as max is not defined for PersistenceLandscape structure"
+    return max(
+               computeMaximalDistanceNonSymmetric(first,second),
+               computeMaximalDistanceNonSymmetric(second,first)
+              )
 end
 
-function comparePairsForMerging( pair<, unsigned > first , std::pair<, unsigned > second )
+function comparePairsForMerging(first::MyPair, second::MyPair )
     return (first.first < second.first)
 end
 
-function generateBettiNumbersHistogram()::PersistenceLandscape
-    bool dbg = false
-    vector< std::pair<, unsigned > > resultRaw
-    for dim = 0 : size(land,1) 
-        vector< std::pair<, unsigned > > rangeOfLandscapeInThisDimension
+function generateBettiNumbersHistogram(land::PersistenceLandscape ;dbg = false)::PersistenceLandscape
+    resultRaw = MyPair[]
+
+    for dim = 0 : size(land,1)
+        rangeOfLandscapeInThisDimension = MyPair[]
         if dim > 0
-            for i = 1 : this->land[dim].size()-1 
-                if this->land[dim][i].second == 0
-                    rangeOfLandscapeInThisDimension.push_back(make_pair(this->land[dim][i].first , dim+1))
+            for i = 1 :size(land.land[dim])-1 
+                if land.land[dim][i].second == 0
+                    push!(rangeOfLandscapeInThisDimension, make_pair(land.land[dim][i].first , dim+1))
                 end
             end
         else
             # dim == 0.
-            bool first = true
-            for i = 1 : this->land[dim].size()-1 
-                if this->land[dim][i].second == 0
-                    if ( first ) rangeOfLandscapeInThisDimension.push_back(make_pair(this->land[dim][i].first , 0)); end
-                    rangeOfLandscapeInThisDimension.push_back(make_pair(this->land[dim][i].first , dim+1))
-                    if ( !first ) rangeOfLandscapeInThisDimension.push_back(make_pair(this->land[dim][i].first , 0)); end
+            first = true
+            for i = 1 : size(land.land[dim],1)-1
+                if land.land[dim][i].second == 0
+                    if first
+                        push!(rangeOfLandscapeInThisDimension, make_pair(
+                                                                         land.land[dim][i].first,
+                                                                         0)
+                             )
+                    end
+                    push!(rangeOfLandscapeInThisDimension, make_pair(
+                                                                     land.land[dim][i].first,
+                                                                     dim+1)
+                         )
+                    if ( !first )
+                        push!(rangeOfLandscapeInThisDimension, make_pair(
+                                                                         land.land[dim][i].first,
+                                                                         0)
+                             )
+                    end
                     first = !first
                 end
             end
         end
-        vector< std::pair<, unsigned > > resultRawNew( resultRaw.size() + rangeOfLandscapeInThisDimension.size() )
-        merge( resultRaw.begin() , resultRaw.end() , rangeOfLandscapeInThisDimension.begin() , rangeOfLandscapeInThisDimension.end() , resultRawNew.begin() , comparePairsForMerging )
-        resultRaw.swap( resultRawNew )
+        # vector< std::pair<, unsigned > > resultRawNew( resultRaw.size() + rangeOfLandscapeInThisDimension.size() )
+        resultRawNew = MyPair[]
+
+        resultRaw = sort(
+                         vcat(resultRaw.begin(),
+                            resultRaw.end(),
+                            rangeOfLandscapeInThisDimension.begin(),
+                            rangeOfLandscapeInThisDimension.end(),
+                            resultRawNew.begin()
+                        ),
+                        comparePairsForMerging)
+
+        resultRawNew = copy(resultRaw)
         if dbg
             println("Raw result : for dim : $(dim)")
             for i = 0 : resultRaw.size() 
@@ -1602,45 +1533,50 @@ function generateBettiNumbersHistogram()::PersistenceLandscape
         end
         # getchar()
     end
+
     # now we should make it into a step function by adding a points in the jumps:
-    vector< std::pair<, unsigned > > result
-    if ( resultRaw.size() == 0 )return result
-    for i = 1 : resultRaw.size()
-        result.push_back( resultRaw[i-1] )
+    result = MyPair[]
+
+    resultRaw.size() == 0 && return result
+
+    for i = 1 : size(resultRaw)
+        push!(result,  resultRaw[i-1] )
         if resultRaw[i-1].second <= resultRaw[i].second
-            result.push_back( make_pair( resultRaw[i].first , resultRaw[i-1].second ) )
+            push!(result,  make_pair( resultRaw[i].first , resultRaw[i-1].second ) )
         else
-            result.push_back( make_pair( resultRaw[i-1].first , resultRaw[i].second ) )
+            push!(result,  make_pair( resultRaw[i-1].first , resultRaw[i].second ) )
         end
     end
-    result.erase( unique( result.begin(), result.end() ), result.end() )
+    # result.erase( unique( result.begin(), result.end() ), result.end() )
+    result = unique(result)
 
-    vector< std::pair<, unsigned > > resultNew
-     i = 0 
+    resultNew = MyPair[]
+    i = 1
     while ( i != result.size() )
         x = result[i].first
-       maxBetti = result[i].second
-       minBetti = result[i].second
-        while ( (i != result.size()) && (fabs(result[i].first - x) < 0.000001) )
-            if ( maxBetti < result[i].second )maxBetti = result[i].second
-            if ( minBetti > result[i].second )minBetti = result[i].second
+        maxBetti = result[i].second
+        minBetti = result[i].second
+        while ( (i != result.size()) && (abs(result[i].first - x) < 0.000001) )
+            ( maxBetti < result[i].second ) && maxBetti = result[i].second
+            if ( minBetti > result[i].second ) && minBetti = result[i].second
             ++i
         end
         if minBetti != maxBetti
             if (resultNew.size() == 0) || (resultNew[resultNew.size()-1].second <= minBetti)
                 # going up
-                resultNew.push_back( make_pair( x , minBetti ) )
-                resultNew.push_back( make_pair( x , maxBetti ) )
+                push!(resultNew,  make_pair( x , minBetti ) )
+                push!(resultNew,  make_pair( x , maxBetti ) )
             else
                 # going down
-                resultNew.push_back( make_pair( x , maxBetti ) )
-                resultNew.push_back( make_pair( x , minBetti ) )
+                push!(resultNew,  make_pair( x , maxBetti ) )
+                push!(resultNew,  make_pair( x , minBetti ) )
             end
         else
-            resultNew.push_back( make_pair( x , minBetti ) )
+            push!(resultNew,  make_pair( x , minBetti ) )
         end
     end
-    result.swap(resultNew)
+
+    result = resultNew
     if dbg
         println("Final result : ")
         for i = 0 : result.size() 
@@ -1651,51 +1587,39 @@ function generateBettiNumbersHistogram()::PersistenceLandscape
     return result
 end# generateBettiNumbersHistogram
 
-function PersistenceLandscape::printBettiNumbersHistoramIntoFileAndGenerateGnuplotCommand( char* filename )const
-    vector< std::pair<, > > histogram = this->generateBettiNumbersHistogram()
-    ostringstream result
-    for i = 0 : histogram.size() 
-        result << histogram[i].first << " " << histogram[i].second
-    end
-    ofstream write
-    write.open( filename )
-    write << result.str()
-    write.close()
-    println("The result is in the file : $(filename) . Now in gnuplot type plot \"$(filename)\" with lines")
-end# printBettiNumbersHistoramIntoFileAndGenerateGnuplotCommand
 
-function computeInnerProduct( l1::PersistenceLandscape,l2::PersistenceLandscape)
-    bool dbg = true
-   result = 0
-    for level = 0 : min( l1.size() , l2.size() )
-        if dbg
-            println("Computing inner product for a level : $(level;)")
-        # getchar())")
-        end
-        if ( l1.land[level].size() * l2.land[level].size() == 0 )
+function computeInnerProduct(l1::PersistenceLandscape, l2::PersistenceLandscape; dbg = true)
+    result = 0
+    for level = 1 : min( size(l1) , size(l2) )
+        dbg && println("Computing inner product for a level : $(level;)")
+
+        if ( size(l1.land[level]) * size(l2.land[level]) == 0 )
             continue
         end
         # endpoints of the interval on which we will compute the inner product of two locally linear functions:
-       x1 = INT_MIN
-       x2
+        x1 = -Inf
+        x2 = 0;
         if l1.land[level][1].first < l2.land[level][1].first
             x2 = l1.land[level][1].first
         else
             x2 = l2.land[level][1].first
         end
         # iterators for the landscapes l1 and l2
-         l1It = 0
-         l2It = 0
-        while ( (l1It < l1.land[level].size()-1) && (l2It < l2.land[level].size()-1) )
+
+        l1It = 0
+        l2It = 0
+        while ( (l1It < size(l1.land[level])-1) && (l2It < size(l2.land[level])-1) )
             # compute the value of a inner product on a interval [x1,x2]
-           a,b,c,d
             a = (l1.land[level][l1It+1].second - l1.land[level][l1It].second)/(l1.land[level][l1It+1].first - l1.land[level][l1It].first)
+
             b = l1.land[level][l1It].second - a*l1.land[level][l1It].first
+
             c = (l2.land[level][l2It+1].second - l2.land[level][l2It].second)/(l2.land[level][l2It+1].first - l2.land[level][l2It].first)
+
             d = l2.land[level][l2It].second - c*l2.land[level][l2It].first
-            contributionFromThisPart
-            =
-            (a*c*x2*x2*x2/3 + (a*d+b*c)*x2*x2/2 + b*d*x2) - (a*c*x1*x1*x1/3 + (a*d+b*c)*x1*x1/2 + b*d*x1)
+
+            contributionFromThisPart = (a*c*x2*x2*x2/3 + (a*d+b*c)*x2*x2/2 + b*d*x2) - (a*c*x1*x1*x1/3 + (a*d+b*c)*x1*x1/2 + b*d*x1)
+
             result += contributionFromThisPart
             if dbg
                 println("[l1.land[level][l1It].first,l1.land[level][l1It+1].first] : $(l1.land[level][l1It].first), $(l1.land[level][l1It+1].first)")
@@ -1712,6 +1636,7 @@ function computeInnerProduct( l1::PersistenceLandscape,l2::PersistenceLandscape)
             # [l2.land[level][l2It].first , l2.land[level][l2It+1].first]
             # We also have an interval [x1,x2]. Since the intervals in the landscapes cover the whole R, then it is clear that x2
             # is either l1.land[level][l1It+1].first of l2.land[level][l2It+1].first or both. Lets test it.
+
             if x2 == l1.land[level][l1It+1].first
                 if x2 == l2.land[level][l2It+1].first
                     # in this case, we increment both:
@@ -1738,4 +1663,136 @@ function computeInnerProduct( l1::PersistenceLandscape,l2::PersistenceLandscape)
     return result
 end
 
-#endif
+# ===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-
+# File operations >>>
+function printToFiles(land::PersistenceLandscape, char* filename , from::UInt, unsigned to )const
+    if ( from > to )throw("Error printToFiles printToFile( char* filename , from::UInt, unsigned to ). 'from' cannot be greater than 'to'.")
+    # if ( to > size(land,1) )throw("Error in printToFiles( char* filename , from::UInt, unsigned to ). 'to' is out of range.")
+    if ( to > size(land,1) )to = size(land,1);end
+    ofstream write
+    for dim = from :to 
+        ostringstream name
+        name << filename << "_" << dim << ".dat"
+        string fName = name.str()
+        char* FName = fName.c_str()
+        write.open(FName)
+        write << "#lambda_" << dim
+        for i = 1 : land.land[dim].size()-1 
+            write << land.land[dim][i].first << "  " << this->land[dim][i].second
+        end
+        write.close()
+    end
+end
+
+function printToFiles(land::PersistenceLandscape, char* filename, int numberOfElementsLater ,  ... )const
+  va_list arguments
+  va_start ( arguments, numberOfElementsLater )
+  ofstream write
+  for ( int x = 0; x < numberOfElementsLater; x++ )
+       dim = va_arg ( arguments, unsigned )
+       if ( dim > size(land,1) )throw("In function generateGnuplotCommandToPlot(char* filename,int numberOfElementsLater,  ... ), one of the number provided is greater than number of nonzero landscapes")
+        ostringstream name
+       name << filename << "_" << dim << ".dat"
+       string fName = name.str()
+       char* FName = fName.c_str()
+       write.open(FName)
+       write << "#lambda_" << dim
+       for i = 1 : land.land[dim].size()-1 
+           write << land.land[dim][i].first << "  " << this->land[dim][i].second
+       end
+       write.close()
+  end
+  va_end ( arguments )
+end
+
+function printToFiles(land::PersistenceLandscape, char* filename )const
+    land.printToFiles(filename , (unsigned)0 , (unsigned)size(land,1) )
+end
+
+function printToFile(land::PersistenceLandscape, char* filename , from::UInt, unsigned to )const
+    if ( from > to )throw("Error in printToFile( char* filename , from::UInt, unsigned to ). 'from' cannot be greater than 'to'.")
+    if ( to > size(land,1) )throw("Error in printToFile( char* filename , from::UInt, unsigned to ). 'to' is out of range.")
+    ofstream write
+    write.open(filename)
+    write << land.dimension
+    for dim = from : to 
+        write << "#lambda_" << dim
+        for i = 1 : land.land[dim].size()-1 
+            write << land.land[dim][i].first << "  " << this->land[dim][i].second
+        end
+    end
+    write.close()
+end
+
+function printToFile(land::PersistenceLandscape, char* filename  )const
+    land.printToFile(filename,0,size(land,1))
+end
+
+# ===-===-===-===-
+# GNUplots >>>
+# function generateGnuplotCommandToPlot(land::PersistenceLandscape, char* filename, from::UInt, unsigned to )const
+#     # function body removed
+# end
+#
+# function generateGnuplotCommandToPlot(land::PersistenceLandscape,char* filename,int numberOfElementsLater,  ... )const
+#     # function body removed
+# end
+#
+# function generateGnuplotCommandToPlot(land::PersistenceLandscape, char* filename )const
+#     # function body removed
+# end
+
+# GNUplots <<<
+# ===-===-===-===-
+
+function printBettiNumbersHistoramIntoFileAndGenerateGnuplotCommand(land::PersistenceLandscape, char* filename )const
+    vector< std::pair<, > > histogram = land.generateBettiNumbersHistogram()
+    ostringstream result
+    for i = 0 : histogram.size() 
+        result << histogram[i].first << " " << histogram[i].second
+    end
+    ofstream write
+    write.open( filename )
+    write << result.str()
+    write.close()
+    println("The result is in the file : $(filename) . Now in gnuplot type plot \"$(filename)\" with lines")
+end# printBettiNumbersHistoramIntoFileAndGenerateGnuplotCommand
+
+# function plot(land::PersistenceLandscape, char* filename ,  from,  to ,xRangeBegin ,xRangeEnd ,yRangeBegin ,yRangeEnd )
+#
+#     # this program create a gnuplot script file that allows to plot persistence diagram.
+#     ofstream out
+#
+#     ostringstream nameSS
+#     nameSS << filename << "_GnuplotScript"
+#     string nameStr = nameSS.str()
+#     out.open( (char*)nameStr.c_str() )
+#
+#     if (xRangeBegin != -1) || (xRangeEnd != -1) || (yRangeBegin != -1) || (yRangeEnd != -1) 
+#         out << "set xrange [$(xRangeBegin) $(xRangeEnd)]"
+#         out << "set yrange [$(yRangeBegin) $(yRangeEnd)]"
+#     end
+#
+#     if ( from == -1 )from = 0;end
+#     if ( to == -1 )to = size(land,1);end
+#
+#     out << "plot "
+#     for lambda= min(from,size(land,1)) : min(to,size(land,1)) 
+#         out << "     '-' using 1:2 title 'l" << lambda << "' with lp"
+#         if lambda+1 != min(to,size(land,1))
+#             out << ", \\"
+#         end
+#         out
+#     end
+#
+#     for lambda= min(from,size(land,1)) : min(to,size(land,1)) 
+#         for i = 1 : land.land[lambda].size()-1 
+#             out << land.land[lambda][i].first << " " << this->land[lambda][i].second
+#         end
+#         out << "EOF"
+#     end
+#     println("Gnuplot script to visualize persistence diagram written to the file: $(nameStr) $(nameStr)' in gnuplot to visualize.")
+# end
+
+# File operations <<<
+# ===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-
