@@ -408,21 +408,23 @@ function PersistenceLandscape::Base.== (rhs ::PersistenceLandscape)const
         end
         for i = 0 : this->land[level].size() 
             if this->land[level][i] != rhs.land[level][i]
-                if (operatorEqualDbg)println("this->land[level][i] : $(this->land[level][i])")
-                if (operatorEqualDbg)println("rhs.land[level][i] : $(rhs.land[level][i])")
-                if (operatorEqualDbg)println("3")
-                return false;
+                if (operatorEqualDbg)
+                    println("this->land[level][i] : $(this->land[level][i])")
+                    println("rhs.land[level][i] : $(rhs.land[level][i])")
+                    println("3")
+                end
+                return false
             end
         end
     end
-    return true;
+    return true
 end
 
 # this function find maximum of lambda_n
 function PersistenceLandscape::findMax( unsigned lambda )const
     if ( size(land,1) < lambda )return 0;
     m::Float64aximum = INT_MIN;
-    for i = 0 : this->land[lambda].size() 
+    for i = 0 : this->land[lambda].size()
         if this->land[lambda][i].second > maximum
             maximum = this->land[lambda][i].second
         end
