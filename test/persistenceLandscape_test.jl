@@ -26,7 +26,12 @@ pl2 = PersistenceLandscape([a, b, c], 4)
 
     @test_throws BoundsError pl1.land[3]
 
+    #move constructor tests here
+
 end
+
+
+@testset "create PersistenceLandscpae from barcodes"
 
 
 @testset "PersistenceLandscape operations" begin
