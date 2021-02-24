@@ -20,6 +20,7 @@
 
 #include "Configure.h"
 include("PersistenceBarcode.jl")
+using Plots
 
 import Base.:+, Base.:-, Base.:*, Base.:/, Base.==
 
@@ -163,16 +164,19 @@ function create_PersistenceLandscape(p::PersistenceBarcodes; dbg = false)
 
             dbg && println("1 Adding to lambda_n : ($(make_MyPair( INT_MIN , 0 ))) , ($(std::make_MyPair(birth(characteristicPoints[1]),0)) $(characteristicPoints[1])))")
 
-            i = 1
+            i = 2
+            # @info "New char points"
             newCharacteristicPoints = MyPair[]
-            while ( i < size(characteristicPoints,1) )
+            while ( i <= size(characteristicPoints,1) )
+                # @info "running for i: $(i) and size of char points $(size(characteristicPoints, 1)+1)"
                  p = 1
-                 if (birth(characteristicPoints[i]) >= birth(lambda_n[size(lambda_n,1)-1])) &&
-                     (death(characteristicPoints[i]) > death(lambda_n[size(lambda_n,1)-1]))
+                 last_lambda_n = size(lambda_n, 1)
+                 if (birth(characteristicPoints[i]) >= birth(lambda_n[last_lambda_n])) &&
+                     (death(characteristicPoints[i]) > death(lambda_n[last_lambda_n]))
 
-                     if birth(characteristicPoints[i]) < death(lambda_n[size(lambda_n,1)-1])
-                        p_start = (birth(characteristicPoints[i])+death(lambda_n[size(lambda_n,1)-1]))/2
-                        p_stop  = (death(lambda_n[size(lambda_n,1)-1])-birth(characteristicPoints[i]))/2
+                     if birth(characteristicPoints[i]) < death(lambda_n[last_lambda_n])
+                        p_start = (birth(characteristicPoints[i])+death(lambda_n[last_lambda_n]))/2
+                        p_stop  = (death(lambda_n[last_lambda_n])-birth(characteristicPoints[i]))/2
 
                         point = MyPair(p_start, p_stop)
                         push!(lambda_n,  point )
@@ -185,7 +189,7 @@ function create_PersistenceLandscape(p::PersistenceBarcodes; dbg = false)
                         end
 
                         while (
-                               (i+p < size(characteristicPoints) ) &&
+                               (i+p < size(characteristicPoints,1) ) &&
                                (almostEqual(birth(point),birth(characteristicPoints[i+p]))) &&
                                (death(point) <= death(characteristicPoints[i+p]))
                               )
@@ -197,10 +201,8 @@ function create_PersistenceLandscape(p::PersistenceBarcodes; dbg = false)
 
                         dbg && println("4 Adding to newCharacteristicPoints : ($(point))")
                         while (
-                               (i+p < characteristicPoints.size() )
-                               &&
-                               ( birth(point) <= birth(characteristicPoints[i+p]) )
-                               &&
+                               (i+p < size(characteristicPoints, 1) ) &&
+                               ( birth(point) <= birth(characteristicPoints[i+p]) ) &&
                                (death(point)>=death(characteristicPoints[i+p])) 
                               )
                             push!(newCharacteristicPoints,  characteristicPoints[i+p] )
@@ -216,7 +218,7 @@ function create_PersistenceLandscape(p::PersistenceBarcodes; dbg = false)
                             p += 1
                         end
                     else
-                        pair1 = make_MyPair( death(lambda_n[size(lambda_n,1)-1]) , 0 )
+                        pair1 = make_MyPair( death(lambda_n[size(lambda_n,1)]) , 0 )
                         pair2 = make_MyPair( birth(characteristicPoints[i]) , 0 )
                         push!(lambda_n, pair1 )
                         push!(lambda_n, pair2)
@@ -233,7 +235,7 @@ function create_PersistenceLandscape(p::PersistenceBarcodes; dbg = false)
                 end
                 i = i+p
             end
-            push!(lambda_n,  make_MyPair(death(lambda_n[size(lambda_n,1)-1]),0) )
+            push!(lambda_n,  make_MyPair(death(lambda_n[size(lambda_n,1)]),0) )
             push!(lambda_n,  make_MyPair( Inf , 0 ) )
             # CHANGE
             characteristicPoints = newCharacteristicPoints
@@ -268,7 +270,7 @@ function create_PersistenceLandscape(p::PersistenceBarcodes; dbg = false)
         # in land.land. That is why over here, we make a fate this->land[0]. It will be later deteted before moving on.
 
         aa = MyPair[]
-        push!(aa,  make_MyPair( INT_MIN , 0 ) )
+        push!(aa,  make_MyPair( -Inf, 0 ) )
 
         x = minMax_val.first
         for i = 0 : numberOfBins
@@ -281,7 +283,7 @@ function create_PersistenceLandscape(p::PersistenceBarcodes; dbg = false)
             x += 0.5*gridDiameter
         end
 
-        push!(aa,  make_MyPair( INT_MAX , 0 ) )
+        push!(aa,  make_MyPair( Inf, 0 ) )
         dbg && println("Grid has been created. Now, begin to add intervals")
         # for every peristent interval
         for ervalNo = 0:size(p,1)
@@ -363,7 +365,7 @@ end
 # ===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-
 
 function almostEqual( a::Float64 , b::Float64 )
-    if abs(a-b) < eps
+    if abs(a-b) < epsi
         return true
     end
     return false
@@ -1329,6 +1331,56 @@ end
 # Operations on landscapes <<<
 # ===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-
 
+# ===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-
+# Plotting functions >>>
+function get_peaks_and_positions(barcodes)
+    # TODO lowest leve, below unity and separate peaks are not found corrrectly
+    filtered_pl = filter(x-> x.first!=Inf, barcodes)
+    filtered_pl = filter(x-> x.first!=-Inf, filtered_pl)
+    filtered_pl = filter(x-> x.first!=0 && x.second!=0, filtered_pl)
+
+    peak_position = [x.first for x in filtered_pl]
+
+    # find an index of pair for which first peak was found
+    index_peak1 = findall(x->x.first == peak_position[1], barcodes)
+
+    # find an index of pair for which last peak was found
+    index_peak_last = findall(x->x.first == peak_position[end], barcodes)
+
+
+    # add starting point for the plot
+    peak_position = vcat(peak_position[1]-barcodes[index_peak1][1].second, peak_position) # add starting poin
+
+    # add starting point for the plot
+    peak_position = vcat(peak_position, peak_position[end]+barcodes[index_peak_last ][1].second) # add starting poin
+
+
+
+    peaks = [x.second for x in filtered_pl]
+
+    # add starting point for the plot
+    peaks = vcat(0, peaks) # add starting poin
+
+    # add starting point for the plot
+    peaks = vcat(peaks, 0) # add starting poin
+
+    return peak_position, peaks
+end
+
+function plot_persistence_landscape(pl1::PersistenceLandscape)
+
+    canvas1 = plot()
+
+    for k in 1:size(pl1.land,1)
+        peaks_position, peaks = get_peaks_and_positions(pl1.land[k])
+        plot!(canvas1, peaks_position, peaks)
+    end
+
+    return canvas1
+end
+
+# Plotting functions <<<
+# ===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-
 
 # ===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-
 # Other functions  >>>

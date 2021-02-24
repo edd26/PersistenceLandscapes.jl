@@ -30,7 +30,9 @@ module PersistenceLandscapes
 
     export almostEqual,
            PersistenceLandscape,
-           create_PersistenceLandscape
+           create_PersistenceLandscape,
+           plot_persistence_landscape,
+           get_peaks_and_positions
 
     # include("PersistenceBarcode.jl")
     include("PersistenceLandscape.jl")
