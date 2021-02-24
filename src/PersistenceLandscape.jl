@@ -120,11 +120,14 @@ end
 function create_PersistenceLandscape(p::PersistenceBarcodes; dbg = false)
     dbg && println("PersistenceLandscape(PersistenceBarcodes& p )" )
 
+    land = Any[]
+
     if !useGridInComputations
         dbg && println("PL version")
         # this is a general algorithm to construct persistence landscapes.
         dimension = p.dimensionOfBarcode
-        bars = sort(copy(p.barcodes))
+        sorted_bars = sort(p)
+        bars  = copy(sorted_bars.barcodes)
 
         # bars.insert( bars.begin() , p.barcodes.begin() , p.barcodes.end() )
         # sort( bars.begin() , bars.end() , comparePoints2 )
@@ -146,7 +149,8 @@ function create_PersistenceLandscape(p::PersistenceBarcodes; dbg = false)
         end
 
         persistenceLandscape = MyPair[]
-        while ( !characteristicPoints.empty() )
+        while ( !isempty(characteristicPoints) )
+        # for (index, points_pair) in enumerate(characteristicPoints)
             if(dbg)
                 for i = 1:size(characteristicPoints,1)
                     println("($(characteristicPoints[i]))")
@@ -161,24 +165,24 @@ function create_PersistenceLandscape(p::PersistenceBarcodes; dbg = false)
 
             i = 1
             newCharacteristicPoints = MyPair[]
-            while ( i < characteristicPoints.size() )
+            while ( i < size(characteristicPoints,1) )
                  p = 1
-                 if (birth(characteristicPoints[i]) >= birth(lambda_n[lambda_n.size()-1])) &&
-                    (death(characteristicPoints[i]) > death(lambda_n[lambda_n.size()-1]))
+                 if (birth(characteristicPoints[i]) >= birth(lambda_n[size(lambda_n,1)-1])) &&
+                     (death(characteristicPoints[i]) > death(lambda_n[size(lambda_n,1)-1]))
 
-                    if birth(characteristicPoints[i]) < death(lambda_n[lambda_n.size()-1])
-                        p_start = (birth(characteristicPoints[i])+death(lambda_n[lambda_n.size()-1]))/2
-                        p_stop  = (death(lambda_n[lambda_n.size()-1])-birth(characteristicPoints[i]))/2
+                     if birth(characteristicPoints[i]) < death(lambda_n[size(lambda_n,1)-1])
+                        p_start = (birth(characteristicPoints[i])+death(lambda_n[size(lambda_n,1)-1]))/2
+                        p_stop  = (death(lambda_n[size(lambda_n,1)-1])-birth(characteristicPoints[i]))/2
 
                         point = MyPair(p_start, p_stop)
                         push!(lambda_n,  point )
 
-                        # dbg && println("2 Adding to lambda_n : ($(point))")
-                        # if dbg
-                        #     println("comparePoints(point,characteristicPoints[i+p]) : $(comparePoints(point,characteristicPoints[i+p]))")
-                        #     println("characteristicPoints[i+p] : $(characteristicPoints[i+p])")
-                        #     println("point : $(point)")
-                        # end
+                        dbg && println("2 Adding to lambda_n : ($(point))")
+                        if dbg
+                            println("comparePoints(point,characteristicPoints[i+p]) : $(comparePoints(point,characteristicPoints[i+p]))")
+                            println("characteristicPoints[i+p] : $(characteristicPoints[i+p])")
+                            println("point : $(point)")
+                        end
 
                         while (
                                (i+p < size(characteristicPoints) ) &&
@@ -186,13 +190,12 @@ function create_PersistenceLandscape(p::PersistenceBarcodes; dbg = false)
                                (death(point) <= death(characteristicPoints[i+p]))
                               )
                             push!(newCharacteristicPoints,  characteristicPoints[i+p] )
-                            # dbg && println("3.5 Adding to newCharacteristicPoints : ($(characteristicPoints[i+p]))")
-                                # getchar()
+                            dbg && println("3.5 Adding to newCharacteristicPoints : ($(characteristicPoints[i+p]))")
                             p += 1
                         end
                         push!(newCharacteristicPoints,  point )
 
-                        # dbg && println("4 Adding to newCharacteristicPoints : ($(point))")
+                        dbg && println("4 Adding to newCharacteristicPoints : ($(point))")
                         while (
                                (i+p < characteristicPoints.size() )
                                &&
@@ -201,30 +204,32 @@ function create_PersistenceLandscape(p::PersistenceBarcodes; dbg = false)
                                (death(point)>=death(characteristicPoints[i+p])) 
                               )
                             push!(newCharacteristicPoints,  characteristicPoints[i+p] )
-                            # if (dbg)
-                            #     println("characteristicPoints[i+p] : $(characteristicPoints[i+p])")
-                            #     println("point : $(point)")
-                            #     println("comparePoints(point,characteristicPoints[i+p]) : $(comparePoints(point,characteristicPoints[i+p]))")
-                            #     println("characteristicPoints[i+p] birth and death : $(birth(characteristicPoints[i+p])) $(death(characteristicPoints[i+p]))")
-                            #     println("point birth and death : $(birth(point)) $(death(point))")
-                            #     println("3 Adding to newCharacteristicPoints : ($(characteristicPoints[i+p]))")
-                            #     # getchar()
-                            # end
+                            if (dbg)
+                                println("characteristicPoints[i+p] : $(characteristicPoints[i+p])")
+                                println("point : $(point)")
+                                println("comparePoints(point,characteristicPoints[i+p]) : $(comparePoints(point,characteristicPoints[i+p]))")
+                                println("characteristicPoints[i+p] birth and death : $(birth(characteristicPoints[i+p])) $(death(characteristicPoints[i+p]))")
+                                println("point birth and death : $(birth(point)) $(death(point))")
+                                println("3 Adding to newCharacteristicPoints : ($(characteristicPoints[i+p]))")
+                                # getchar()
+                            end
                             p += 1
                         end
                     else
-                        push!(lambda_n,  make_MyPair( death(lambda_n[size(lambda_n,1)-1]) , 0 ) )
-                        push!(lambda_n,  make_MyPair( birth(characteristicPoints[i]) , 0 ) )
-                        # if (dbg)
-                        #     println("5 Adding to lambda_n:size(($(make_MyPair( death(lambda_n[lambda_n,1)-1]) , 0 )))")
-                        #     println("5 Adding to lambda_n : ($(make_MyPair( birth(characteristicPoints[i]) , 0 )))")
-                        # end
+                        pair1 = make_MyPair( death(lambda_n[size(lambda_n,1)-1]) , 0 )
+                        pair2 = make_MyPair( birth(characteristicPoints[i]) , 0 )
+                        push!(lambda_n, pair1 )
+                        push!(lambda_n, pair2)
+                        if (dbg)
+                            println("5 Adding to lambda_n:size(($(pair1)))")
+                            println("5 Adding to lambda_n : ($(pair2))")
+                        end
                     end
                     push!(lambda_n,  characteristicPoints[i] )
-                    # dbg && println("6 Adding to lambda_n : ($(characteristicPoints[i]))")
+                    dbg && println("6 Adding to lambda_n : ($(characteristicPoints[i]))")
                 else
                     push!(newCharacteristicPoints,  characteristicPoints[i] )
-                    # dbg && println("7 Adding to newCharacteristicPoints : ($(characteristicPoints[i]))")
+                    dbg && println("7 Adding to newCharacteristicPoints : ($(characteristicPoints[i]))")
                 end
                 i = i+p
             end
@@ -234,21 +239,22 @@ function create_PersistenceLandscape(p::PersistenceBarcodes; dbg = false)
             characteristicPoints = newCharacteristicPoints
 
             # is this supposed to erase unique elements, or leave only unique elements?
-            # This leaves only unique element in a
-            a = unique(lambda_n.begin(), lambda_n.end())
-            # Erase removes elements given in the brackets
-            lambda_n.erase(a, lambda_n.end())
+            # # This leaves only unique element in a
+            # a = unique(lambda_n.begin(), lambda_n.end())
+            # # Erase removes elements given in the brackets
+            # lambda_n.erase(a, lambda_n.end())
 
             # leave only the non-unique elements (???)
-            lambda_n = filter(unique(lambda_n.begin(), lambda_n.end()), lambda_n.end())
+            # lambda_n = filter(unique(lambda_n.begin(), lambda_n.end()), lambda_n.end())
+            lambda_n = unique(lambda_n)
             push!(land, lambda_n )
         end
     else
-        # dbg && println("Constructing persistence landscape based on a grid");# getchar())
+        dbg && println("Constructing persistence landscape based on a grid");# getchar())
 
         # in this case useGridInComputations is true, therefore we will build a landscape on a grid.
         externgridDiameter
-        land.dimension = p.dimensionOfBarcode
+        dimension = p.dimensionOfBarcode
         minMax_val = minMax(p)
         numberOfBins = 2*((minMax_val.second - minMax_val.first)/gridDiameter)+1
 
@@ -271,18 +277,18 @@ function create_PersistenceLandscape(p::PersistenceBarcodes; dbg = false)
             p = (x , v )
             push!(aa,  make_MyPair( x , 0 ) )
             push!(criticalValuesOnPointsOfGrid[i], p)
-            # dbg && println("x : $(x)")
+            dbg && println("x : $(x)")
             x += 0.5*gridDiameter
         end
 
         push!(aa,  make_MyPair( INT_MAX , 0 ) )
-        # dbg && println("Grid has been created. Now, begin to add intervals")
+        dbg && println("Grid has been created. Now, begin to add intervals")
         # for every peristent interval
         for ervalNo = 0:size(p,1)
             beginn = ()(2*( p.barcodes[intervalNo].first-minMax_val.first )/( gridDiameter ))+1
-            # dbg && println("We are considering interval : [$(p.barcodes[intervalNo].first),$(p.barcodes[intervalNo].second) $(beginn) in the grid")
+            dbg && println("We are considering interval : [$(p.barcodes[intervalNo].first),$(p.barcodes[intervalNo].second) $(beginn) in the grid")
             while ( criticalValuesOnPointsOfGrid[beginn].first < p.barcodes[intervalNo].second )
-                # dbg && println("Adding a value : ($(criticalValuesOnPointsOfGrid[beginn].first) $(min( abs(criticalValuesOnPointsOfGrid[beginn].first-p.barcodes[intervalNo].first) ,abs(criticalValuesOnPointsOfGrid[beginn].first-p.barcodes[intervalNo].second) ))) ")
+                dbg && println("Adding a value : ($(criticalValuesOnPointsOfGrid[beginn].first) $(min( abs(criticalValuesOnPointsOfGrid[beginn].first-p.barcodes[intervalNo].first) ,abs(criticalValuesOnPointsOfGrid[beginn].first-p.barcodes[intervalNo].second) ))) ")
                 criticalValuesOnPointsOfGrid[beginn].second.push_back(min( abs(criticalValuesOnPointsOfGrid[beginn].first-p.barcodes[intervalNo].first) ,abs(criticalValuesOnPointsOfGrid[beginn].first-p.barcodes[intervalNo].second) ) )
                 beginn += 1
             end
@@ -296,19 +302,19 @@ function create_PersistenceLandscape(p::PersistenceBarcodes; dbg = false)
                 maxNonzeroLambda = criticalValuesOnPointsOfGrid[i].second.size()
             end
         end
-        # if dbg
-        #     println("After sorting")
-        #     for i = 0:size(criticalValuesOnPointsOfGrid,1) 
-        #         println("x : $(criticalValuesOnPointsOfGrid[i].first << " : ")")
-        #         for j = 0:size(criticalValuesOnPointsOfGrid[i].second,1) 
-        #             println(criticalValuesOnPointsOfGrid[i].second[j] << " ")
-        #         end
-        #         println("\n")
-        #     end
-        # end
+        if dbg
+            println("After sorting")
+            for i = 0:size(criticalValuesOnPointsOfGrid,1) 
+                println("x : $(criticalValuesOnPointsOfGrid[i].first << " : ")")
+                for j = 0:size(criticalValuesOnPointsOfGrid[i].second,1) 
+                    println(criticalValuesOnPointsOfGrid[i].second[j] << " ")
+                end
+                println("\n")
+            end
+        end
         push!(land,aa)
         for lambda = 0 : maxNonzeroLambda 
-            # dbg && println("Constructing lambda_$(lambda)")
+            dbg && println("Constructing lambda_$(lambda)")
             nextLambbda = MyPair[]
 
             push!(nextLambbda,  make_MyPair(INT_MIN,0) )
@@ -317,28 +323,28 @@ function create_PersistenceLandscape(p::PersistenceBarcodes; dbg = false)
             wasPrevoiusStepZero = true
             nr = 1
             while nr < size(land.land[ size(land,1)-1 ])-1
-                # dbg  && println("nr : $(nr)")
+                dbg  && println("nr : $(nr)")
                  address = ()(2*( land.land[ size(land,1)-1 ][nr].first-minMax_val.first )/( gridDiameter ))
-                # dbg && println("We are considering the element x : $(land.land[ size(land,1)-1 ][nr].first). Its position in the structure is : $(address)")
+                dbg && println("We are considering the element x : $(land.land[ size(land,1)-1 ][nr].first). Its position in the structure is : $(address)")
                 if  criticalValuesOnPointsOfGrid[address].second.size() <= lambda
                     if (!wasPrevoiusStepZero)
                         wasPrevoiusStepZero = true
-                        # dbg && println("AAAdding : ($(criticalValuesOnPointsOfGrid[address].first) $(0)) to lambda_$(lambda;# getchar())")
+                        dbg && println("AAAdding : ($(criticalValuesOnPointsOfGrid[address].first) $(0)) to lambda_$(lambda)");# getchar())")
                         push!(nextLambbda,  make_MyPair( criticalValuesOnPointsOfGrid[address].first , 0 ) )
                     end
                 else
                      if wasPrevoiusStepZero
-                         # dbg && println("Adding : ($(criticalValuesOnPointsOfGrid[address-1].first) $(0)) to lambda_$(lambda;# getchar())")
+                         dbg && println("Adding : ($(criticalValuesOnPointsOfGrid[address-1].first) $(0)) to lambda_$(lambda)")# getchar())")
                          push!(nextLambbda,  make_MyPair( criticalValuesOnPointsOfGrid[address-1].first , 0 ) )
                          wasPrevoiusStepZero = false
                      end
-                     # dbg && println("AAdding : ($(criticalValuesOnPointsOfGrid[address].first) $(criticalValuesOnPointsOfGrid[address].second[lambda])) to lambda_$(lambda;# getchar())")
+                     dbg && println("AAdding : ($(criticalValuesOnPointsOfGrid[address].first) $(criticalValuesOnPointsOfGrid[address].second[lambda])) to lambda_$(lambda)")
                      push!(nextLambbda,  make_MyPair( criticalValuesOnPointsOfGrid[address].first , criticalValuesOnPointsOfGrid[address].second[lambda] ) )
                 end
                 nr += 1
             end
 
-            # dbg && println("Done with : lambda_$(lambda;# getchar();getchar();getchar())")
+            dbg && println("Done with : lambda_$(lambda)")
 
             if lambda == 0
                 # removing the first, fake, landscape
@@ -349,6 +355,9 @@ function create_PersistenceLandscape(p::PersistenceBarcodes; dbg = false)
             push!(land, nextLambbda )
         end
     end
+
+
+    return PersistenceLandscape(land, dimension)
 end
 # Constructors <<<
 # ===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-
@@ -1046,7 +1055,7 @@ function multiplyByIndicatorFunction(land::PersistenceLandscape, indicator::Vect
             end
         end
         push!(lambda_n,  make_MyPair( 0 , INT_MIN ) )
-        if lambda_n.size() > 2
+        if size(lambda_n,1) > 2
             result.land.push_back( lambda_n )
         end
     end
@@ -1056,8 +1065,8 @@ end
 
 # TODO -- removewhen the problem is respved
 function check( i::UInt, v::Vector{MyPair} )
-    if i < 0 || i >= v.size()
-        println("you want to get to index:size($(i) $(v,1)) indices")
+    if i < 0 || i >= size(v,1)
+        println("you want to get to index:size($(i) $(v)) indices")
         # cin.ignore()
         return true
     end
@@ -1184,18 +1193,19 @@ function reduceAlignedPoints(land::PersistenceLandscape,tollerance; local_debug 
         end
         if local_debug
             println("Out  of main while loop, done with this dimension ")
-            println("Adding:size($(land.land[dim][ this->land[dim],1)-2 ] << " to lamnda_n ")")
-            println("Adding:size($(land.land[dim][ this->land[dim],1)-1 ] << " to lamnda_n ")")
+            println("Adding:size($(land.land[dim][size(land.land[dim],1)-2 ]) to lamnda_n ")
+            println("Adding:size($(land.land[dim][size(land.land[dim],1)-1 ]) to lamnda_n ")
             cin.ignore()
         end
 
+        @error "Some code needs to be fixed in here"
         push!(lambda_n,  land.land[dim][ this->land[dim].size()-2 ] )
         push!(lambda_n,  land.land[dim][ this->land[dim].size()-1 ] )
         # if something was reduced, then replace land.land[dim] with the new lambda_n.
 
-        if lambda_n.size() < land.land[dim].size()
-            if lambda_n.size() > 4
-                land.land[dim].swap(lambda_n)
+        if size(lambda_n,1) < size(land.land[dim])
+            if size(lambda_n,1) > 4
+                land.land[dim] = lambda_n
             end
         end
     end
@@ -1493,8 +1503,9 @@ function computeMaxNormDiscanceOfLandscapes(first, second)#, nrOfLand , x::Float
     return max(dFirst, dSecond)[1], nrOfLand, x, y1, y2
 end
 
-function computeMaximalDistanceNonSymmetric(pl1::PersistenceLandscape, pl2::PersistenceLandscape; dbg = false)
+function computeMaximalDistanceNonSymmetric2(pl1::PersistenceLandscape, pl2::PersistenceLandscape; dbg = false)
     dbg && println(" computeMaximalDistanceNonSymmetric")
+    @warn "name of function modified due to conflicting names"
 
     # this distance is not symmetric. It compute ONLY distance between inflection points of pl1 and pl2.
     maxDist = 0

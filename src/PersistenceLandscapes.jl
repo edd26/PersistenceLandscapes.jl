@@ -29,7 +29,8 @@ module PersistenceLandscapes
     # TODO add file writing functions here
 
     export almostEqual,
-           PersistenceLandscape
+           PersistenceLandscape,
+           create_PersistenceLandscape
 
     # include("PersistenceBarcode.jl")
     include("PersistenceLandscape.jl")

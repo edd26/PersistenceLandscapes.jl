@@ -1,3 +1,5 @@
+# TODO Is it possible to crate barcodes form Eirene barcodes? Add tests for that
+
 my_pair = MyPair(1, 2)
 my_pair1 = my_pair
 my_pair2 = MyPair(1, 3)

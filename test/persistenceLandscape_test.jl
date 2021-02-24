@@ -31,7 +31,12 @@ pl2 = PersistenceLandscape([a, b, c], 4)
 end
 
 
-@testset "create PersistenceLandscpae from barcodes"
+@testset "create PersistenceLandscpae from barcodes" begin
+    barcodes = PersistenceBarcodes(a, 1)
+    create_PersistenceLandscape(barcodes)
+
+
+end
 
 
 @testset "PersistenceLandscape operations" begin
