@@ -106,7 +106,7 @@ function vector< PersistenceBarcodes > createBarcodesFromTheFiles( vector<string
 
     bool dbg = true
 
-    vector< PersistenceBarcodes > result
+    result = Vector{PersistenceBarcodes}()
     for fileNo = 0:size(filenames,1)
         # now reading file filenames[fileNo]
         char* filename = (char*)filenames[fileNo].c_str()
