@@ -21,6 +21,7 @@
 #include "Configure.h"
 include("PersistenceBarcode.jl")
 using Plots
+using Eirene
 
 import Base.:+, Base.:-, Base.:*, Base.:/, Base.==
 
@@ -1367,11 +1368,11 @@ function get_peaks_and_positions(barcodes)
     return peak_position, peaks
 end
 
-function plot_persistence_landscape(pl1::PersistenceLandscape)
+function plot_persistence_landscape(pl1::PersistenceLandscape; max_layers=size(pl1.land,1))
 
     canvas1 = plot()
 
-    for k in 1:size(pl1.land,1)
+    for k in 1:max_layers
         peaks_position, peaks = get_peaks_and_positions(pl1.land[k])
         plot!(canvas1, peaks_position, peaks)
     end
