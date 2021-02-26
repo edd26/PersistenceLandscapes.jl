@@ -45,14 +45,14 @@ end#numberOfNonzeroLandscapes
 function userFunction(l::PersistenceLandscape)
 
     #Please implement your function here:
-    return 3.141592;
+    return pi
 end#numberOfNonzeroLandscapes
 
 
 function averageBarcodeLength( b::PersistenceBarcodes)
     av = 0;
-    for  PersistenceBarcodes::bIterator i = b.bBegin() : b.bEnd() 
-        av += abs(i->second - i->first);
+    for  i in b
+        av += abs(i.second - i.first);
     end
     av = av / b.size();
     return av;
@@ -60,14 +60,16 @@ end
 
 function maxLengthBarcode( b::PersistenceBarcodes)
     maxL = 0;
-    for  PersistenceBarcodes::bIterator i = b.bBegin() : b.bEnd() 
-        if ( maxL < abs(i->second - i->first) )maxL = fabs(i->second - i->first);
+    for i in b
+        if maxL < abs(i.second - i.first)
+            maxL = abs(i.second - i.first)
+        end
     end
     return maxL;
 end
 
 
-#TODO -- after adding any function to the above collection, please add it to the string and a function below that allows to choose suitable function by the user:
+# TODO -- after adding any function to the above collection, please add it to the string and a function below that allows to choose suitable function by the user:
 listOfAvailableFunctions = """
 The available functions are:
 1 - computeIntegral
@@ -78,7 +80,7 @@ The available functions are:
 6 - fourthMomentOfFirstLandscapeCenteredAtZero
 7 - numberOfNonzeroLandscapes
 8 - user defined function, please go to the file functionsOfPersistenceLandscapes.h to define it\n
-""""
+"""
 
 # typedef double (*fptr)( PersistenceLandscape&);
 
@@ -126,7 +128,7 @@ function gimmeFunctionOfANumnber(numberOfFunction::Int )
 
     else
         println("Unknown function, the program will now terminate.")
-        throw ("Unknown function, the program will now terminate.\n");
+        throw("Unknown function, the program will now terminate.\n");
         return 0;
     end
 end

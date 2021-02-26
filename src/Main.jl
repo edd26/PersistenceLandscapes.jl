@@ -38,7 +38,6 @@ In this case the program returns the value of F-statistics and the user have to 
 # TODO add argument parsing
 
 function main()
-
     configure();
     println("programInfo listOfAvailableFunctions")
 
@@ -48,7 +47,7 @@ function main()
         return 1;
     end
     classes = Vector{Vector{String}}
-    for size_t classNo = 0 : numberOfClasses
+    for classNo = 0 : numberOfClasses
         #println("Reading : $(argv[2+classNo])")
         namesOfFilesFirstFamilly = readFileNames( argv[2+classNo] );
         if ( namesOfFilesFirstFamilly.size() == 0 )
@@ -66,9 +65,9 @@ function main()
     println("The parameter of the program are : ")
     println("Number of classes : $(numberOfClasses)")
     println("Names of files with different landscapes or barcodes classes:")
-    for size_t classNo = 0:size(classes,1)
+    for classNo = 0:size(classes,1)
         println("Class number : $(classNo+1)")
-        for  size_t fileNo = 0:size(classes[classNo],1)
+        for  fileNo = 0:size(classes[classNo],1)
             println(classes[classNo][fileNo])
         end
     end
@@ -76,7 +75,7 @@ function main()
     #now generate landscapes based on that files:
     println("Creating Persistence Landscapes.")
     landscapes = Vector{Vector{PersistenceLandscape}};
-    for  size_t classNo = 0:size(classes,1)
+    for classNo = 0:size(classes,1)
         landscapesThisFamilly = createLandscapesFromTheFiles( classes[classNo] );
         push!(landscapes, landscapesThisFamilly);
     end
