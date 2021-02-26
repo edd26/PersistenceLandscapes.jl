@@ -10,3 +10,7 @@ end
     include("persistenceLandscape_test.jl")
 end
 
+
+@test "Anova tests" begin
+
+end

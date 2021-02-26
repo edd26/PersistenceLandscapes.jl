@@ -56,7 +56,7 @@ function FCharacteristic()
 end
 
 
-function computeBasicStatistics(this::Anova;dbg = false)
+function computeBasicStatistics(this::Anova; dbg = false)
     #http://cba.ualr.edu/smartstat/topics/anova/example.pdf
     #here we compute the values of a characteristic functions of the topological invariants. This is the first and the last point in which the topological invariants are used in this program.
     characteristicOfAllPopulations = VectorVector{Float64end}()
