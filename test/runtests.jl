@@ -12,5 +12,9 @@ end
 
 
 @test "Anova tests" begin
+    include("anova_test.jl")
+end
 
+@test "Main tests" begin
+    include("main_test.jl")
 end
