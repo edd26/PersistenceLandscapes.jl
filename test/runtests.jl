@@ -10,11 +10,18 @@ end
     include("persistenceLandscape_test.jl")
 end
 
+@testset "VectorSpaceOfPersistenceLandscapes test" begin
+    include("vectorSpaceOfPersistenceLandscapes_tets.jl")
+end
 
-@test "Anova tests" begin
+@testset "Configure tests" begin
+    include("configure_test.jl")
+end
+
+@testset "Anova tests" begin
     include("anova_test.jl")
 end
 
-@test "Main tests" begin
+@testset "Main tests" begin
     include("main_test.jl")
 end
