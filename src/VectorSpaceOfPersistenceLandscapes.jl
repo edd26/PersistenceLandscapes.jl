@@ -23,16 +23,15 @@ struct vectorSpaceOfPersistenceLandscapes
 end
 
 
-function  averageLandscpceInDiscreteSetOfPoints(v_space_pland::vectorSpaceOfPersistenceLandscapes, dim::UInt, numberOfPoints::UInt, from::Float64, to:Float64 local_dbg = false)  # vector<pair<double,double> >
+function  averageLandscpceInDiscreteSetOfPoints(v_space_pland::vectorSpaceOfPersistenceLandscapes, dim::UInt, numberOfPoints::UInt, from_num::Float64, to::Float64; local_dbg=false)  # vector<pair<double,double> >
 
     if numberOfPoints <= 1
-        ostringstream errMessage
-        errMessage = "Error in function averageLandscpceInDiscreteSetOfPoints. You want to compute average using : $(v_space_pland::vectorSpaceOfPersistenceLandscapes,numberOfPoints) points. This variable cannot be less than 2 \n"
+        errMessage = "Error in function averageLandscpceInDiscreteSetOfPoints. You want to compute average using : $(numberOfPoints) points. This variable cannot be less than 2 \n"
         throw( errMessage )
     end
     if to <= from
 
-        errMessage << "Error in function averageLandscpceInDiscreteSetOfPoints. You want to compute average inrval ["<<from << ",$(v_space_pland::vectorSpaceOfPersistenceLandscapes,to)]. Please correct the vinterval in a way that it is in a form [from,to], where from <to\n"
+        errMessage << "Error in function averageLandscpceInDiscreteSetOfPoints. You want to compute average inrval [$(from),$(to)]. Please correct the vinterval in a way that it is in a form [from,to], where from <to"
         throw( errMessage )
     end
 
@@ -179,7 +178,7 @@ function average(v_space_pland::vectorSpaceOfPersistenceLandscapes; dbg = false)
             for i = 0:size(nextLevelMerge, 1)
                 dbg && println("i : $(i)\nsize(nextLevelMerge, 1) : $(size(nextLevelMerge, 1))")
 
-                PersistenceLandscape l
+                l = PersistenceLandscape[]
                 if i+1 != size(nextLevelMerge, 1)
                     l = nextLevelMerge[i]+nextLevelMerge[i+1]
                 else
@@ -198,7 +197,7 @@ end
 
 
 function standardDeviation(v_space_pland::vectorSpaceOfPersistenceLandscapes, whichDistance )
-    PersistenceLandscape av = average(v_space_pland)
+    av = average(v_space_pland)
     distanceToAverage = 0
 
     for i = 1 : size(v_space_pland.vectOfLand,1)
