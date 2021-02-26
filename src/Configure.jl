@@ -106,6 +106,7 @@ function configure(;config_file_name::String = "configure", config_dict::Dict = 
     vaiableNumber = 0
 
     all_lines = try
+        @info isfile(config_file_name)
         open(config_file_name , "r") do f
             readlines(f)
         end
@@ -116,10 +117,10 @@ function configure(;config_file_name::String = "configure", config_dict::Dict = 
 
     for line in all_lines
     # while (!in.eof())
-        getline(in,line)
+        # getline(in,line)
 
         if ( !(length(line) == 0 || line[1] == '#') )
-            lineSS = Int(line)
+            lineSS = parse(Float64,line)
 
             if vaiableNumber == 0
                 i = lineSS
