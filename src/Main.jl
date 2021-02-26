@@ -20,6 +20,31 @@
 #include "Anova.h"
 #include "FunctionsOfPersistenceLandscapes.h"
 #include "FilesReader.h"
+using ArgParse
+
+function parse_commandline()
+    s = ArgParseSettings()
+
+    # ===
+    confidenceValue = atof( argv[3+numberOfClasses] );
+
+    @add_arg_table! s begin
+        "--numberOfClasses", "-n"
+            help = "Number of classes to be found"
+            arg_type = Int
+            default = 0
+        "--numberOfFunction ", "-f"
+            help = "Maximal dimension for Betti curves"
+            arg_type = Int
+            default = 1
+        "--confidenceValue ", "-c"
+            help = "Maximal dimension for Betti curves"
+            arg_type = Real
+            default = 1
+    end
+
+    return parse_args(s)
+end
 
 include("Anova.jl")
 include("FunctionsOfPersistenceLandscapes.jl")
@@ -38,10 +63,22 @@ In this case the program returns the value of F-statistics and the user have to 
 # TODO add argument parsing
 
 function main()
-    configure();
+    configure(config_file_name="/Users/emil/Programming/Julia/PersistenceLandscapes.jl/src/configure")
     println("programInfo listOfAvailableFunctions")
 
-    numberOfClasses = atoi( argv[1] );
+    # ===-===-===-===-===-===-===-===-
+    # argument parsing >>>
+    parsed_args = parse_commandline()
+    begin @unpack max_dim, min_dim, total_matrices, prefix,
+                    do_hc, do_sch, do_plots, do_save,
+                    do_areas, do_max_bettis, data_folder, results_folder,
+                    do_lifetime, do_max_lifetimes, do_db_ratio, do_max_db_ratio,
+                    do_thresholding, threshold  = parsed_args
+    end
+    # argument parsing <<<
+    # ===-===-===-===-===-===-===-===-
+
+
     if ( numberOfClasses < 1 )
         println("Number of classes is : $(numberOfClasses) which is not a correct value. The program will terminate now.")
         return 1;
