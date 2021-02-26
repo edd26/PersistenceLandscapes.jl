@@ -1334,47 +1334,78 @@ end
 
 # ===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-
 # Plotting functions >>>
-function get_peaks_and_positions(barcodes)
+function get_peaks_and_positions(lambdas)
     # TODO lowest leve, below unity and separate peaks are not found corrrectly
-    filtered_pl = filter(x-> x.first!=Inf, barcodes)
+    filtered_pl = filter(x-> x.first!=Inf, lambdas)
     filtered_pl = filter(x-> x.first!=-Inf, filtered_pl)
     filtered_pl = filter(x-> x.first!=0 && x.second!=0, filtered_pl)
 
-    peak_position = [x.first for x in filtered_pl]
-
-    # find an index of pair for which first peak was found
-    index_peak1 = findall(x->x.first == peak_position[1], barcodes)
-
-    # find an index of pair for which last peak was found
-    index_peak_last = findall(x->x.first == peak_position[end], barcodes)
-
-
-    # add starting point for the plot
-    peak_position = vcat(peak_position[1]-barcodes[index_peak1][1].second, peak_position) # add starting poin
-
-    # add starting point for the plot
-    peak_position = vcat(peak_position, peak_position[end]+barcodes[index_peak_last ][1].second) # add starting poin
-
-
-
+    if isempty(filtered_pl )
+        @warn "lambdas has only infinite intervals. Interrupting"
+        return [], []
+    end
+    peaks_position = [x.first for x in filtered_pl]
     peaks = [x.second for x in filtered_pl]
 
+    # find an index of pair for which first peak was found
+    index_peak1 = findall(x->x.first == peaks_position[1], lambdas)
+
+    # find an index of pair for which last peak was found
+    index_peak_last = findall(x->x.first == peaks_position[end], lambdas)
+
+
     # add starting point for the plot
+    peaks_position = vcat(peaks_position[1]-lambdas[index_peak1][1].second, peaks_position) # add starting poin
     peaks = vcat(0, peaks) # add starting poin
 
-    # add starting point for the plot
+    # add ending point for the plot
+    peaks_position = vcat(peaks_position, peaks_position[end]+lambdas[index_peak_last ][1].second) # add starting poin
     peaks = vcat(peaks, 0) # add starting poin
 
-    return peak_position, peaks
+    new_peaks = Real[]
+    new_peaks_position = Real[]
+    push!(new_peaks, peaks[1])
+    push!(new_peaks, peaks[2])
+    push!(new_peaks_position, peaks_position[1])
+    push!(new_peaks_position, peaks_position[2])
+
+    # for every point, check if next peak position is within rach of range. if not, add zero poin
+    for k in 2:length(peaks_position)-1
+        # this is peak position
+        right_limit = peaks_position[k] + peaks[k]
+        if right_limit < peaks_position[k+1]
+
+            push!(new_peaks, peaks[k])
+            push!(new_peaks_position, peaks_position[k])
+
+            # add closing zero
+            push!(new_peaks, 0)
+            push!(new_peaks_position, right_limit)
+
+            # add opening zero
+            left_limit = peaks_position[k+1] - peaks[k+1]
+            push!(new_peaks, 0)
+            push!(new_peaks_position, left_limit)
+        else
+            push!(new_peaks, peaks[k])
+            push!(new_peaks_position, peaks_position[k])
+        end
+    end
+
+    push!(new_peaks, peaks[end])
+    push!(new_peaks_position, peaks_position[end])
+
+
+    return new_peaks_position, new_peaks
 end
 
-function plot_persistence_landscape(pl1::PersistenceLandscape; max_layers=size(pl1.land,1))
+function plot_persistence_landscape(pl1::PersistenceLandscape; max_layers=size(pl1.land,1), plot_kwargs...)
 
     canvas1 = plot()
 
     for k in 1:max_layers
         peaks_position, peaks = get_peaks_and_positions(pl1.land[k])
-        plot!(canvas1, peaks_position, peaks)
+        plot!(canvas1, peaks_position, peaks; plot_kwargs...)
     end
 
     return canvas1
