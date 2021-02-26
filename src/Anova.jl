@@ -20,8 +20,10 @@
 include("PersistenceLandscape.jl")
 include("VectorSpaceOfPersistenceLandscapes.jl")
 
+DescriptorOfTopology = Union{PersistenceLandscape, PersistenceBarcodes} # a temporary solution, as this is a function (most probably)
+
 mutable struct Anova
-    populationOfTopologicalInvariants::VectorVector{DescriptorOfTopology}
+    populationOfTopologicalInvariants::Vector{Vector{DescriptorOfTopology}}
     characteristic::DescriptorOfTopology
     averagesOfPopulations::Float64
     standardDeviationOfPopulations::Float64
@@ -36,35 +38,36 @@ mutable struct Anova
     MST::Float64
     MSE::Float64
 end
+
 #constructor
-function anova(vector< vector< DescriptorOfTopology > > populationOfTopologicalInvariants , (*functionToUse)(const DescriptorOfTopology&))
+function anova(ano::Anova, populationOfTopologicalInvariants::Vector{Vector{DescriptorOfTopology}} , functionToUse; dbg = true)
+    populationOfTopologicalInvariants.characteristic = functionToUse
 
-    bool dbg = true;
-    this.characteristic = functionToUse;
-    for   i = 0:size(populationOfTopologicalInvariants,1)
-        this.populationOfTopologicalInvariants.push_back( populationOfTopologicalInvariants[i] );
+    for  i = 0:size(populationOfTopologicalInvariants,1)
+        push!(ano.populationOfTopologicalInvariants(populationOfTopologicalInvariants[i]))
     end
+
     dbg && println("Data read, now computing basic statistics ")
-    computeBasicStatistics(this)
+    return computeBasicStatistics(ano)
 end
 
-function FCharacteristic()
-    println("The number of DOF of numerator is:size($(this.populationOfTopologicalInvariants,1)-1)")
-    println("The number of DOF of denominator is:size($((this.totalNumberOfTopologicalInvariants - this.populationOfTopologicalInvariants,1)))")
-    println("The value of F statistic is : $(this.MST / this.MSE). For the p-values please consult the appropriate tables ")
-    return this.MST / this.MSE;
+function FCharacteristic(ano::Anova,)
+    println("The number of DOF of numerator is:size($(ano.populationOfTopologicalInvariants)-1)")
+    println("The number of DOF of denominator is:size($((ano.totalNumberOfTopologicalInvariants - ano.populationOfTopologicalInvariants)))")
+    println("The value of F statistic is : $(ano.MST / ano.MSE). For the p-values please consult the appropriate tables ")
+    return ano.MST / ano.MSE;
 end
 
 
-function computeBasicStatistics(this::Anova; dbg = false)
+function computeBasicStatistics(ano::Anova; dbg = false)
     #http://cba.ualr.edu/smartstat/topics/anova/example.pdf
     #here we compute the values of a characteristic functions of the topological invariants. This is the first and the last point in which the topological invariants are used in this program.
     characteristicOfAllPopulations = VectorVector{Float64end}()
-    for   populationNo = 0:size(this.populationOfTopologicalInvariants,1) 
+    for   populationNo = 0:size(ano.populationOfTopologicalInvariants,1) 
         #computing averages
         valuesOfCharacteristicForThisPopulation::Float64
-        for   insidePopulation = 0:size(this.populationOfTopologicalInvariants[populationNo],1) 
-            valueForThisElementOfPopulation = characteristic(this.populationOfTopologicalInvariants[populationNo][insidePopulation]);
+        for   insidePopulation = 0:size(ano.populationOfTopologicalInvariants[populationNo],1) 
+            valueForThisElementOfPopulation = characteristic(ano.populationOfTopologicalInvariants[populationNo][insidePopulation]);
             valuesOfCharacteristicForThisPopulation.push_back( valueForThisElementOfPopulation );
         end
         characteristicOfAllPopulations.push_back( valuesOfCharacteristicForThisPopulation );
@@ -73,20 +76,20 @@ function computeBasicStatistics(this::Anova; dbg = false)
 
     dbg && println("We are in the procedure computeBasicStatistics, starting computing basic statistics") 
 
-    this.overalMean = 0;
-    this.totalNumberOfTopologicalInvariants = 0;
+    ano.overalMean = 0;
+    ano.totalNumberOfTopologicalInvariants = 0;
     for   populationNo = 0:size(characteristicOfAllPopulations,1)
         dbg && println("populationNo : $(populationNo)")
         #computing averages
         averageOfThisPopulation = 0;
         for insidePopulation = 0:size(characteristicOfAllPopulations[populationNo],1) 
             averageOfThisPopulation += characteristicOfAllPopulations[populationNo][insidePopulation];
-            this.overalMean += characteristicOfAllPopulations[populationNo][insidePopulation];
+            ano.overalMean += characteristicOfAllPopulations[populationNo][insidePopulation];
         end
-        this.deegreesOfFreedomOfPopulation.push_back( characteristicOfAllPopulations[populationNo].size() );
+        ano.deegreesOfFreedomOfPopulation.push_back( characteristicOfAllPopulations[populationNo].size() );
         averageOfThisPopulation /= characteristicOfAllPopulations[populationNo].size();
-        this.averagesOfPopulations.push_back( averageOfThisPopulation );
-        this.totalNumberOfTopologicalInvariants += characteristicOfAllPopulations[populationNo].size();
+        ano.averagesOfPopulations.push_back( averageOfThisPopulation );
+        ano.totalNumberOfTopologicalInvariants += characteristicOfAllPopulations[populationNo].size();
 
         #computing standard deviation:
         standardDeviation = 0;
@@ -96,49 +99,49 @@ function computeBasicStatistics(this::Anova; dbg = false)
         standardDeviation /= characteristicOfAllPopulations[populationNo].size();
         standardDeviation = sqrt(standardDeviation);
 
-        this.standardDeviationOfPopulations.push_back( standardDeviation );
+        ano.standardDeviationOfPopulations.push_back( standardDeviation );
     end
     dbg && println("Exiting loop in which we compute basic average and standard deviations of populations ")
-    this.overalMean /= this.totalNumberOfTopologicalInvariants;
+    ano.overalMean /= ano.totalNumberOfTopologicalInvariants;
 
-    this.SSTotal = 0;
+    ano.SSTotal = 0;
     for   populationNo = 0:size(characteristicOfAllPopulations,1) 
         for   insidePopulation = 0:size(characteristicOfAllPopulations[populationNo],1) 
-            this.SSTotal += ((characteristicOfAllPopulations[populationNo][insidePopulation] - this.overalMean)^2);
+            ano.SSTotal += ((characteristicOfAllPopulations[populationNo][insidePopulation] - ano.overalMean)^2);
         end
     end
     dbg && println("SSTotal has been computed ")
 
-    this.SST = 0;
-    this.SSE = 0;
+    ano.SST = 0;
+    ano.SSE = 0;
     for   populationNo = 0:size(averagesOfPopulations,1) 
-        this.SST += (this.averagesOfPopulations[populationNo] - this.overalMean)^2 * this.deegreesOfFreedomOfPopulation[populationNo];
+        ano.SST += (ano.averagesOfPopulations[populationNo] - ano.overalMean)^2 * ano.deegreesOfFreedomOfPopulation[populationNo];
 
-        this.SSE += ( this.deegreesOfFreedomOfPopulation[populationNo] )*((this.standardDeviationOfPopulations[populationNo])^2);
+        ano.SSE += ( ano.deegreesOfFreedomOfPopulation[populationNo] )*((ano.standardDeviationOfPopulations[populationNo])^2);
     end
     if (dbg)
         println("SST and SSE has been computed ")
-        println("this.SSTotal : $(this.SSTotal)")
-        println("this.SST + this.SSE : $(this.SST + this.SSE)")
-        println("this.SST : $(this.SST)")
-        println("this.SSE : $(this.SSE)")
+        println("ano.SSTotal : $(ano.SSTotal)")
+        println("ano.SST + ano.SSE : $(ano.SST + ano.SSE)")
+        println("ano.SST : $(ano.SST)")
+        println("ano.SSE : $(ano.SSE)")
     end
 
 
-    this.MST = this.SST / (this.populationOfTopologicalInvariants.size()-1);
-    this.MSE = this.SSE / (this.totalNumberOfTopologicalInvariants - this.populationOfTopologicalInvariants.size());
+    ano.MST = ano.SST / (ano.populationOfTopologicalInvariants.size()-1);
+    ano.MSE = ano.SSE / (ano.totalNumberOfTopologicalInvariants - ano.populationOfTopologicalInvariants.size());
 
 end#computeBasicStatistics
 
 
-function printStatistics(this::Anova)
-    println("overalMean : $(this.overalMean)")
-    println("totalNumberOfTopologicalInvariants : $(this.totalNumberOfTopologicalInvariants)")
-    println("SSTotal : $(this.SSTotal)")
-    println("SST : $(this.SST)")
-    println("SSE : $(this.SSE)")
-    println("MST : $(this.MST)")
-    println("MSE : $(this.MSE)")
+function printStatistics(ano::Anova)
+    println("overalMean : $(ano.overalMean)")
+    println("totalNumberOfTopologicalInvariants : $(ano.totalNumberOfTopologicalInvariants)")
+    println("SSTotal : $(ano.SSTotal)")
+    println("SST : $(ano.SST)")
+    println("SSE : $(ano.SSE)")
+    println("MST : $(ano.MST)")
+    println("MSE : $(ano.MSE)")
 
     println("averagesOfPopulations : ")
     for   i = 0:size(averagesOfPopulations,1) 
