@@ -1,3 +1,5 @@
+using Eirene
+
 a = [MyPair(0, 3), MyPair(1, 6), MyPair(2,7)]
 b = [MyPair(2, 3), MyPair(2, 4), MyPair(4,7), MyPair(3, 9)]
 c = [MyPair(0, 3), MyPair(2, Inf), MyPair(-Inf,7), MyPair(0, 9)]
@@ -38,8 +40,9 @@ end
     bars4 = [MyPair(2, 6), MyPair(4, 12), MyPair(5,9), MyPair(8,16)]
 
     target_sizes = [length(bars1), length(bars2), length(bars3)+1, length(bars4)+1]
+    all_bars = [bars1, bars2, bars3, bars4]
 
-    for (ind, bar) in enumerate([bars1, bars2, bars3, bars4])
+    for (ind, bar) in enumerate(all_bars)
         barcodes = PersistenceBarcodes(bar, 1)
         pl = create_PersistenceLandscape(barcodes)
 
