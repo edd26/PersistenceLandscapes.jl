@@ -29,9 +29,18 @@ my_persi_barcode3  = PersistenceBarcodes([my_pair,
     # TODO add test for the section below
     # @testset "PersistenceBarcodes from PersistenceBarcodes test" begin
     # end
-
-    @testset "PersistenceBarcodes from vector of MyPairs test" begin
+    @testset "from vector of MyPairs, without dimension" begin
         new_pers_barcodes = PersistenceBarcodes([my_pair1, my_pair2, my_pair3 ])
+        new_pers_barcodes2 = PersistenceBarcodes([MyPair(1, 2), MyPair(2,1)])
+
+
+        @test PersistenceBarcodes([my_pair1, my_pair2, my_pair3 ]).barcodes == [my_pair1, my_pair2, my_pair3 ]
+        @test PersistenceBarcodes([my_pair1, my_pair2, my_pair3, MyPair(12, Inf)]).barcodes == [my_pair1, my_pair2, my_pair3 ]
+    end
+
+    @testset "from vector of MyPairs, with dimension" begin
+        new_pers_barcodes = PersistenceBarcodes([my_pair1, my_pair2, my_pair3 ], 1)
+        new_pers_barcodes2 = PersistenceBarcodes([MyPair(1, 2), MyPair(2,1)], 1)
 
         @test PersistenceBarcodes([my_pair1, my_pair2, my_pair3 ]).barcodes == [my_pair1, my_pair2, my_pair3 ]
         @test PersistenceBarcodes([my_pair1, my_pair2, my_pair3, MyPair(12, Inf)]).barcodes == [my_pair1, my_pair2, my_pair3 ]

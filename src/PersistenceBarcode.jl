@@ -42,7 +42,7 @@ struct PersistenceBarcodes
     dimensionOfBarcode::UInt
 
     function PersistenceBarcodes(bars::Vector{MyPair}, number::Real)
-        new(bars, UInt(number))
+        new(PersistenceBarcodes(bars).barcodes, UInt(number))
 
     end
 
@@ -65,15 +65,18 @@ struct PersistenceBarcodes
         total_pairs = size(bars, 1)
         infty = Inf
         dimensionOfBarcode = 0;
-        sizeOfBarcode = 0 # ::UInt
-        for i = 1:total_pairs 
-            if ( bars[i].second != infty )
-                sizeOfBarcode += 1
-            end
+        # sizeOfBarcode = 0 # ::UInt
+
+
+        for i = 1:total_pairs
+            # if ( bars[i].second != infty )
+            #     sizeOfBarcode += 1
+            # end
             if ( bars[i].second < bars[i].first )
-                sec = bars[i].second; #::Float64
-                bars[i].second = bars[i].first;
-                bars[i].first = sec;
+                # sec = bars[i].second; #::Float64
+                # bars[i].second = bars[i].first;
+                # bars[i].first = sec;
+                bars[i] = MyPair(bars[i].second, bars[i].first)
             end
         end
 
