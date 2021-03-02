@@ -43,7 +43,6 @@ struct PersistenceBarcodes
 
     function PersistenceBarcodes(bars::Vector{MyPair}, number::Real)
         new(PersistenceBarcodes(bars).barcodes, UInt(number))
-
     end
 
     # This hould be transformed into cinstructor from matrix nx2

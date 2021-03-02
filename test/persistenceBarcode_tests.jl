@@ -18,7 +18,7 @@ my_persi_barcode3  = PersistenceBarcodes([my_pair,
                                         my_pair4], 2)
 
 
-@testset "MyPair basic tests" begin
+@testset "Constructor tests" begin
     @test_throws MethodError MyPair("1", 2)
 
     @test my_pair.first == 1
@@ -30,20 +30,23 @@ my_persi_barcode3  = PersistenceBarcodes([my_pair,
     # @testset "PersistenceBarcodes from PersistenceBarcodes test" begin
     # end
     @testset "from vector of MyPairs, without dimension" begin
-        new_pers_barcodes = PersistenceBarcodes([my_pair1, my_pair2, my_pair3 ])
-        new_pers_barcodes2 = PersistenceBarcodes([MyPair(1, 2), MyPair(2,1)])
-
 
         @test PersistenceBarcodes([my_pair1, my_pair2, my_pair3 ]).barcodes == [my_pair1, my_pair2, my_pair3 ]
         @test PersistenceBarcodes([my_pair1, my_pair2, my_pair3, MyPair(12, Inf)]).barcodes == [my_pair1, my_pair2, my_pair3 ]
+
+        @test PersistenceBarcodes([my_pair1, my_pair2, my_pair3 ]).dimensionOfBarcode ==  0
+        @test PersistenceBarcodes([my_pair1, my_pair2, my_pair3, MyPair(12, Inf)]).dimensionOfBarcode == 0
     end
 
     @testset "from vector of MyPairs, with dimension" begin
         new_pers_barcodes = PersistenceBarcodes([my_pair1, my_pair2, my_pair3 ], 1)
         new_pers_barcodes2 = PersistenceBarcodes([MyPair(1, 2), MyPair(2,1)], 1)
 
-        @test PersistenceBarcodes([my_pair1, my_pair2, my_pair3 ]).barcodes == [my_pair1, my_pair2, my_pair3 ]
-        @test PersistenceBarcodes([my_pair1, my_pair2, my_pair3, MyPair(12, Inf)]).barcodes == [my_pair1, my_pair2, my_pair3 ]
+        @test PersistenceBarcodes([my_pair1, my_pair2, my_pair3 ], 1).barcodes == [my_pair1, my_pair2, my_pair3 ]
+        @test PersistenceBarcodes([my_pair1, my_pair2, my_pair3 ], 1).dimensionOfBarcode ==  1
+
+        @test PersistenceBarcodes([my_pair1, my_pair2, my_pair3, MyPair(12, Inf)], 1).barcodes == [my_pair1, my_pair2, my_pair3 ]
+        @test PersistenceBarcodes([my_pair1, my_pair2, my_pair3, MyPair(12, Inf)], 1).dimensionOfBarcode == 1
     end
 end
 
@@ -55,12 +58,14 @@ end
     @test typeof(my_persi_barcode.dimensionOfBarcode) <: UInt
 
     @test my_persi_barcode.barcodes == [my_pair]
-    @test my_persi_barcode.dimensionOfBarcode == 2
+    @test my_persi_barcode.dimensionOfBarcode == UInt(2)
 
     @test typeof(my_persi_barcode.dimensionOfBarcode) <: UInt
 
 
-    @test copy(my_persi_barcode) == my_persi_barcode
+    copied_barcode = copy(my_persi_barcode) 
+    @test copied_barcode.barcodes == my_persi_barcode.barcodes
+    @test copied_barcode.dimensionOfBarcode == my_persi_barcode.dimensionOfBarcode
 
 
     # @test diagonal_symmetrize(square_matrix, below_over_upper=true)[1,end] == square_matrix[end,1]
