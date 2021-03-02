@@ -6,10 +6,20 @@ pl0 = PersistenceLandscape([[MyPair(1,2)], [MyPair(2,6)]], 1)
 pl1 = PersistenceLandscape([a, b], 2)
 pl2 = PersistenceLandscape([a, b, c], 4)
 
-include("VectorSpaceOfPersistenceLandscapes.jl")
+pl_most_basic = PersistenceLandscape([[MyPair(0,2)]], 1)
+# pl_most_basic = PersistenceLandscape([[MyPair(0,2)], MyPair(0,2)], 1)
+
+# it has to be checked what is wrong in case the dim is not given for the constructor of PersistenceLandscape
+# pl_most_basic = PersistenceLandscape([MyPair(0,2), MyPair(0,2)])
+
+
+# debug- can not handle single element in vector
+
 
 @testset "Constructor for a collection of landscapes" begin
 
-    landscpae_collection = VectorSpaceOfPersistenceLandscapes([pl1, pl2, pl2])
+    # landscpae_collection = VectorSpaceOfPersistenceLandscapes([pl1, pl2, pl2])
+    landscpae_collection = VectorSpaceOfPersistenceLandscapes([pl_most_basic, pl_most_basic])
     average(landscpae_collection)
+    # the result is not correct- it gives only the bottom border, not full average
 end
