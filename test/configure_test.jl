@@ -1,4 +1,4 @@
-include("../src/Configure.jl")
+# include("../src/Configure.jl")
 
 @testset "Config test collection" begin
     configure()
