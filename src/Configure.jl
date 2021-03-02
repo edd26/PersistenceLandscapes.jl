@@ -106,7 +106,7 @@ function configure(;config_file_name::String = "configure", config_dict::Dict = 
     vaiableNumber = 0
 
     all_lines = try
-        @info isfile(config_file_name)
+        # @info isfile(config_file_name)
         open(config_file_name , "r") do f
             readlines(f)
         end
