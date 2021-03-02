@@ -603,7 +603,7 @@ end
 
 # ===-===-===-
 # Should be ready for testing
-function operationOnPairOfLandscapes( land1::PersistenceLandscape, land2::PersistenceLandscape, oper; local_dbg = false)
+function operationOnPairOfLandscapes( land1::PersistenceLandscape, land2::PersistenceLandscape, oper; local_dbg = true)
     local_dbg && println("operationOnPairOfLandscapes")
 
     # PersistenceLandscape result
@@ -614,22 +614,24 @@ function operationOnPairOfLandscapes( land1::PersistenceLandscape, land2::Persis
 
     for i = 1 : min( size(land1.land) , size(land2.land) )[1]
         lambda_n = MyPair[]
-        p = 1
+        p = 2 # TODO double check if this can be 2
         q = 1
 
         while  (p+1 < size(land1.land[i],1)) && (q+1 < size(land2.land[i],1))
-            # if local_dbg
-            #     println("p : $(p)")
-            #     println("q : $(q)")
-            #     println("land1.land[i][p].first : $(land1.land[i][p].first)")
-            #     println("land2.land[i][q].first : $(land2.land[i][q].first)")
-            # end
+            if local_dbg
+                println("p : $(p)")
+                println("q : $(q)")
+                println("land1.land[i][p].first : $(land1.land[i][p].first)")
+                println("land2.land[i][q].first : $(land2.land[i][q].first)")
+                println()
+            end
             if land1.land[i][p].first < land2.land[i][q].first
-                # if local_dbg
-                #     println("first")
-                #     println(" functionValue(land2.land[i][q-1],land2.land[i][q],land1.land[i][p].first) : "<<  functionValue(land2.land[i][q-1],land2.land[i][q],land1.land[i][p].first) << "")
-                #     println("oper( $(land1.land[i][p].second),$(functionValue(land2.land[i][q-1],land2.land[i][q],land1.land[i][p].first)) $(oper( land1.land[i][p].second , functionValue(land2.land[i][q-1],land2.land[i][q],land1.land[i][p].first) ))")
-                # end
+                if local_dbg
+                    println("first")
+                    println(" functionValue(land2.land[i][q-1],land2.land[i][q],land1.land[i][p].first) : "<<  functionValue(land2.land[i][q-1],land2.land[i][q],land1.land[i][p].first) << "")
+                    println("oper( $(land1.land[i][p].second),$(functionValue(land2.land[i][q-1],land2.land[i][q],land1.land[i][p].first)) $(oper( land1.land[i][p].second , functionValue(land2.land[i][q-1],land2.land[i][q],land1.land[i][p].first) ))")
+                    println()
+                end
                 end_value = functionValue(land2.land[i][q-1],
                                             land2.land[i][q],
                                             land1.land[i][p].first
@@ -643,17 +645,20 @@ function operationOnPairOfLandscapes( land1::PersistenceLandscape, land2::Persis
                 continue
             end
             if land1.land[i][p].first > land2.land[i][q].first
-                # if local_dbg
-                #     println("Second")
-                #     println("functionValue("<< land1.land[i][p-1]<<" ,"<< land1.land[i][p]<<", $(land2.land[i][q].first<<" ) : " << functionValue( land1.land[i][p-1] , land1.land[i][p-1] ,land2.land[i][q].first ))")
-                #     println("oper( $(functionValue( land1.land[i][p] , land1.land[i][p-1] ,land2.land[i][q].first ) <<",$(land2.land[i][q].second) : " << oper( land2.land[i][q].second , functionValue( land1.land[i][p] , land1.land[i][p-1] ,land2.land[i][q].first ) )))")
-                # end
+                local_dbg && println("Second, first values are equal")
+
                 end_value = functionValue(land1.land[i][p],
                                             land1.land[i][p-1],
                                             land2.land[i][q].first
                                             )
+                local_dbg && println("end_value = $(end_value)")
+
                 operation_result = oper(end_value, land2.land[i][q].second)
+                local_dbg && println("operation_result = $(operation_result)")
+
                 new_pair = make_MyPair(land2.land[i][q].first, operatioin_result)
+                local_dbg && println("new_pair  = $(new_pair  )")
+
                 push!(lambda_n, new_pair)
                 q += 1
                 continue
@@ -674,6 +679,7 @@ function operationOnPairOfLandscapes( land1::PersistenceLandscape, land2::Persis
 
         while (p+1 < size(land1.land[i], 1)) && (q+1 >= size(land2.land[i], 1))
             local_dbg && println("New point : $(land1.land[i][p].first)  oper(land1.land[i][p].second,0) : $( oper(land1.land[i][p].second,0))")
+
 
             oper_result = oper(land1.land[i][p].second, 0)
             new_pair = make_MyPair(land1.land[i][p].first , oper_result)
@@ -722,22 +728,23 @@ function operationOnPairOfLandscapes( land1::PersistenceLandscape, land2::Persis
     end
 
     if size(land2.land,1) > min( size(land1.land,1) , size(land2.land,1) )[1]
-        local_dbg && println("( size(land2.land,1) > $(std::min( size(land1.land,1) , size(land2.land,1) ) ) ")
+        local_dbg && println("( size(land2.land,1) > $(min( size(land1.land,1) , size(land2.land,1))) ")
 
         start_val = min( size(land1.land,1) , size(land2.land,1) )[1]
         stop_val = max( size(land1.land,1) , size(land2.land,1) )[1]
         for i = start_val:stop_val
             lambda_n = MyPair[]
 
-            for nr = 0 : size(land2.land[i])
+            for nr = 1 : size(land2.land[i],1)
                 oper_result = oper(0 , land2.land[i][nr].second)
-
                 new_pair = make_MyPair( land2.land[i][nr].first, oper_result)
+
                 push!(lambda_n, new_pair)
             end
             # CHANGE
             # result.land[i] = lambda_n
-            result[:land][i] = lambda_n
+            # result[:land][i] = lambda_n
+            push!(result[:land], lambda_n)
         end
     end
 
