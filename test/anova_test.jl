@@ -1,4 +1,5 @@
+include("../src/Anova.jl")
 
 @testset "include check" begin
-    include("../src/Anova.jl")
+
 end

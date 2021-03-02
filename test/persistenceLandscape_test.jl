@@ -63,18 +63,25 @@ end
 
 
 @testset "PersistenceLandscape operations" begin
-    @test typeof(pl0+pl0) == PersistenceLandscape
-    @test typeof(pl0-pl0) == PersistenceLandscape
-    @test typeof(pl0*1) == PersistenceLandscape
+    @testset "equality" begin 
+        @test typeof(pl0+pl0) == PersistenceLandscape
+        @test typeof(pl0-pl0) == PersistenceLandscape
+        @test typeof(pl0*1) == PersistenceLandscape
 
-    @test (pl0*1).land[1][1] == MyPair(1,2)
-    @test (pl0*1).land[2][1] == MyPair(2,6)
-    @test (pl0*2).land[1][1] == MyPair(1,4)
-    @test (pl0*2).land[2][1] == MyPair(2,12)
+        @test (pl0*1).land[1][1] == MyPair(1,2)
+        @test (pl0*1).land[2][1] == MyPair(2,6)
+        @test (pl0*2).land[1][1] == MyPair(1,4)
+        @test (pl0*2).land[2][1] == MyPair(2,12)
 
-    @test (pl1==pl1) == true
-    @test (pl1==pl2) == false
-    @test (pl0==pl1) == false
+        @test (pl1==pl1) == true
+        @test (pl1==pl2) == false
+        @test (pl0==pl1) == false
+    end
+
+    @testset "addition" begin
+        pl1+pl2
+
+    end
 
 end
 
