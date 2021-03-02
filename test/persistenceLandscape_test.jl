@@ -8,6 +8,11 @@ pl0 = PersistenceLandscape([[MyPair(1,2)], [MyPair(2,6)]], 1)
 pl1 = PersistenceLandscape([a, b], 2)
 pl2 = PersistenceLandscape([a, b, c], 4)
 
+pl_single_element = PersistenceLandscape([[MyPair(0,2)]], 1)
+pl_double_element1 = PersistenceLandscape([[MyPair(0,2), MyPair(0, 4)]], 1)
+pl_double_element2 = PersistenceLandscape([[MyPair(0,2), MyPair(2, 4)]], 1)
+pl_double_element3 = PersistenceLandscape([[MyPair(0,2), MyPair(3, 4)]], 1)
+
 @testset "PersistenceLandscape constructors tests" begin
 
     @test typeof(pl1.land) == Vector{Vector{MyPair}}
@@ -79,7 +84,12 @@ end
     end
 
     @testset "addition" begin
-        pl1+pl2
+        # addition is not working properly
+        @test pl_single_element + pl_single_element == PersistenceLandscape([[MyPair(0, 4)]], pl_single_element.dimension)
+
+        @test pl_single_element + pl_double_element1 == PersistenceLandscape([[MyPair(0, 4), MyPair(0, 4)]], pl_single_element.dimension)
+        @test pl_single_element + pl_double_element2 == PersistenceLandscape([[MyPair(0, 4), MyPair(2, 4)]], pl_single_element.dimension)
+        @test pl_single_element + pl_double_element3 == PersistenceLandscape([[MyPair(0, 4), MyPair(3, 4)]], pl_single_element.dimension)
 
     end
 

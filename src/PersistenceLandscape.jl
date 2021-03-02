@@ -603,21 +603,26 @@ end
 
 # ===-===-===-
 # Should be ready for testing
-function operationOnPairOfLandscapes( land1::PersistenceLandscape, land2::PersistenceLandscape, oper; local_dbg = true)
+function operationOnPairOfLandscapes( land1::PersistenceLandscape, land2::PersistenceLandscape, oper; local_dbg = false)
     local_dbg && println("operationOnPairOfLandscapes")
 
     # PersistenceLandscape result
-    result = Dict(:land => Any[], :dims => 0)
+    result = Dict(:land => Any[], :dims => land1.dimension)
 
     land = Vector{Vector{MyPair}}()
     # result.land = land
 
-    for i = 1 : min( size(land1.land) , size(land2.land) )[1]
+    # iterate for elements that are in both pers landscapes
+    for i = 1 : min( size(land1.land, 1) , size(land2.land, 1))#-1)
+        @info "for loop, i: $(i)"
         lambda_n = MyPair[]
-        p = 2 # TODO double check if this can be 2
+        p = 1 # TODO double check if this can be 2
         q = 1
 
-        while  (p+1 < size(land1.land[i],1)) && (q+1 < size(land2.land[i],1))
+        # this while covers case when there are vectors left in both land1 and land2
+        # while  (p+1 < size(land1.land[i],1)) && (q+1 < size(land2.land[i],1))
+        while  (p-1 < size(land1.land[i],1)) && (q-1 < size(land2.land[i],1))
+            @info "first while loop, p: $(p), q: $(q)"
             if local_dbg
                 println("p : $(p)")
                 println("q : $(q)")
@@ -625,7 +630,9 @@ function operationOnPairOfLandscapes( land1::PersistenceLandscape, land2::Persis
                 println("land2.land[i][q].first : $(land2.land[i][q].first)")
                 println()
             end
+
             if land1.land[i][p].first < land2.land[i][q].first
+                @info "Last loop, land1 < land2" 
                 if local_dbg
                     println("first")
                     println(" functionValue(land2.land[i][q-1],land2.land[i][q],land1.land[i][p].first) : "<<  functionValue(land2.land[i][q-1],land2.land[i][q],land1.land[i][p].first) << "")
@@ -644,7 +651,9 @@ function operationOnPairOfLandscapes( land1::PersistenceLandscape, land2::Persis
                 p += 1
                 continue
             end
+
             if land1.land[i][p].first > land2.land[i][q].first
+                @info "Last loop, land1> land2" 
                 local_dbg && println("Second, first values are equal")
 
                 end_value = functionValue(land1.land[i][p],
@@ -656,14 +665,18 @@ function operationOnPairOfLandscapes( land1::PersistenceLandscape, land2::Persis
                 operation_result = oper(end_value, land2.land[i][q].second)
                 local_dbg && println("operation_result = $(operation_result)")
 
-                new_pair = make_MyPair(land2.land[i][q].first, operatioin_result)
+                new_pair = make_MyPair(land2.land[i][q].first, operation_result )
                 local_dbg && println("new_pair  = $(new_pair  )")
 
                 push!(lambda_n, new_pair)
                 q += 1
                 continue
             end
+
+            # this the only if statement in while loop that can be executed in frist loop
+            # other loops try to access q-1 or p-1 elements
             if land1.land[i][p].first == land2.land[i][q].first
+                @info "Last loop, =="
                 # local_dbg && println("Third")
                 operation_result = oper(land1.land[i][p].second ,land2.land[i][q].second)
 
@@ -677,7 +690,10 @@ function operationOnPairOfLandscapes( land1::PersistenceLandscape, land2::Persis
                 # getchar())
         end
 
-        while (p+1 < size(land1.land[i], 1)) && (q+1 >= size(land2.land[i], 1))
+        # this while covers case when there are no vectors left in land2 and there some left in land1
+        # original +1 was changed to -1
+        while (p-1 < size(land1.land[i], 1)) && (q-1 >= size(land2.land[i], 1))
+            @info "second while loop, p: $(p), q: $(q)"
             local_dbg && println("New point : $(land1.land[i][p].first)  oper(land1.land[i][p].second,0) : $( oper(land1.land[i][p].second,0))")
 
 
@@ -688,7 +704,10 @@ function operationOnPairOfLandscapes( land1::PersistenceLandscape, land2::Persis
             p += 1
         end
 
-        while (p+1 >= size(land1.land[i],1)) && (q+1 < size(land2.land[i],1))
+        # this while covers case when there are no vectors left in land1 and there some left in land2
+        # original +1 was changed to -1
+        while (p-1 >= size(land1.land[i],1)) && (q-1 < size(land2.land[i],1))
+            @info "third while loop, p: $(p), q: $(q)"
 
             local_dbg && println("New point : $(land2.land[i][q].first) oper(0,land2.land[i][q].second) : $( oper(0,land2.land[i][q].second))")
 
@@ -699,35 +718,47 @@ function operationOnPairOfLandscapes( land1::PersistenceLandscape, land2::Persis
             q += 1
         end
 
-        push!(lambda_n,  make_MyPair( Inf, 0 ) )
+        # if both of while loops fail, then there is nothing added to lambda_n
+        # why add this infinite loop if there was none in the original data?
+        # push!(lambda_n,  make_MyPair( Inf, 0 ) )
         # CHANGE
         # result.land[i] = lambda_n
         push!(result[:land], lambda_n)
     end
 
     # Modify results
-    if size(land1.land,1) > min( size(land1.land,1) , size(land2.land,1) )[1]
+    # if land1 is longer
+    if size(land1.land,1) > min( size(land1.land,1) , size(land2.land,1))
+        @info "first if modifier"
         local_dbg && println("size(land1.land,1) > $(min( size(land1.land,1), size(land2.land,1) ))")
+        # function append_nonoverlapping_pairs(land1::PersistenceLandscape, land2::PersistenceLandscape)
 
-        start_val = min(size(land1.land,1), size(land2.land,1) )[1]
-        stop_val = max(size(land1.land,1), size(land2.land,1) )[1]
+        start_val = min(size(land1.land,1), size(land2.land,1) )
+        stop_val = max(size(land1.land,1), size(land2.land,1) )
+        # append all elements form land1 that are above length of land2
         for i = start_val:stop_val
 
-            lambda_n = MyPair[]
-            for nr = 1 : size(land1.land[i])
+            # lambda_n = MyPair[]
+            # take the tailing parirs and modify them with oper function -> why oper function?
+            lambda_n = land1.land[i]
+            for nr = 1 : size(land1.land[i],1)
                 oper_result = oper(land1.land[i][nr].second, 0)
 
                 new_pair = make_MyPair(land1.land[i][nr].first, oper_result)
-                push!(lambda_n, new_pair)
+                lambda_n[nr] = new_pair
+                # push!(lambda_n, new_pair)
             end
 
             # CHANGE
             # result.land[i] = lambda_n
-            result[:land][i] = lambda_n
+            # result[:land][i] = lambda_n
+            push!(result[:land], lambda_n)
         end
     end
 
+    # if land2 is longer
     if size(land2.land,1) > min( size(land1.land,1) , size(land2.land,1) )[1]
+        @info "second if modifier"
         local_dbg && println("( size(land2.land,1) > $(min( size(land1.land,1) , size(land2.land,1))) ")
 
         start_val = min( size(land1.land,1) , size(land2.land,1) )[1]
