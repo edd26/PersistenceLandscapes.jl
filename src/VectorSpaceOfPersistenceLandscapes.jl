@@ -16,14 +16,26 @@
 #    You should have received a copy of the GNU Lesser General Public License
 #    along with PLT.  If not, see <http://www.gnu.org/licenses/>.
 
+#=
+This code is used to create average landscape
+=#
+
 include("PersistenceLandscape.jl")
 
-struct vectorSpaceOfPersistenceLandscapes
+import Base.size
+
+
+# ===-===-
+struct VectorSpaceOfPersistenceLandscapes
     vectOfLand::Vector{PersistenceLandscape}
 end
 
+function Base.size(vec_space::VectorSpaceOfPersistenceLandscapes;dim=1)
+    return length(vec_space.vecOfLand)
+end
 
-function  averageLandscpceInDiscreteSetOfPoints(v_space_pland::vectorSpaceOfPersistenceLandscapes, dim::UInt, numberOfPoints::UInt, from_num::Float64, to::Float64; local_dbg=false)  # vector<pair<double,double> >
+# ===-===-
+function averageLandscpceInDiscreteSetOfPoints(v_space_pland::VectorSpaceOfPersistenceLandscapes, dim::UInt, numberOfPoints::UInt, from_num::Float64, to::Float64; local_dbg=false)  # vector<pair<double,double> >
 
     if numberOfPoints <= 1
         errMessage = "Error in function averageLandscpceInDiscreteSetOfPoints. You want to compute average using : $(numberOfPoints) points. This variable cannot be less than 2 \n"
@@ -100,9 +112,11 @@ function  averageLandscpceInDiscreteSetOfPoints(v_space_pland::vectorSpaceOfPers
     return result
 end
 
-function average(v_space_pland::vectorSpaceOfPersistenceLandscapes; dbg = false)
-    result = PersistenceLandscape()
-    size(v_space_pland.vectOfLand,1) == 0 && return result
+function average(v_space_pland::VectorSpaceOfPersistenceLandscapes; dbg = false)
+    # size(v_space_pland.vectOfLand,1) == 0 && return PersistenceLandscape()
+    size(v_space_pland.vectOfLand,1) == 0 && return []
+
+    result = Any[]
 
     if useGridInComputations
         #finding maxN such that lambda_n exist
@@ -118,7 +132,7 @@ function average(v_space_pland::vectorSpaceOfPersistenceLandscapes; dbg = false)
         for lambda = 0 : maxN
             dbg && println("Considering lambda : $(lambda)")
             #initialize and set up the counter:
-            counter= vectorSpaceOfPersistenceLandscapes[]
+            counter= VectorSpaceOfPersistenceLandscapes[]
             for i = 1 : size(v_space_pland.vectOfLand,1)
                 push!(counter) = 1
             end
@@ -165,28 +179,28 @@ function average(v_space_pland::vectorSpaceOfPersistenceLandscapes; dbg = false)
         end
     else
         #compute average as a linear combination of PL functions
-        nextLevelMerge = PersistenceLandscape
+        nextLevelMerge = v_space_pland.vectOfLand
 
-        for i = 1 : size(v_space_pland.vectOfLand,1)
-            nextLevelMerge[i] = v_space_pland.vectOfLand[i]
-        end
+        # for i = 1 : size(v_space_pland.vectOfLand,1)
+        #     nextLevelMerge[i] = v_space_pland.vectOfLand[i]
+        # end
 
         while ( size(nextLevelMerge, 1) != 1 )
             dbg && println("size(nextLevelMerge, 1) : $(size(nextLevelMerge, 1))")
 
-            nextNextLevelMerge = PersistenceLandscape
-            for i = 0:size(nextLevelMerge, 1)
+            nextNextLevelMerge = PersistenceLandscape[]
+            for i = 1:size(nextLevelMerge, 1)
                 dbg && println("i : $(i)\nsize(nextLevelMerge, 1) : $(size(nextLevelMerge, 1))")
 
                 l = PersistenceLandscape[]
-                if i+1 != size(nextLevelMerge, 1)
+                if i+1 != size(nextLevelMerge, 1) +1
                     l = nextLevelMerge[i]+nextLevelMerge[i+1]
                 else
                     l = nextLevelMerge[i]
                 end
                 push!(nextNextLevelMerge,  l )
             end
-            if ( dbg )cerr << "After this iteration \n"end
+            dbg && println("After this iteration \n")
 
             nextLevelMerge = nextNextLevelMerge
         end
@@ -196,7 +210,7 @@ function average(v_space_pland::vectorSpaceOfPersistenceLandscapes; dbg = false)
 end
 
 
-function standardDeviation(v_space_pland::vectorSpaceOfPersistenceLandscapes, whichDistance )
+function standardDeviation(v_space_pland::VectorSpaceOfPersistenceLandscapes, whichDistance )
     av = average(v_space_pland)
     distanceToAverage = 0
 
