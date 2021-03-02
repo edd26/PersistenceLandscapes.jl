@@ -26,7 +26,9 @@ function parse_commandline()
     s = ArgParseSettings()
 
     # ===
-    confidenceValue = atof( argv[3+numberOfClasses] );
+    # confidenceValue = atof( argv[3+numberOfClasses] );
+    numberOfClasses = 1
+    confidenceValue = atof( s[3+numberOfClasses] );
 
     @add_arg_table! s begin
         "--numberOfClasses", "-n"
