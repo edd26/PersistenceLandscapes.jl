@@ -25,7 +25,9 @@ module PersistenceLandscapes
             restrictBarcodesToGivenInterval,
             minMax,
             computeLandscapeIntegralFromBarcodes,
-            produceBettiNumbersOnAGridFromMinToMaxRangeWithAStepBeingParameterOfThisFunction
+            produceBettiNumbersOnAGridFromMinToMaxRangeWithAStepBeingParameterOfThisFunction,
+            check_for_infs
+
     # TODO add file writing functions here
 
     export almostEqual,
@@ -34,7 +36,17 @@ module PersistenceLandscapes
            plot_persistence_landscape,
            get_peaks_and_positions
 
+    export VectorSpaceOfPersistenceLandscapes,
+           average
+
+    export configure
+
+    export main
+
+    include("VectorSpaceOfPersistenceLandscapes.jl")
     # include("PersistenceBarcode.jl")
-    include("PersistenceLandscape.jl")
+    # include("PersistenceLandscape.jl")
+    include("Anova.jl")
+    # include("Main.jl")
 
 end
