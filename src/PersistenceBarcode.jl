@@ -23,7 +23,7 @@ import Base.size, Base.isempty, Base.copy, Base.sort
 
 
 # code taken from http://ranger.uta.edu/~weems/NOTES5311/hungarian.c
-//#include "HungarianC.h"
+#include "HungarianC.h"
 
 # tested
 # struct MyPair
@@ -45,7 +45,7 @@ struct PersistenceBarcodes
         new(PersistenceBarcodes(bars).barcodes, UInt(number))
     end
 
-    # This hould be transformed into cinstructor from matrix nx2
+    # This hould be transformed into constructor from matrix nx2
     # function PersistenceBarcodes(pers_barcode::PersistenceBarcodes,  vect::Vector , dimensionOfBarcode::UInt )
     #     1+1
     #     # *this = PersistenceBarcodes(vect);
@@ -72,9 +72,6 @@ struct PersistenceBarcodes
             #     sizeOfBarcode += 1
             # end
             if ( bars[i].second < bars[i].first )
-                # sec = bars[i].second; #::Float64
-                # bars[i].second = bars[i].first;
-                # bars[i].first = sec;
                 bars[i] = MyPair(bars[i].second, bars[i].first)
             end
         end
@@ -93,6 +90,7 @@ struct PersistenceBarcodes
                 barcodes[i] =  make_MyPair( bars[i].first , INT_MAX );
             }=#
         end
+        barcodes = sort(barcodes)
 
         # CHANGE
         new(barcodes, UInt(dimensionOfBarcode))
@@ -285,9 +283,13 @@ end
 
 function Base.sort(pers_barcode::PersistenceBarcodes)
 	# sorted = sort([1:mat_size;], by=i->(sorted_values[i],matrix_indices[i]))
-	sorted = sort(pers_barcode.barcodes, by= x-> x.first)
+	sorted = sort(pers_barcode.barcodes, lt= compareMyPairs)
     # sort( pers_barcode.barcodes.begin() , pers_barcode.barcodes.end() , compareMyPairs );
     return PersistenceBarcodes(sorted, pers_barcode.dimensionOfBarcode)
+end
+
+function Base.sort(bars::Vector{MyPair})
+    return sort(bars, lt=compareMyPairs)
 end
 
 # tested
