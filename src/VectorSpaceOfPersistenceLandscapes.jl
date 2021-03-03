@@ -191,7 +191,7 @@ function average(v_space_pland::VectorSpaceOfPersistenceLandscapes; dbg = false)
 
             # a placeholder for new layer (merged with all previous layers?)
             nextNextLevelMerge = PersistenceLandscape[]
-            # for every second layer- but why every second layer? becaus because they are pairwise merged?
+            # for every second layer- but why every second layer? because they are pairwise merged? yes
             # a pair of vector is merged and then pushed to the vector, in next while iteration it will be merged wit
             # another merge of 2 layers
             for i = 1:2:size(nextLevelMerge, 1)
@@ -203,8 +203,8 @@ function average(v_space_pland::VectorSpaceOfPersistenceLandscapes; dbg = false)
                 else
                     l = nextLevelMerge[i]
                 end
-                push!(nextNextLevelMerge,  l )
-
+                l_divided = divide_layer(l)
+                push!(nextNextLevelMerge, l_divided )
             end
             dbg && println("After this iteration \n")
 
@@ -214,6 +214,20 @@ function average(v_space_pland::VectorSpaceOfPersistenceLandscapes; dbg = false)
     end
     return result
 end
+
+function divide_layer(l::PersistenceLandscape)
+    final_layers_collection = Vector{Vector{MyPair}}()
+    for layer in l.land
+        layer_vector = MyPair[]
+        for element in layer
+            second= element.second/2
+            push!(layer_vector, MyPair(element.first, second))
+        end
+        push!(final_layers_collection, layer_vector)
+    end
+    return PersistenceLandscape(final_layers_collection, l.dimension)
+end
+
 
 
 function standardDeviation(v_space_pland::VectorSpaceOfPersistenceLandscapes, whichDistance )
