@@ -1,4 +1,4 @@
 @testset "Main script tests" begin
-    main()
+    # main()
 
 end
