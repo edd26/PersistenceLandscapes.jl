@@ -24,6 +24,7 @@
 # DrWatson added for packing all config values into single dictionary so that it is more accesible
 using DrWatson
 using Plots
+using Eirene
 
 import Base.:<, Base.:>, Base.==, Base.isless
 
@@ -75,6 +76,7 @@ end
 
 
 areThereInfiniteIntervals = false
+allow_inf_intervals = areThereInfiniteIntervals
 infty = -Inf
 shallInfiniteBarcodesBeIgnored = true
 valueOfInfinity = Inf
