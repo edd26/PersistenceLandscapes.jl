@@ -27,24 +27,291 @@ import Base.:+, Base.:-, Base.:*, Base.:/, Base.==
 
 struct PersistenceLandscape
     land::Vector{Vector{MyPair}} # for empty one use a = Vector{Vector{MyPair}}()
+    # land is a sorted list L_k of the points (x, lambda_k(x))
     dimension::UInt
+
+    # ===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-
+    # Constructors >>>
+    function PersistenceLandscape(landscapePointsWithoutInfinities::Vector{Vector{MyPair}})
+        land = get_landscape_form_vectors(landscapePointsWithoutInfinities)
+        new(land, 0)
+    end
+
+    function PersistenceLandscape(landscapePointsWithoutInfinities::Vector{Vector{MyPair}}, dim::Number)
+        land = get_landscape_form_vectors(landscapePointsWithoutInfinities)
+        new(land, dim)
+    end
+
+    # function PersistenceLandscape(p::PersistenceBarcodes; dbg = false)
+    function PersistenceLandscape(p::PersistenceBarcodes; dbg = false)
+        land = create_PersistenceLandscape(p; dbg = dbg)
+        new(land, p.dimensionOfBarcode)
+    end
+
+    function PersistenceLandscape(p::PersistenceBarcodes, dim::Number; dbg = false)
+        land = create_PersistenceLandscape(p; dbg = dbg)
+        new(land, dim)
+    end
 end
 
-# ===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-
-# Constructors >>>
-function PersistenceLandscape(land::PersistenceLandscape, landscapePointsWithoutInfinities::Vector{Vector{MyPair}})
-    for level = 0:size(landscapePointsWithoutInfinities)
-        v = MyPair[]
-        push!(v, make_MyPair(INT_MIN,0))
-        v.insert( v.end(), landscapePointsWithoutInfinities[level].begin(), landscapePointsWithoutInfinities[level].end() )
-        push!(v, make_MyPair(INT_MAX,0))
-        push!(land, v )
+function  get_landscape_form_vectors(landscapePointsWithoutInfinities::Vector{Vector{MyPair}})
+    land = Vector{Vector{MyPair}}()
+    for level = 1:size(landscapePointsWithoutInfinities,1)
+        v = landscapePointsWithoutInfinities[level]
+        if !(make_MyPair(-Inf,0) in v)
+            vcat(make_MyPair(-Inf,0),v)
+        end
+        if !(make_MyPair(Inf,0) in v)
+            vcat(v, make_MyPair(-Inf,0))
+        end
+        push!(land,v)
     end
-    land.dimension = 0
+    return land
+end
+
+function create_PersistenceLandscape(p::PersistenceBarcodes; dbg = false)
+    dbg && println("PersistenceLandscape(PersistenceBarcodes& p )" )
+
+    # land = Any[]
+    land = Vector{Vector{MyPair}}()
+    if !useGridInComputations
+        dbg && println("PL version")
+        # this is a general algorithm to construct persistence landscapes.
+        sorted_bars = sort(p.barcodes)
+        bars  = sorted_bars
+
+        # bars.insert( bars.begin() , p.barcodes.begin() , p.barcodes.end() )
+        # sort( bars.begin() , bars.end() , comparePoints2 )
+
+        if (dbg)
+            println("Bars :")
+            for i = 0:size(bars,1)
+                println("$(bars[i])")
+            end
+        end
+
+        characteristicPoints = MyPair[]
+        for i = 1:size(bars,1)
+            p_beg = (bars[i].first  + bars[i].second)/2
+            p_end = (bars[i].second - bars[i].first )/2
+            new_pair = MyPair(p_beg, p_end)
+
+            push!( characteristicPoints, new_pair )
+        end
+
+        persistenceLandscape = MyPair[]
+        while ( !isempty(characteristicPoints) )
+        # for (index, points_pair) in enumerate(characteristicPoints)
+            if(dbg)
+                for i = 1:size(characteristicPoints,1)
+                    println("($(characteristicPoints[i]))")
+                end
+            end
+            lambda_n = MyPair[]
+            push!(lambda_n,  make_MyPair(-Inf, 0 ))
+            push!(lambda_n,  make_MyPair(birth(characteristicPoints[1]),0) )
+            push!(lambda_n,  characteristicPoints[1] )
+
+            dbg && println("1 Adding to lambda_n : ($(make_MyPair( INT_MIN , 0 ))) , ($(std::make_MyPair(birth(characteristicPoints[1]),0)) $(characteristicPoints[1])))")
+
+            i = 2
+            # @debug "New char points"
+            newCharacteristicPoints = MyPair[]
+            while ( i <= size(characteristicPoints,1) )
+                # @debug "running for i: $(i) and size of char points $(size(characteristicPoints, 1)+1)"
+                p = 1
+                last_lambda_n = size(lambda_n, 1)
+                if (birth(characteristicPoints[i]) >= birth(lambda_n[last_lambda_n])) &&
+                    (death(characteristicPoints[i]) > death(lambda_n[last_lambda_n]))
+
+                    if birth(characteristicPoints[i]) < death(lambda_n[last_lambda_n])
+                        p_start = (birth(characteristicPoints[i])+death(lambda_n[last_lambda_n]))/2
+                        p_stop  = (death(lambda_n[last_lambda_n])-birth(characteristicPoints[i]))/2
+
+                        point = MyPair(p_start, p_stop)
+                        push!(lambda_n,  point )
+
+                        dbg && println("2 Adding to lambda_n : ($(point))")
+                        if dbg
+                            println("comparePoints(point,characteristicPoints[i+p]) : $(comparePoints(point,characteristicPoints[i+p]))")
+                            println("characteristicPoints[i+p] : $(characteristicPoints[i+p])")
+                            println("point : $(point)")
+                        end
+
+                        while (
+                            (i+p < size(characteristicPoints,1) ) &&
+                            (almostEqual(birth(point),birth(characteristicPoints[i+p]))) &&
+                            (death(point) <= death(characteristicPoints[i+p]))
+                            )
+                            push!(newCharacteristicPoints,  characteristicPoints[i+p] )
+                            dbg && println("3.5 Adding to newCharacteristicPoints : ($(characteristicPoints[i+p]))")
+                            p += 1
+                        end
+                        push!(newCharacteristicPoints,  point )
+
+                        dbg && println("4 Adding to newCharacteristicPoints : ($(point))")
+                        while (
+                            (i+p < size(characteristicPoints, 1) ) &&
+                            ( birth(point) <= birth(characteristicPoints[i+p]) ) &&
+                            (death(point)>=death(characteristicPoints[i+p])) 
+                            )
+                            push!(newCharacteristicPoints,  characteristicPoints[i+p] )
+                            if (dbg)
+                                println("characteristicPoints[i+p] : $(characteristicPoints[i+p])")
+                                println("point : $(point)")
+                                println("comparePoints(point,characteristicPoints[i+p]) : $(comparePoints(point,characteristicPoints[i+p]))")
+                                println("characteristicPoints[i+p] birth and death : $(birth(characteristicPoints[i+p])) $(death(characteristicPoints[i+p]))")
+                                println("point birth and death : $(birth(point)) $(death(point))")
+                                println("3 Adding to newCharacteristicPoints : ($(characteristicPoints[i+p]))")
+                                # getchar()
+                            end
+                            p += 1
+                        end
+                    else
+                        pair1 = make_MyPair( death(lambda_n[size(lambda_n,1)]) , 0 )
+                        pair2 = make_MyPair( birth(characteristicPoints[i]) , 0 )
+                        push!(lambda_n, pair1 )
+                        push!(lambda_n, pair2)
+                        if (dbg)
+                            println("5 Adding to lambda_n:size(($(pair1)))")
+                            println("5 Adding to lambda_n : ($(pair2))")
+                        end
+                    end
+                    push!(lambda_n,  characteristicPoints[i] )
+                    dbg && println("6 Adding to lambda_n : ($(characteristicPoints[i]))")
+                else
+                    push!(newCharacteristicPoints,  characteristicPoints[i] )
+                    dbg && println("7 Adding to newCharacteristicPoints : ($(characteristicPoints[i]))")
+                end
+                i = i+p
+            end
+            push!(lambda_n,  make_MyPair(death(lambda_n[size(lambda_n,1)]),0) )
+            push!(lambda_n,  make_MyPair( Inf , 0 ) )
+            # CHANGE
+            characteristicPoints = newCharacteristicPoints
+
+            # is this supposed to erase unique elements, or leave only unique elements?
+            # # This leaves only unique element in a
+            # a = unique(lambda_n.begin(), lambda_n.end())
+            # # Erase removes elements given in the brackets
+            # lambda_n.erase(a, lambda_n.end())
+
+            # leave only the non-unique elements (???)
+            # lambda_n = filter(unique(lambda_n.begin(), lambda_n.end()), lambda_n.end())
+            lambda_n = unique(lambda_n)
+            push!(land, lambda_n )
+        end
+    else
+        dbg && println("Constructing persistence landscape based on a grid");# getchar())
+
+        # in this case useGridInComputations is true, therefore we will build a landscape on a grid.
+        externgridDiameter
+        minMax_val = minMax(p)
+        numberOfBins = 2*((minMax_val.second - minMax_val.first)/gridDiameter)+1
+
+        # first element of a pa::MyPairir<, vector<double> > is a x-value. Second element is a vector of values of landscapes.
+
+        # vector< pair<, std::vector<double> > > criticalValuesOnPointsOfGrid(numberOfBins)
+        criticalValuesOnPointsOfGrid = Any[]
+
+        # filling up the bins:
+        # Now, the idea is to iterate on land.land[lambda-1] and use only points over there. The problem is at the very beginning, when there is nothing
+        # in land.land. That is why over here, we make a fate this->land[0]. It will be later deteted before moving on.
+
+        aa = MyPair[]
+        push!(aa,  make_MyPair( -Inf, 0 ) )
+
+        x = minMax_val.first
+        for i = 0 : numberOfBins
+            v = Float64[]
+            # pair<, vector<double> > p = std::make_MyPair( x , v )
+            p = (x , v )
+            push!(aa,  make_MyPair( x , 0 ) )
+            push!(criticalValuesOnPointsOfGrid[i], p)
+            dbg && println("x : $(x)")
+            x += 0.5*gridDiameter
+        end
+
+        push!(aa,  make_MyPair( Inf, 0 ) )
+        dbg && println("Grid has been created. Now, begin to add intervals")
+        # for every peristent interval
+        for ervalNo = 0:size(p,1)
+            beginn = ()(2*( p.barcodes[intervalNo].first-minMax_val.first )/( gridDiameter ))+1
+            dbg && println("We are considering interval : [$(p.barcodes[intervalNo].first),$(p.barcodes[intervalNo].second) $(beginn) in the grid")
+            while ( criticalValuesOnPointsOfGrid[beginn].first < p.barcodes[intervalNo].second )
+                dbg && println("Adding a value : ($(criticalValuesOnPointsOfGrid[beginn].first) $(min( abs(criticalValuesOnPointsOfGrid[beginn].first-p.barcodes[intervalNo].first) ,abs(criticalValuesOnPointsOfGrid[beginn].first-p.barcodes[intervalNo].second) ))) ")
+                criticalValuesOnPointsOfGrid[beginn].second.push_back(min( abs(criticalValuesOnPointsOfGrid[beginn].first-p.barcodes[intervalNo].first) ,abs(criticalValuesOnPointsOfGrid[beginn].first-p.barcodes[intervalNo].second) ) )
+                beginn += 1
+            end
+        end
+        # now, the basic structure is created. We need to translate it to a persistence landscape data structure.
+        # To do so, first we need to sort all the vectors in criticalValuesOnPointsOfGrid[i].second
+        maxNonzeroLambda = 0
+        for i = 0:size(criticalValuesOnPointsOfGrid,1) 
+            sort( criticalValuesOnPointsOfGrid[i].second.begin() , criticalValuesOnPointsOfGrid[i].second.end() , greater<int>() )
+            if criticalValuesOnPointsOfGrid[i].second.size() > maxNonzeroLambda
+                maxNonzeroLambda = criticalValuesOnPointsOfGrid[i].second.size()
+            end
+        end
+        if dbg
+            println("After sorting")
+            for i = 0:size(criticalValuesOnPointsOfGrid,1) 
+                println("x : $(criticalValuesOnPointsOfGrid[i].first << " : ")")
+                for j = 0:size(criticalValuesOnPointsOfGrid[i].second,1) 
+                    println(criticalValuesOnPointsOfGrid[i].second[j] << " ")
+                end
+                println("\n")
+            end
+        end
+        push!(land,aa)
+        for lambda = 0 : maxNonzeroLambda 
+            dbg && println("Constructing lambda_$(lambda)")
+            nextLambbda = MyPair[]
+
+            push!(nextLambbda,  make_MyPair(INT_MIN,0) )
+
+            # for every element in the domain for which the previous landscape is nonzero.
+            wasPrevoiusStepZero = true
+            nr = 1
+            while nr < size(land.land[ size(land,1)-1 ])-1
+                dbg  && println("nr : $(nr)")
+                address = ()(2*( land.land[ size(land,1)-1 ][nr].first-minMax_val.first )/( gridDiameter ))
+                dbg && println("We are considering the element x : $(land.land[ size(land,1)-1 ][nr].first). Its position in the structure is : $(address)")
+                if  criticalValuesOnPointsOfGrid[address].second.size() <= lambda
+                    if (!wasPrevoiusStepZero)
+                        wasPrevoiusStepZero = true
+                        dbg && println("AAAdding : ($(criticalValuesOnPointsOfGrid[address].first) $(0)) to lambda_$(lambda)");# getchar())")
+                        push!(nextLambbda,  make_MyPair( criticalValuesOnPointsOfGrid[address].first , 0 ) )
+                    end
+                else
+                    if wasPrevoiusStepZero
+                        dbg && println("Adding : ($(criticalValuesOnPointsOfGrid[address-1].first) $(0)) to lambda_$(lambda)")# getchar())")
+                        push!(nextLambbda,  make_MyPair( criticalValuesOnPointsOfGrid[address-1].first , 0 ) )
+                        wasPrevoiusStepZero = false
+                    end
+                    dbg && println("AAdding : ($(criticalValuesOnPointsOfGrid[address].first) $(criticalValuesOnPointsOfGrid[address].second[lambda])) to lambda_$(lambda)")
+                    push!(nextLambbda,  make_MyPair( criticalValuesOnPointsOfGrid[address].first , criticalValuesOnPointsOfGrid[address].second[lambda] ) )
+                end
+                nr += 1
+            end
+
+            dbg && println("Done with : lambda_$(lambda)")
+
+            if lambda == 0
+                # removing the first, fake, landscape
+                land.land.clear()
+            end
+            push!(nextLambbda,  make_MyPair(INT_MAX,0) )
+            nextLambbda.erase( unique( nextLambbda.begin(), nextLambbda.end() ), nextLambbda.end() )
+            push!(land, nextLambbda )
+        end
+    end
+
+    return land
 end
 
 # Constructor form file
-function PersistenceLandscape(land::PersistenceLandscape, filename::String; dbg = false)
+function create_PersistenceLandscape(land::PersistenceLandscape, filename::String; dbg = false)
     land_vecto = copy(land.land)
     if dbg
         println("Using constructor : PersistenceLandscape $(filename)")
@@ -119,249 +386,6 @@ end
 
 # Constructor, temporarily changed to function
 # function PersistenceLandscape(land::PersistenceLandscape,  p::PersistenceBarcodes; dbg = false)
-function create_PersistenceLandscape(p::PersistenceBarcodes; dbg = false)
-    dbg && println("PersistenceLandscape(PersistenceBarcodes& p )" )
-
-    land = Any[]
-
-    if !useGridInComputations
-        dbg && println("PL version")
-        # this is a general algorithm to construct persistence landscapes.
-        dimension = p.dimensionOfBarcode
-        sorted_bars = sort(p)
-        bars  = copy(sorted_bars.barcodes)
-
-        # bars.insert( bars.begin() , p.barcodes.begin() , p.barcodes.end() )
-        # sort( bars.begin() , bars.end() , comparePoints2 )
-
-        if (dbg)
-            println("Bars :")
-            for i = 0:size(bars,1)
-                println("$(bars[i])")
-            end
-        end
-
-        characteristicPoints = MyPair[]
-        for i = 1:size(bars,1)
-            p_beg = (bars[i].first  + bars[i].second)/2
-            p_end = (bars[i].second - bars[i].first )/2
-            new_pair = MyPair(p_beg, p_end)
-
-            push!( characteristicPoints, new_pair )
-        end
-
-        persistenceLandscape = MyPair[]
-        while ( !isempty(characteristicPoints) )
-        # for (index, points_pair) in enumerate(characteristicPoints)
-            if(dbg)
-                for i = 1:size(characteristicPoints,1)
-                    println("($(characteristicPoints[i]))")
-                end
-            end
-            lambda_n = MyPair[]
-            push!(lambda_n,  make_MyPair(-Inf, 0 ))
-            push!(lambda_n,  make_MyPair(birth(characteristicPoints[1]),0) )
-            push!(lambda_n,  characteristicPoints[1] )
-
-            dbg && println("1 Adding to lambda_n : ($(make_MyPair( INT_MIN , 0 ))) , ($(std::make_MyPair(birth(characteristicPoints[1]),0)) $(characteristicPoints[1])))")
-
-            i = 2
-            # @debug "New char points"
-            newCharacteristicPoints = MyPair[]
-            while ( i <= size(characteristicPoints,1) )
-                # @debug "running for i: $(i) and size of char points $(size(characteristicPoints, 1)+1)"
-                 p = 1
-                 last_lambda_n = size(lambda_n, 1)
-                 if (birth(characteristicPoints[i]) >= birth(lambda_n[last_lambda_n])) &&
-                     (death(characteristicPoints[i]) > death(lambda_n[last_lambda_n]))
-
-                     if birth(characteristicPoints[i]) < death(lambda_n[last_lambda_n])
-                        p_start = (birth(characteristicPoints[i])+death(lambda_n[last_lambda_n]))/2
-                        p_stop  = (death(lambda_n[last_lambda_n])-birth(characteristicPoints[i]))/2
-
-                        point = MyPair(p_start, p_stop)
-                        push!(lambda_n,  point )
-
-                        dbg && println("2 Adding to lambda_n : ($(point))")
-                        if dbg
-                            println("comparePoints(point,characteristicPoints[i+p]) : $(comparePoints(point,characteristicPoints[i+p]))")
-                            println("characteristicPoints[i+p] : $(characteristicPoints[i+p])")
-                            println("point : $(point)")
-                        end
-
-                        while (
-                               (i+p < size(characteristicPoints,1) ) &&
-                               (almostEqual(birth(point),birth(characteristicPoints[i+p]))) &&
-                               (death(point) <= death(characteristicPoints[i+p]))
-                              )
-                            push!(newCharacteristicPoints,  characteristicPoints[i+p] )
-                            dbg && println("3.5 Adding to newCharacteristicPoints : ($(characteristicPoints[i+p]))")
-                            p += 1
-                        end
-                        push!(newCharacteristicPoints,  point )
-
-                        dbg && println("4 Adding to newCharacteristicPoints : ($(point))")
-                        while (
-                               (i+p < size(characteristicPoints, 1) ) &&
-                               ( birth(point) <= birth(characteristicPoints[i+p]) ) &&
-                               (death(point)>=death(characteristicPoints[i+p])) 
-                              )
-                            push!(newCharacteristicPoints,  characteristicPoints[i+p] )
-                            if (dbg)
-                                println("characteristicPoints[i+p] : $(characteristicPoints[i+p])")
-                                println("point : $(point)")
-                                println("comparePoints(point,characteristicPoints[i+p]) : $(comparePoints(point,characteristicPoints[i+p]))")
-                                println("characteristicPoints[i+p] birth and death : $(birth(characteristicPoints[i+p])) $(death(characteristicPoints[i+p]))")
-                                println("point birth and death : $(birth(point)) $(death(point))")
-                                println("3 Adding to newCharacteristicPoints : ($(characteristicPoints[i+p]))")
-                                # getchar()
-                            end
-                            p += 1
-                        end
-                    else
-                        pair1 = make_MyPair( death(lambda_n[size(lambda_n,1)]) , 0 )
-                        pair2 = make_MyPair( birth(characteristicPoints[i]) , 0 )
-                        push!(lambda_n, pair1 )
-                        push!(lambda_n, pair2)
-                        if (dbg)
-                            println("5 Adding to lambda_n:size(($(pair1)))")
-                            println("5 Adding to lambda_n : ($(pair2))")
-                        end
-                    end
-                    push!(lambda_n,  characteristicPoints[i] )
-                    dbg && println("6 Adding to lambda_n : ($(characteristicPoints[i]))")
-                else
-                    push!(newCharacteristicPoints,  characteristicPoints[i] )
-                    dbg && println("7 Adding to newCharacteristicPoints : ($(characteristicPoints[i]))")
-                end
-                i = i+p
-            end
-            push!(lambda_n,  make_MyPair(death(lambda_n[size(lambda_n,1)]),0) )
-            push!(lambda_n,  make_MyPair( Inf , 0 ) )
-            # CHANGE
-            characteristicPoints = newCharacteristicPoints
-
-            # is this supposed to erase unique elements, or leave only unique elements?
-            # # This leaves only unique element in a
-            # a = unique(lambda_n.begin(), lambda_n.end())
-            # # Erase removes elements given in the brackets
-            # lambda_n.erase(a, lambda_n.end())
-
-            # leave only the non-unique elements (???)
-            # lambda_n = filter(unique(lambda_n.begin(), lambda_n.end()), lambda_n.end())
-            lambda_n = unique(lambda_n)
-            push!(land, lambda_n )
-        end
-    else
-        dbg && println("Constructing persistence landscape based on a grid");# getchar())
-
-        # in this case useGridInComputations is true, therefore we will build a landscape on a grid.
-        externgridDiameter
-        dimension = p.dimensionOfBarcode
-        minMax_val = minMax(p)
-        numberOfBins = 2*((minMax_val.second - minMax_val.first)/gridDiameter)+1
-
-        # first element of a pa::MyPairir<, vector<double> > is a x-value. Second element is a vector of values of landscapes.
-
-        # vector< pair<, std::vector<double> > > criticalValuesOnPointsOfGrid(numberOfBins)
-        criticalValuesOnPointsOfGrid = Any[]
-
-        # filling up the bins:
-        # Now, the idea is to iterate on land.land[lambda-1] and use only points over there. The problem is at the very beginning, when there is nothing
-        # in land.land. That is why over here, we make a fate this->land[0]. It will be later deteted before moving on.
-
-        aa = MyPair[]
-        push!(aa,  make_MyPair( -Inf, 0 ) )
-
-        x = minMax_val.first
-        for i = 0 : numberOfBins
-            v = Float64[]
-            # pair<, vector<double> > p = std::make_MyPair( x , v )
-            p = (x , v )
-            push!(aa,  make_MyPair( x , 0 ) )
-            push!(criticalValuesOnPointsOfGrid[i], p)
-            dbg && println("x : $(x)")
-            x += 0.5*gridDiameter
-        end
-
-        push!(aa,  make_MyPair( Inf, 0 ) )
-        dbg && println("Grid has been created. Now, begin to add intervals")
-        # for every peristent interval
-        for ervalNo = 0:size(p,1)
-            beginn = ()(2*( p.barcodes[intervalNo].first-minMax_val.first )/( gridDiameter ))+1
-            dbg && println("We are considering interval : [$(p.barcodes[intervalNo].first),$(p.barcodes[intervalNo].second) $(beginn) in the grid")
-            while ( criticalValuesOnPointsOfGrid[beginn].first < p.barcodes[intervalNo].second )
-                dbg && println("Adding a value : ($(criticalValuesOnPointsOfGrid[beginn].first) $(min( abs(criticalValuesOnPointsOfGrid[beginn].first-p.barcodes[intervalNo].first) ,abs(criticalValuesOnPointsOfGrid[beginn].first-p.barcodes[intervalNo].second) ))) ")
-                criticalValuesOnPointsOfGrid[beginn].second.push_back(min( abs(criticalValuesOnPointsOfGrid[beginn].first-p.barcodes[intervalNo].first) ,abs(criticalValuesOnPointsOfGrid[beginn].first-p.barcodes[intervalNo].second) ) )
-                beginn += 1
-            end
-        end
-        # now, the basic structure is created. We need to translate it to a persistence landscape data structure.
-        # To do so, first we need to sort all the vectors in criticalValuesOnPointsOfGrid[i].second
-         maxNonzeroLambda = 0
-        for i = 0:size(criticalValuesOnPointsOfGrid,1) 
-            sort( criticalValuesOnPointsOfGrid[i].second.begin() , criticalValuesOnPointsOfGrid[i].second.end() , greater<int>() )
-            if criticalValuesOnPointsOfGrid[i].second.size() > maxNonzeroLambda
-                maxNonzeroLambda = criticalValuesOnPointsOfGrid[i].second.size()
-            end
-        end
-        if dbg
-            println("After sorting")
-            for i = 0:size(criticalValuesOnPointsOfGrid,1) 
-                println("x : $(criticalValuesOnPointsOfGrid[i].first << " : ")")
-                for j = 0:size(criticalValuesOnPointsOfGrid[i].second,1) 
-                    println(criticalValuesOnPointsOfGrid[i].second[j] << " ")
-                end
-                println("\n")
-            end
-        end
-        push!(land,aa)
-        for lambda = 0 : maxNonzeroLambda 
-            dbg && println("Constructing lambda_$(lambda)")
-            nextLambbda = MyPair[]
-
-            push!(nextLambbda,  make_MyPair(INT_MIN,0) )
-
-            # for every element in the domain for which the previous landscape is nonzero.
-            wasPrevoiusStepZero = true
-            nr = 1
-            while nr < size(land.land[ size(land,1)-1 ])-1
-                dbg  && println("nr : $(nr)")
-                 address = ()(2*( land.land[ size(land,1)-1 ][nr].first-minMax_val.first )/( gridDiameter ))
-                dbg && println("We are considering the element x : $(land.land[ size(land,1)-1 ][nr].first). Its position in the structure is : $(address)")
-                if  criticalValuesOnPointsOfGrid[address].second.size() <= lambda
-                    if (!wasPrevoiusStepZero)
-                        wasPrevoiusStepZero = true
-                        dbg && println("AAAdding : ($(criticalValuesOnPointsOfGrid[address].first) $(0)) to lambda_$(lambda)");# getchar())")
-                        push!(nextLambbda,  make_MyPair( criticalValuesOnPointsOfGrid[address].first , 0 ) )
-                    end
-                else
-                     if wasPrevoiusStepZero
-                         dbg && println("Adding : ($(criticalValuesOnPointsOfGrid[address-1].first) $(0)) to lambda_$(lambda)")# getchar())")
-                         push!(nextLambbda,  make_MyPair( criticalValuesOnPointsOfGrid[address-1].first , 0 ) )
-                         wasPrevoiusStepZero = false
-                     end
-                     dbg && println("AAdding : ($(criticalValuesOnPointsOfGrid[address].first) $(criticalValuesOnPointsOfGrid[address].second[lambda])) to lambda_$(lambda)")
-                     push!(nextLambbda,  make_MyPair( criticalValuesOnPointsOfGrid[address].first , criticalValuesOnPointsOfGrid[address].second[lambda] ) )
-                end
-                nr += 1
-            end
-
-            dbg && println("Done with : lambda_$(lambda)")
-
-            if lambda == 0
-                # removing the first, fake, landscape
-                land.land.clear()
-            end
-            push!(nextLambbda,  make_MyPair(INT_MAX,0) )
-            nextLambbda.erase( unique( nextLambbda.begin(), nextLambbda.end() ), nextLambbda.end() )
-            push!(land, nextLambbda )
-        end
-    end
-
-
-    return PersistenceLandscape(land, dimension)
-end
 # Constructors <<<
 # ===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-
 
@@ -602,14 +626,40 @@ function Base.size(land::PersistenceLandscape)
 end
 
 # ===-===-===-
-# Should be ready for testing
+# This function is realised by constructors, most probably not needed once consstructors are fixed.
+function check_for_infs(landscape::PersistenceLandscape)
+    landscape_set = Array{Array{MyPair, 1}, 1}()
+    negative_inf = MyPair(-Inf, 0)
+    positive_inf = MyPair(0, Inf)
+
+    for land in landscape.land
+        new_landscape = land
+        if !(negative_inf in new_landscape)
+            new_landscape = vcat(negative_inf, new_landscape)
+        end
+
+        if !(positive_inf in new_landscape)
+            new_landscape = vcat(new_landscape, positive_inf)
+        end
+        push!(landscape_set, new_landscape)
+    end
+
+   return PersistenceLandscape(landscape_set, landscape.dimension)
+end
+
 function operationOnPairOfLandscapes( land1::PersistenceLandscape, land2::PersistenceLandscape, oper; local_dbg = false)
     local_dbg && println("operationOnPairOfLandscapes")
 
+    #check for (-Inf,0) and (0, Inf) pairs
+    # land1 = check_for_infs(land1)
+    # land2 = check_for_infs(land2)
+
     # PersistenceLandscape result
-    result = Dict(:land => Any[], :dims => land1.dimension)
+    # result = Dict(:land => Any[], :dims => land1.dimension)
 
     land = Vector{Vector{MyPair}}()
+    result = Vector{Vector{MyPair}}()
+    dims =  land1.dimension
     # result.land = land
 
     # iterate for elements that are in both pers landscapes
@@ -619,9 +669,10 @@ function operationOnPairOfLandscapes( land1::PersistenceLandscape, land2::Persis
         p = 1 # TODO double check if this can be 2
         q = 1
 
-        # this while covers case when there are vectors left in both land1 and land2
+        # this while covers cases when there are vectors left in both land1 and land2
         # while  (p+1 < size(land1.land[i],1)) && (q+1 < size(land2.land[i],1))
-        while  (p-1 < size(land1.land[i],1)) && (q-1 < size(land2.land[i],1))
+        while  (p < size(land1.land[i],1)) && (q < size(land2.land[i],1))
+            # this while has to have forward check
             @debug "first while loop, p: $(p), q: $(q)"
             if local_dbg
                 println("p : $(p)")
@@ -631,14 +682,15 @@ function operationOnPairOfLandscapes( land1::PersistenceLandscape, land2::Persis
                 println()
             end
 
+            # This if may be true for p=1 and thus will always fail for the first iteration
+            # because it was assumed, that the first pair is (-Inf, 0), because for that
+            # this condition would not be satisfied, neiter for second if, only the third one
+            # will be met and thus p and q will be increased, so that for second iteration this will
+            # be ok. That might be the reason why (0, Inf) is added at the last iteration
             if land1.land[i][p].first < land2.land[i][q].first
-                @debug "Last loop, land1 < land2" 
-                if local_dbg
-                    println("first")
-                    println(" functionValue(land2.land[i][q-1],land2.land[i][q],land1.land[i][p].first) : "<<  functionValue(land2.land[i][q-1],land2.land[i][q],land1.land[i][p].first) << "")
-                    println("oper( $(land1.land[i][p].second),$(functionValue(land2.land[i][q-1],land2.land[i][q],land1.land[i][p].first)) $(oper( land1.land[i][p].second , functionValue(land2.land[i][q-1],land2.land[i][q],land1.land[i][p].first) ))")
-                    println()
-                end
+                @debug "First if, land1.first < land2.first" 
+                local_dbg && println("first if, first values are equal")
+
                 end_value = functionValue(land2.land[i][q-1],
                                             land2.land[i][q],
                                             land1.land[i][p].first
@@ -646,26 +698,28 @@ function operationOnPairOfLandscapes( land1::PersistenceLandscape, land2::Persis
                 operaion_result = oper(land1.land[i][p].second, end_value)
                 new_pair = make_MyPair(land1.land[i][p].first , operaion_result)
 
-                push!(lambda_n, new_pair)
+                local_dbg && println("end_value = $(end_value)")
+                local_dbg && println("operation_result = $(operation_result)")
+                local_dbg && println("new_pair  = $(new_pair  )")
 
+                push!(lambda_n, new_pair)
                 p += 1
                 continue
             end
 
             if land1.land[i][p].first > land2.land[i][q].first
-                @debug "Last loop, land1> land2" 
-                local_dbg && println("Second, first values are equal")
+                @debug "Second if, land1.first > land2.first" 
+                local_dbg && println("Second if, first values are equal")
 
                 end_value = functionValue(land1.land[i][p],
                                             land1.land[i][p-1],
                                             land2.land[i][q].first
                                             )
-                local_dbg && println("end_value = $(end_value)")
-
                 operation_result = oper(end_value, land2.land[i][q].second)
-                local_dbg && println("operation_result = $(operation_result)")
-
                 new_pair = make_MyPair(land2.land[i][q].first, operation_result )
+
+                local_dbg && println("end_value = $(end_value)")
+                local_dbg && println("operation_result = $(operation_result)")
                 local_dbg && println("new_pair  = $(new_pair  )")
 
                 push!(lambda_n, new_pair)
@@ -676,7 +730,7 @@ function operationOnPairOfLandscapes( land1::PersistenceLandscape, land2::Persis
             # this the only if statement in while loop that can be executed in frist loop
             # other loops try to access q-1 or p-1 elements
             if land1.land[i][p].first == land2.land[i][q].first
-                @debug "Last loop, =="
+                @debug "Last if, land1 == land2"
                 # local_dbg && println("Third")
                 operation_result = oper(land1.land[i][p].second ,land2.land[i][q].second)
 
@@ -692,10 +746,9 @@ function operationOnPairOfLandscapes( land1::PersistenceLandscape, land2::Persis
 
         # this while covers case when there are no vectors left in land2 and there some left in land1
         # original +1 was changed to -1
-        while (p-1 < size(land1.land[i], 1)) && (q-1 >= size(land2.land[i], 1))
+        while (p-1 < size(land1.land[i], 1)) && (q-1 > size(land2.land[i], 1))
             @debug "second while loop, p: $(p), q: $(q)"
             local_dbg && println("New point : $(land1.land[i][p].first)  oper(land1.land[i][p].second,0) : $( oper(land1.land[i][p].second,0))")
-
 
             oper_result = oper(land1.land[i][p].second, 0)
             new_pair = make_MyPair(land1.land[i][p].first , oper_result)
@@ -706,7 +759,7 @@ function operationOnPairOfLandscapes( land1::PersistenceLandscape, land2::Persis
 
         # this while covers case when there are no vectors left in land1 and there some left in land2
         # original +1 was changed to -1
-        while (p-1 >= size(land1.land[i],1)) && (q-1 < size(land2.land[i],1))
+        while (p-1 > size(land1.land[i],1)) && (q-1 < size(land2.land[i],1))
             @debug "third while loop, p: $(p), q: $(q)"
 
             local_dbg && println("New point : $(land2.land[i][q].first) oper(0,land2.land[i][q].second) : $( oper(0,land2.land[i][q].second))")
@@ -723,7 +776,7 @@ function operationOnPairOfLandscapes( land1::PersistenceLandscape, land2::Persis
         # push!(lambda_n,  make_MyPair( Inf, 0 ) )
         # CHANGE
         # result.land[i] = lambda_n
-        push!(result[:land], lambda_n)
+        push!(result, lambda_n)
     end
 
     # if land1 is longer
@@ -732,7 +785,7 @@ function operationOnPairOfLandscapes( land1::PersistenceLandscape, land2::Persis
         local_dbg && println("size(land1.land,1) > $(min( size(land1.land,1), size(land2.land,1) ))")
 
         append_nonovelapping_elements!(result, land1; zero_tailing=true, zero_start=false)
-    elseif size(land2.land,1) > min( size(land1.land,1) , size(land2.land,1) )[1]
+    elseif size(land2.land,1) > min( size(land1.land,1) , size(land2.land,1))
         @debug "second if modifier"
         local_dbg && println("( size(land2.land,1) > $(min( size(land1.land,1) , size(land2.land,1))) ")
 
@@ -742,11 +795,11 @@ function operationOnPairOfLandscapes( land1::PersistenceLandscape, land2::Persis
     local_dbg && println("operationOnPairOfLandscapes")
 
     # return result
-    return PersistenceLandscape(result[:land], result[:dims])
+    return PersistenceLandscape(result, dims)
 end# operationOnPairOfLandscapes
 
 
-function append_nonovelapping_elements!(result, selected_land::PersistenceLandscape, zero_tailing=false, zero_start=false)
+function append_nonovelapping_elements!(result, selected_land::PersistenceLandscape; zero_tailing=false, zero_start=false)
     # append all elements form land1 that are above length of land2
     start_val = min(size(land1.land,1), size(land2.land,1) )
     stop_val = max(size(land1.land,1), size(land2.land,1) )
@@ -766,7 +819,7 @@ function append_nonovelapping_elements!(result, selected_land::PersistenceLandsc
             lambda_n[nr] = new_pair
         end
         # CHANGE
-        push!(result[:land], lambda_n)
+        push!(result, lambda_n)
     end
 end
 
