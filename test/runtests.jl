@@ -10,10 +10,6 @@ end
     include("persistenceLandscape_test.jl")
 end
 
-@testset "VectorSpaceOfPersistenceLandscapes test" begin
-    include("vectorSpaceOfPersistenceLandscapes_tets.jl")
-end
-
 @testset "Configure tests" begin
     include("configure_test.jl")
 end
@@ -24,4 +20,8 @@ end
 
 @testset "Main tests" begin
     include("main_test.jl")
+end
+
+@testset "VectorSpaceOfPersistenceLandscapes test" begin
+    include("vectorSpaceOfPersistenceLandscapes_test.jl")
 end
