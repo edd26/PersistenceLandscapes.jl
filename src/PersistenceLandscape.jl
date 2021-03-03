@@ -58,11 +58,13 @@ function  get_landscape_form_vectors(landscapePointsWithoutInfinities::Vector{Ve
     land = Vector{Vector{MyPair}}()
     for level = 1:size(landscapePointsWithoutInfinities,1)
         v = landscapePointsWithoutInfinities[level]
-        if !(make_MyPair(-Inf,0) in v)
-            v = vcat(make_MyPair(-Inf,0),v)
-        end
-        if !(make_MyPair(Inf,0) in v)
-            v = vcat(v, make_MyPair(Inf,0))
+        if allow_inf_intervals
+            if !(make_MyPair(-Inf,0) in v)
+                v = vcat(make_MyPair(-Inf,0),v)
+            end
+            if !(make_MyPair(Inf,0) in v)
+                v = vcat(v, make_MyPair(Inf,0))
+            end
         end
         push!(land,v)
     end
@@ -108,11 +110,13 @@ function create_PersistenceLandscape(p::PersistenceBarcodes; dbg = false)
                 end
             end
             lambda_n = MyPair[]
-            push!(lambda_n,  make_MyPair(-Inf, 0 ))
+            if allow_inf_intervals
+                push!(lambda_n,  make_MyPair(-Inf, 0 ))
+            end
+
+            # TODO this has to be here for creation of PL not to crash on firt iteration
+            push!(lambda_n,  make_MyPair(birth(characteristicPoints[1]),0) )
             push!(lambda_n,  characteristicPoints[1] )
-            # TODO check why this has to be added 
-            # I think this is not necessary, but this has to be verified
-            # push!(lambda_n,  make_MyPair(birth(characteristicPoints[1]),0) )
 
             dbg && println("1 Adding to lambda_n : ($(make_MyPair( INT_MIN , 0 ))) , ($(std::make_MyPair(birth(characteristicPoints[1]),0)) $(characteristicPoints[1])))")
 
@@ -187,9 +191,12 @@ function create_PersistenceLandscape(p::PersistenceBarcodes; dbg = false)
                 end
                 i = i+p
             end
-            # I think this is not necessary, but this has to be verified
-            # push!(lambda_n,  make_MyPair(death(lambda_n[size(lambda_n,1)]),0) )
-            push!(lambda_n,  make_MyPair( Inf , 0 ) )
+            # This is necessary for this structure of code to work, especially, when inf intervals are disabled
+            @info "adding death 0"
+            push!(lambda_n,  make_MyPair(death(lambda_n[size(lambda_n,1)]),0) )
+            if allow_inf_intervals
+                push!(lambda_n,  make_MyPair( Inf , 0 ) )
+            end
             # CHANGE
             characteristicPoints = newCharacteristicPoints
 
@@ -222,7 +229,9 @@ function create_PersistenceLandscape(p::PersistenceBarcodes; dbg = false)
         # in land.land. That is why over here, we make a fate this->land[0]. It will be later deteted before moving on.
 
         aa = MyPair[]
-        push!(aa,  make_MyPair( -Inf, 0 ) )
+        if allow_inf_intervals
+            push!(aa,  make_MyPair( -Inf, 0 ) )
+        end
 
         x = minMax_val.first
         for i = 0 : numberOfBins
@@ -235,7 +244,9 @@ function create_PersistenceLandscape(p::PersistenceBarcodes; dbg = false)
             x += 0.5*gridDiameter
         end
 
-        push!(aa,  make_MyPair( Inf, 0 ) )
+        if allow_inf_intervals
+            push!(aa,  make_MyPair( Inf, 0 ) )
+        end
         dbg && println("Grid has been created. Now, begin to add intervals")
         # for every peristent interval
         for ervalNo = 0:size(p,1)
@@ -353,11 +364,15 @@ function create_PersistenceLandscape(land::PersistenceLandscape, filename::Strin
                         # getchar()
                     end
                     if !isThisAFirsLine
-                        push!(landscapeAtThisLevel, make_MyPair(Inf, 0))
+                        if allow_inf_intervals
+                            push!(landscapeAtThisLevel, make_MyPair(Inf, 0))
+                        end
                         push!(land_vecto, landscapeAtThisLevel)
                         landscapeAtThisLevel = MyPair[]
                     end
-                    push!(landscapeAtThisLevel, make_MyPair(-Inf, 0))
+                    if allow_inf_intervals
+                        push!(landscapeAtThisLevel, make_MyPair(-Inf, 0))
+                    end
                     isThisAFirsLine = false
                 end
             end
@@ -365,7 +380,9 @@ function create_PersistenceLandscape(land::PersistenceLandscape, filename::Strin
     end
     if size(landscapeAtThisLevel,1) > 1
         # seems that the last line of the file is not finished with the newline sign. We need to put what we have in landscapeAtThisLevel to the constructed landscape.
-        push!(landscapeAtThisLevel, make_MyPair(Inf, 0))
+        if allow_inf_intervals
+            push!(landscapeAtThisLevel, make_MyPair(Inf, 0))
+        end
         push!(land_vecto,landscapeAtThisLevel)
     end
     return PersistenceLandscape(land_vecto, dimension)
@@ -669,12 +686,12 @@ function operationOnPairOfLandscapes( land1::PersistenceLandscape, land2::Persis
     for i = 1 : min( size(land1.land, 1) , size(land2.land, 1))#-1)
         @debug "for loop, i: $(i)"
         lambda_n = MyPair[]
-        p = 1 # TODO double check if this can be 2
+        p = 1
         q = 1
 
         # this while covers cases when there are vectors left in both land1 and land2
         # while  (p+1 < size(land1.land[i],1)) && (q+1 < size(land2.land[i],1))
-        while  (p < size(land1.land[i],1)) && (q < size(land2.land[i],1))
+        while  (p <= size(land1.land[i],1)) && (q <= size(land2.land[i],1))
             # this while has to have forward check
             @debug "first while loop, p: $(p), q: $(q)"
             if local_dbg
@@ -694,12 +711,21 @@ function operationOnPairOfLandscapes( land1::PersistenceLandscape, land2::Persis
                 @debug "First if, land1.first < land2.first" 
                 local_dbg && println("first if, first values are equal")
 
-                end_value = functionValue(land2.land[i][q-1],
-                                            land2.land[i][q],
-                                            land1.land[i][p].first
-                                           )
-                operaion_result = oper(land1.land[i][p].second, end_value)
-                new_pair = make_MyPair(land1.land[i][p].first , operaion_result)
+                if q==1
+                    new_pair = MyPair(
+                                      min( land1.land[i][p].first,
+                                          land2.land[i][q].first),
+                                      max( land1.land[i][p].second,
+                                          land2.land[i][q].second)
+                                     )
+                else
+                    end_value = functionValue(land2.land[i][q-1],
+                                                land2.land[i][q],
+                                                land1.land[i][p].first
+                                            )
+                    operaion_result = oper(land1.land[i][p].second, end_value)
+                    new_pair = make_MyPair(land1.land[i][p].first , operaion_result)
+                end
 
                 local_dbg && println("end_value = $(end_value)")
                 local_dbg && println("operation_result = $(operation_result)")
@@ -714,12 +740,21 @@ function operationOnPairOfLandscapes( land1::PersistenceLandscape, land2::Persis
                 @debug "Second if, land1.first > land2.first" 
                 local_dbg && println("Second if, first values are equal")
 
-                end_value = functionValue(land1.land[i][p],
-                                            land1.land[i][p-1],
-                                            land2.land[i][q].first
-                                            )
-                operation_result = oper(end_value, land2.land[i][q].second)
-                new_pair = make_MyPair(land2.land[i][q].first, operation_result )
+                if p==1
+                    new_pair = MyPair(
+                                      min( land1.land[i][p].first,
+                                          land2.land[i][q].first),
+                                      max( land1.land[i][p].second,
+                                          land2.land[i][q].second)
+                                     )
+                else
+                    end_value = functionValue(land1.land[i][p],
+                                                land1.land[i][p-1],
+                                                land2.land[i][q].first
+                                                )
+                    operation_result = oper(end_value, land2.land[i][q].second)
+                    new_pair = make_MyPair(land2.land[i][q].first, operation_result )
+                end
 
                 local_dbg && println("end_value = $(end_value)")
                 local_dbg && println("operation_result = $(operation_result)")
@@ -735,7 +770,8 @@ function operationOnPairOfLandscapes( land1::PersistenceLandscape, land2::Persis
             if land1.land[i][p].first == land2.land[i][q].first
                 @debug "Last if, land1 == land2"
                 # local_dbg && println("Third")
-                operation_result = oper(land1.land[i][p].second ,land2.land[i][q].second)
+                # division by a factor of 2 was added in julia version
+                operation_result = oper(land1.land[i][p].second ,land2.land[i][q].second)/2
 
                 new_pair = make_MyPair(land2.land[i][q].first, operation_result)
 
@@ -749,7 +785,7 @@ function operationOnPairOfLandscapes( land1::PersistenceLandscape, land2::Persis
 
         # this while covers case when there are no vectors left in land2 and there some left in land1
         # original +1 was changed to -1
-        while (p-1 < size(land1.land[i], 1)) && (q-1 > size(land2.land[i], 1))
+        while (p <= size(land1.land[i], 1)) && (q >= size(land2.land[i], 1))
             @debug "second while loop, p: $(p), q: $(q)"
             local_dbg && println("New point : $(land1.land[i][p].first)  oper(land1.land[i][p].second,0) : $( oper(land1.land[i][p].second,0))")
 
@@ -762,7 +798,7 @@ function operationOnPairOfLandscapes( land1::PersistenceLandscape, land2::Persis
 
         # this while covers case when there are no vectors left in land1 and there some left in land2
         # original +1 was changed to -1
-        while (p-1 > size(land1.land[i],1)) && (q-1 < size(land2.land[i],1))
+        while (p >= size(land1.land[i],1)) && (q <= size(land2.land[i],1))
             @debug "third while loop, p: $(p), q: $(q)"
 
             local_dbg && println("New point : $(land2.land[i][q].first) oper(0,land2.land[i][q].second) : $( oper(0,land2.land[i][q].second))")
