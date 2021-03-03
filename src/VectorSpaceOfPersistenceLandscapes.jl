@@ -120,7 +120,7 @@ function average(v_space_pland::VectorSpaceOfPersistenceLandscapes; dbg = false)
 
     if useGridInComputations
         #finding maxN such that lambda_n exist
-         maxN = 0
+        maxN = 0
         for i = 1 : size(v_space_pland.vectOfLand,1)
             if maxN < size(v_space_pland.vectOfLand[i],1)
                 maxN = size(v_space_pland.vectOfLand[i],1)
@@ -179,32 +179,38 @@ function average(v_space_pland::VectorSpaceOfPersistenceLandscapes; dbg = false)
         end
     else
         #compute average as a linear combination of PL functions
-        nextLevelMerge = v_space_pland.vectOfLand
+        nextLevelMerge = copy(v_space_pland.vectOfLand)
 
         # for i = 1 : size(v_space_pland.vectOfLand,1)
         #     nextLevelMerge[i] = v_space_pland.vectOfLand[i]
         # end
 
+        # While there are no new levels to merge (so for single loop we process whole level to be merged)
         while ( size(nextLevelMerge, 1) != 1 )
             dbg && println("size(nextLevelMerge, 1) : $(size(nextLevelMerge, 1))")
 
+            # a placeholder for new layer (merged with all previous layers?)
             nextNextLevelMerge = PersistenceLandscape[]
-            for i = 1:size(nextLevelMerge, 1)
+            # for every second layer- but why every second layer? becaus because they are pairwise merged?
+            # a pair of vector is merged and then pushed to the vector, in next while iteration it will be merged wit
+            # another merge of 2 layers
+            for i = 1:2:size(nextLevelMerge, 1)
                 dbg && println("i : $(i)\nsize(nextLevelMerge, 1) : $(size(nextLevelMerge, 1))")
 
-                l = PersistenceLandscape[]
+                # l = PersistenceLandscape[]
                 if i+1 != size(nextLevelMerge, 1) +1
                     l = nextLevelMerge[i]+nextLevelMerge[i+1]
                 else
                     l = nextLevelMerge[i]
                 end
                 push!(nextNextLevelMerge,  l )
+
             end
             dbg && println("After this iteration \n")
 
             nextLevelMerge = nextNextLevelMerge
         end
-        result = nextLevelMerge[0]
+        result = nextLevelMerge[1]
     end
     return result
 end
