@@ -59,10 +59,10 @@ function  get_landscape_form_vectors(landscapePointsWithoutInfinities::Vector{Ve
     for level = 1:size(landscapePointsWithoutInfinities,1)
         v = landscapePointsWithoutInfinities[level]
         if !(make_MyPair(-Inf,0) in v)
-            vcat(make_MyPair(-Inf,0),v)
+            v = vcat(make_MyPair(-Inf,0),v)
         end
         if !(make_MyPair(Inf,0) in v)
-            vcat(v, make_MyPair(-Inf,0))
+            v = vcat(v, make_MyPair(Inf,0))
         end
         push!(land,v)
     end
@@ -109,8 +109,10 @@ function create_PersistenceLandscape(p::PersistenceBarcodes; dbg = false)
             end
             lambda_n = MyPair[]
             push!(lambda_n,  make_MyPair(-Inf, 0 ))
-            push!(lambda_n,  make_MyPair(birth(characteristicPoints[1]),0) )
             push!(lambda_n,  characteristicPoints[1] )
+            # TODO check why this has to be added 
+            # I think this is not necessary, but this has to be verified
+            # push!(lambda_n,  make_MyPair(birth(characteristicPoints[1]),0) )
 
             dbg && println("1 Adding to lambda_n : ($(make_MyPair( INT_MIN , 0 ))) , ($(std::make_MyPair(birth(characteristicPoints[1]),0)) $(characteristicPoints[1])))")
 
@@ -185,7 +187,8 @@ function create_PersistenceLandscape(p::PersistenceBarcodes; dbg = false)
                 end
                 i = i+p
             end
-            push!(lambda_n,  make_MyPair(death(lambda_n[size(lambda_n,1)]),0) )
+            # I think this is not necessary, but this has to be verified
+            # push!(lambda_n,  make_MyPair(death(lambda_n[size(lambda_n,1)]),0) )
             push!(lambda_n,  make_MyPair( Inf , 0 ) )
             # CHANGE
             characteristicPoints = newCharacteristicPoints
@@ -630,7 +633,7 @@ end
 function check_for_infs(landscape::PersistenceLandscape)
     landscape_set = Array{Array{MyPair, 1}, 1}()
     negative_inf = MyPair(-Inf, 0)
-    positive_inf = MyPair(0, Inf)
+    positive_inf = MyPair(Inf, 0)
 
     for land in landscape.land
         new_landscape = land
@@ -784,12 +787,12 @@ function operationOnPairOfLandscapes( land1::PersistenceLandscape, land2::Persis
         @debug "first if modifier"
         local_dbg && println("size(land1.land,1) > $(min( size(land1.land,1), size(land2.land,1) ))")
 
-        append_nonovelapping_elements!(result, land1; zero_tailing=true, zero_start=false)
+        append_nonoverlapping_elements!(result, land1; zero_tailing=true, zero_start=false)
     elseif size(land2.land,1) > min( size(land1.land,1) , size(land2.land,1))
         @debug "second if modifier"
         local_dbg && println("( size(land2.land,1) > $(min( size(land1.land,1) , size(land2.land,1))) ")
 
-        append_nonovelapping_elements!(result, land2; zero_tailing=true, zero_start=false)
+        append_nonoverlapping_elements!(result, land2; zero_tailing=true, zero_start=false)
     end
 
     local_dbg && println("operationOnPairOfLandscapes")
@@ -799,7 +802,7 @@ function operationOnPairOfLandscapes( land1::PersistenceLandscape, land2::Persis
 end# operationOnPairOfLandscapes
 
 
-function append_nonovelapping_elements!(result, selected_land::PersistenceLandscape; zero_tailing=false, zero_start=false)
+function append_nonoverlapping_elements!(result, selected_land::PersistenceLandscape; zero_tailing=false, zero_start=false)
     # append all elements form land1 that are above length of land2
     start_val = min(size(land1.land,1), size(land2.land,1) )
     stop_val = max(size(land1.land,1), size(land2.land,1) )
