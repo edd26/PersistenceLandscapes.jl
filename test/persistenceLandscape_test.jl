@@ -89,27 +89,27 @@ pl_double_element3 = PersistenceLandscape(PersistenceBarcodes([MyPair(0,2), MyPa
 
 end
 
-@testset "Check for infs check" begin
-    pl_infs1 = PersistenceLandscape([[MyPair(-Inf, 0)]], 1)
-    pl_infs2 = PersistenceLandscape([[MyPair(0, Inf)]], 1)
-    pl_infs3 = PersistenceLandscape([[MyPair(-Inf, 0), MyPair(0, Inf)]], 1)
-    pl_infs4 = PersistenceLandscape([[MyPair(0, Inf), MyPair(-Inf, 0)]], 1)
-
-    pl_infs5 = PersistenceLandscape([c], 1)
-    pl_infs6 = PersistenceLandscape([d], 1)
-
-    @test check_for_infs(pl_infs1) != pl_infs1
-    @test check_for_infs(pl_infs2) != pl_infs2
-    @test check_for_infs(pl_infs3) == pl_infs3
-    @test check_for_infs(pl_infs4) == pl_infs4
-
-    @test check_for_infs(pl_infs5) != pl_infs5
-    @test check_for_infs(pl_infs6) == pl_infs6
-end
+# @testset "Check for infs check" begin
+#     pl_infs1 = PersistenceLandscape([[MyPair(-Inf, 0)]], 1)
+#     pl_infs2 = PersistenceLandscape([[MyPair(0, Inf)]], 1)
+#     pl_infs3 = PersistenceLandscape([[MyPair(-Inf, 0), MyPair(0, Inf)]], 1)
+#     pl_infs4 = PersistenceLandscape([[MyPair(0, Inf), MyPair(-Inf, 0)]], 1)
+#
+#     pl_infs5 = PersistenceLandscape([c], 1)
+#     pl_infs6 = PersistenceLandscape([d], 1)
+#
+#     @test check_for_infs(pl_infs1) != pl_infs1
+#     @test check_for_infs(pl_infs2) != pl_infs2
+#     @test check_for_infs(pl_infs3) == pl_infs3
+#     @test check_for_infs(pl_infs4) == pl_infs4
+#
+#     @test check_for_infs(pl_infs5) != pl_infs5
+#     @test check_for_infs(pl_infs6) == pl_infs6
+# end
 
 
 @testset "PersistenceLandscape operations" begin
-    @testset "equality" begin 
+    @testset "equality" begin
         @test typeof(pl0+pl0) == PersistenceLandscape
         @test typeof(pl0-pl0) == PersistenceLandscape
         @test typeof(pl0*1) == PersistenceLandscape
@@ -125,70 +125,67 @@ end
     end
 
     @testset "addition" begin
+        fig5_data_a = [MyPair(2, 9), MyPair(4, 8), MyPair(4,5), MyPair(8,10)]
+        fig5_bars_a = PersistenceBarcodes(fig5_data_a, 1)
+        fig5_pl_a = PersistenceLandscape(fig5_bars_a)
+
+        fig5_data_b = [MyPair(2, 9), MyPair(4, 8), MyPair(5,6), MyPair(7,9)]
+        fig5_bars_b = PersistenceBarcodes(fig5_data_b, 1)
+        fig5_pl_b = PersistenceLandscape(fig5_bars_b)
+
+        # plt_a = plot_persistence_landscape(fig5_pl_a)
+        # plot!(plt_a  , ticks=0:1:10, xlims=[1,11])
+        # plt_b = plot_persistence_landscape(fig5_pl_b)
+        # plot!(plt_b, ticks=0:1:10, xlims=[1,11])
+        # landscpae_collection = VectorSpaceOfPersistenceLandscapes([fig5_pl_a, fig5_pl_b])
+        # plt_average = plot_persistence_landscape(average(landscpae_collection))
+        # plot!(plt_average , ticks=0:1:10, xlims=[1,11])
+        # final_plot = plot(plt_a, plt_b, plt_average, layout=(3,1), size=(600, 400*3))
+
         # Check adding single element
         singular_landscape_a = PersistenceLandscape(PersistenceBarcodes([MyPair(1,3)],1))
         singular_landscape_b = PersistenceLandscape(PersistenceBarcodes([MyPair(0,4)],1))
         singular_landscape_c = PersistenceLandscape(PersistenceBarcodes([MyPair(0,2)],1))
         singular_landscape_d = PersistenceLandscape(PersistenceBarcodes([MyPair(2,4)],1))
+
+        @test singular_landscape_a + singular_landscape_a == singular_landscape_a + singular_landscape_a
+        @test singular_landscape_a + singular_landscape_b == singular_landscape_b + singular_landscape_a
+        @test singular_landscape_a + singular_landscape_c == singular_landscape_c + singular_landscape_a
+        @test singular_landscape_c + singular_landscape_d == singular_landscape_d + singular_landscape_c
+
+        @test singular_landscape_a + singular_landscape_a == singular_landscape_a
+        @test singular_landscape_a + singular_landscape_b == PersistenceLandscape([[
+                                                                                    MyPair(0,0),
+                                                                                    MyPair(1,1),
+                                                                                    MyPair(2,1.5),
+                                                                                    MyPair(3,1),
+                                                                                    MyPair(4,0)
+                                                                                   ]],1)
+        @test singular_landscape_a + singular_landscape_c == PersistenceLandscape([[MyPair(0.0, 0.0),
+                                                                                    MyPair(1.0, 0.5),
+                                                                                    MyPair(2.0, 0.5),
+                                                                                    MyPair(3.0, 0.0)
+                                                                                   ]],1)
+        @test singular_landscape_c + singular_landscape_d == PersistenceLandscape([[MyPair(0.0, 0.0),
+                                                                                    MyPair(1.0, 1.0),
+                                                                                    MyPair(2.0, 0.0),
+                                                                                    MyPair(3.0, 1.0),
+                                                                                    MyPair(4.0, 0.0)
+                                                                                   ]], 1)
+
         # TODO do check for every while loop and for every if statements
         # possible scenarios:
         # - both have vetors, land1.first = land2.first
-        @test pl_double_element1 + pl_double_element1 == PersistenceLandscape(
-                                                                [[MyPair(0, 4),
-                                                                  MyPair(0, 8)
-                                                                 ]],
-                                                                pl_single_element.dimension)
-        @test pl_double_element1 + pl_double_element2 == PersistenceLandscape(
-                                                                [[MyPair(0, 4),
-                                                                  MyPair(0, 6),
-                                                                  MyPair(2, 4)
-                                                                 ]],
-                                                                pl_single_element.dimension)
-
-        @test pl_double_element1 + pl_double_element3 == PersistenceLandscape(
-                                                                [[MyPair(0, 4),
-                                                                  MyPair(0, 6),
-                                                                  MyPair(3, 4)
-                                                                 ]],
-                                                                pl_single_element.dimension)
-
-        @test pl_double_element1 + pl_double_element1 == pl_double_element1 + pl_double_element1
-        @test pl_double_element1 + pl_double_element2 == pl_double_element2 + pl_double_element1
-        @test pl_double_element1 + pl_double_element3 == pl_double_element3 + pl_double_element1
-
-        # inf included in addition
-        @test pl3 + pl3 == PersistenceLandscape([[MyPair(2.0, 6.0),
-                                                  MyPair(2.0, 8.0),
-                                                  MyPair(4.0, 14.0),
-                                                  MyPair(3.0, 18.0)
-                                                 ],
-                                                 [MyPair(0.0, 6.0),
-                                                  MyPair(2.0, Inf),
-                                                  MyPair(-Inf, 14.0),
-                                                  MyPair(0.0, 18.0)]],
-                                                0x0000000000000001)
-
-
         # - both have vetors, land1.first < land2.first
         # for pl1 in [pl_single_element1, pl_double_element2, pl_single_element3, pl_single_element4]
-        for pl1 in [pl_single_element1]
-            for pl2 in [pl_double_element2, pl_single_element3, pl_single_element4]
-                @test pl1 + pl2
-            end
-        end
-
         # - both have vetors, land1.first > land2.first
         # - one of the following:
             # - do operations while there are elements in land1
-            @test pl3 + pl_single_element
             # - do operations while there are elements in land2
-            @test pl_single_element1 + pl3
         # - in case of land1 being longer, append its elements to result
         # - in case of land2 being longer, append its elements to result
         # - operations must be comutative- !!! check this
-
     end
-
 end
 
 
@@ -277,7 +274,7 @@ end
 
     max_B_dim = 3
     key = all_keys[3]
-    for key in all_keys
+    # for key in all_keys
         total_points = size(ord_matrices[key], 1)
 
         C_ord_mat[key] = eirene(ord_matrices[key],
@@ -291,8 +288,7 @@ end
         bar = [MyPair(barcodes[k,1], barcodes[k,2]) for k in 1:size(barcodes,1)]
         pair_barcodes  = PersistenceBarcodes(bar, selected_dim)
 
-        pl1 = create_PersistenceLandscape(pair_barcodes)
+        pl1 = PersistenceLandscape(pair_barcodes)
         plot_persistence_landscape(pl1)
-    end
-
+    # end # for
 end
