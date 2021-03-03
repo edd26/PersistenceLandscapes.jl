@@ -16,6 +16,10 @@ pl1 = PersistenceLandscape([a, b], 2)
 pl2 = PersistenceLandscape([a, b, c], 4)
 pl3 = PersistenceLandscape([b, c], 1)
 
+fig1_data = [MyPair(0, 4), MyPair(2, 10), MyPair(3,7), MyPair(6,14)]
+fig1_bars = PersistenceBarcodes(fig1_data, 1)
+fig1_pl = PersistenceLandscape(fig1_bars)
+
 pl_single_element1 = PersistenceLandscape(PersistenceBarcodes([MyPair(0,2)]), 1)
 pl_single_element2 = PersistenceLandscape(PersistenceBarcodes([MyPair(2,4)]), 1)
 pl_single_element3 = PersistenceLandscape(PersistenceBarcodes([MyPair(3,4)]), 1)
@@ -122,23 +126,10 @@ end
 
     @testset "addition" begin
         # Check adding single element
-        addition_ls1 = [negative_inf, MyPair(0, 4), ]
-        addition_ls2 = [negative_inf, MyPair(0, 4), ]
-        addition_ls3 = [negative_inf, MyPair(0, 4), MyPair(2, 4), ]
-        addition_ls4 = [negative_inf, MyPair(0, 4), MyPair(3, 4), ]
-
-        @test pl_single_element1 + pl_single_element1 == PersistenceLandscape([addition_ls1], pl_single_element1.dimension)
-
-        # Check adding single element and a double elements
-        @test pl_single_element1 + pl_double_element1 == PersistenceLandscape([addition_ls1], pl_single_element1.dimension)
-        @test pl_single_element1 + pl_double_element2 == PersistenceLandscape([addition_ls2], pl_single_element1.dimension)
-        @test pl_single_element1 + pl_double_element3 == PersistenceLandscape([addition_ls3], pl_single_element1.dimension)
-
-        @test pl_double_element1 + pl_single_element1 == pl_single_element1 + pl_double_element1
-        @test pl_double_element2 + pl_single_element1 == pl_single_element1 + pl_double_element2
-        @test pl_double_element3 + pl_single_element1 == pl_single_element1 + pl_double_element3
-
-
+        singular_landscape_a = PersistenceLandscape(PersistenceBarcodes([MyPair(1,3)],1))
+        singular_landscape_b = PersistenceLandscape(PersistenceBarcodes([MyPair(0,4)],1))
+        singular_landscape_c = PersistenceLandscape(PersistenceBarcodes([MyPair(0,2)],1))
+        singular_landscape_d = PersistenceLandscape(PersistenceBarcodes([MyPair(2,4)],1))
         # TODO do check for every while loop and for every if statements
         # possible scenarios:
         # - both have vetors, land1.first = land2.first
