@@ -143,10 +143,9 @@ end
                 @test addition_first_vals == unique_first_vals
             end
         end
- 
 
         # Figure tests
-        #         fig5_data_a = [MyPair(2, 9), MyPair(4, 8), MyPair(4,5), MyPair(8,10)]
+        # fig5_data_a = [MyPair(2, 9), MyPair(4, 8), MyPair(4,5), MyPair(8,10)]
         # fig5_bars_a = PersistenceBarcodes(fig5_data_a, 1)
         # fig5_pl_a = PersistenceLandscape(fig5_bars_a)
         #
