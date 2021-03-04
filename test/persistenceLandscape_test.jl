@@ -1,34 +1,4 @@
 using Eirene
-negative_inf = MyPair(-Inf, 0)
-positive_inf = MyPair(0, Inf)
-
-a = [MyPair(0, 3), MyPair(1, 6), MyPair(2,7)]
-b = [MyPair(2, 3), MyPair(2, 4), MyPair(4,7), MyPair(3, 9)]
-c = [MyPair(0, 3), MyPair(2, Inf), MyPair(-Inf,7), MyPair(0, 9)]
-d = [MyPair(0, 3), MyPair(2, Inf), MyPair(-Inf,7), MyPair(0, 9), MyPair(-Inf, 0), MyPair(0,Inf)]
-
-pb_a = PersistenceBarcodes(a)
-pb_b = PersistenceBarcodes(b)
-pb_c = PersistenceBarcodes(c)
-pb_d = PersistenceBarcodes(d)
-
-pl0 = PersistenceLandscape([[MyPair(1,2)], [MyPair(2,6)]], 1)
-pl1 = PersistenceLandscape([a, b], 2)
-pl2 = PersistenceLandscape([a, b, c], 4)
-pl3 = PersistenceLandscape([b, c], 1)
-
-fig1_data = [MyPair(0, 4), MyPair(2, 10), MyPair(3,7), MyPair(6,14)]
-fig1_bars = PersistenceBarcodes(fig1_data, 1)
-fig1_pl = PersistenceLandscape(fig1_bars)
-
-pl_single_element1 = PersistenceLandscape(PersistenceBarcodes([MyPair(0,2)]), 1)
-pl_single_element2 = PersistenceLandscape(PersistenceBarcodes([MyPair(2,4)]), 1)
-pl_single_element3 = PersistenceLandscape(PersistenceBarcodes([MyPair(3,4)]), 1)
-pl_single_element4 = PersistenceLandscape(PersistenceBarcodes([MyPair(4,1)]), 1)
-
-pl_double_element1 = PersistenceLandscape(PersistenceBarcodes([MyPair(0,2), MyPair(0, 4)]), 1)
-pl_double_element2 = PersistenceLandscape(PersistenceBarcodes([MyPair(0,2), MyPair(2, 4)]), 1)
-pl_double_element3 = PersistenceLandscape(PersistenceBarcodes([MyPair(0,2), MyPair(3, 4)]), 1)
 
 @testset "constructors tests" begin
     bars1 = [MyPair(0, 3), MyPair(0, 6), MyPair(0,10)]
@@ -195,7 +165,7 @@ end
     end
 
 
-e nd
+end
 
 
 @testset "PersistenceLandscape test on eirene results" begin

@@ -1,6 +1,8 @@
 using Test
 using PersistenceLandscapes
 
+include("tests_configuration.jl")
+
 @testset "PersistenceBarcode tests" begin
     include("persistenceBarcode_tests.jl")
 end

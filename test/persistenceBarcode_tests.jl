@@ -1,22 +1,5 @@
 # TODO Is it possible to crate barcodes form Eirene barcodes? Add tests for that
 
-my_pair = MyPair(1, 2)
-my_pair1 = my_pair
-my_pair2 = MyPair(1, 3)
-my_pair3 = MyPair(3, 7)
-my_pair4 = MyPair(6, 7)
-my_persi_barcode = PersistenceBarcodes([my_pair], 2)
-my_persi_barcode2  = PersistenceBarcodes([my_pair,
-                                        my_pair1,
-                                        my_pair2,
-                                        my_pair3,
-                                        my_pair4], 2)
-my_persi_barcode3  = PersistenceBarcodes([my_pair,
-                                        my_pair1,
-                                        my_pair3,
-                                        my_pair3,
-                                        my_pair4], 2)
-
 
 @testset "Constructor tests" begin
     @test_throws MethodError MyPair("1", 2)
