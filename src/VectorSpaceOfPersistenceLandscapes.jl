@@ -31,7 +31,7 @@ struct VectorSpaceOfPersistenceLandscapes
 end
 
 function Base.size(vec_space::VectorSpaceOfPersistenceLandscapes;dim=1)
-    return length(vec_space.vecOfLand)
+    return length(vec_space.vectOfLand)
 end
 
 # ===-===-
@@ -112,7 +112,17 @@ function averageLandscpceInDiscreteSetOfPoints(v_space_pland::VectorSpaceOfPersi
     return result
 end
 
-function average(v_space_pland::VectorSpaceOfPersistenceLandscapes; dbg = false)
+
+function average(x::PersistenceLandscape...; dbg = false)::PersistenceLandscape
+    v_space_pland = VectorSpaceOfPersistenceLandscapes([x1 for x1 in x])
+    return average(v_space_pland, dbg=dbg)
+end
+
+function two_element_average(x, y)
+   (x+y)/2
+end
+
+function average(v_space_pland::VectorSpaceOfPersistenceLandscapes; dbg = false)::PersistenceLandscape
     # size(v_space_pland.vectOfLand,1) == 0 && return PersistenceLandscape()
     size(v_space_pland.vectOfLand,1) == 0 && return []
 
@@ -199,12 +209,13 @@ function average(v_space_pland::VectorSpaceOfPersistenceLandscapes; dbg = false)
 
                 # l = PersistenceLandscape[]
                 if i+1 != size(nextLevelMerge, 1) +1
-                    l = nextLevelMerge[i]+nextLevelMerge[i+1]
+                    l = operationOnPairOfLandscapes(nextLevelMerge[i],nextLevelMerge[i+1], two_element_average)
                 else
                     l = nextLevelMerge[i]
                 end
-                l_divided = divide_layer(l)
-                push!(nextNextLevelMerge, l_divided )
+                # l_divided = divide_layer(l)
+                # push!(nextNextLevelMerge, l_divided )
+                push!(nextNextLevelMerge, l)
             end
             dbg && println("After this iteration \n")
 

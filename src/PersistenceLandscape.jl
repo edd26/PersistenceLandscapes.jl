@@ -121,10 +121,10 @@ function create_PersistenceLandscape(p::PersistenceBarcodes; dbg = false)
             dbg && println("1 Adding to lambda_n : ($(make_MyPair( INT_MIN , 0 ))) , ($(std::make_MyPair(birth(characteristicPoints[1]),0)) $(characteristicPoints[1])))")
 
             i = 2
-            # @debug "New char points"
+            @debug "New char points"
             newCharacteristicPoints = MyPair[]
             while ( i <= size(characteristicPoints,1) )
-                # @debug "running for i: $(i) and size of char points $(size(characteristicPoints, 1)+1)"
+                @debug "running for i: $(i) and size of char points $(size(characteristicPoints, 1)+1)"
                 p = 1
                 last_lambda_n = size(lambda_n, 1)
                 if (birth(characteristicPoints[i]) >= birth(lambda_n[last_lambda_n])) &&
@@ -192,7 +192,6 @@ function create_PersistenceLandscape(p::PersistenceBarcodes; dbg = false)
                 i = i+p
             end
             # This is necessary for this structure of code to work, especially, when inf intervals are disabled
-            @info "adding death 0"
             push!(lambda_n,  make_MyPair(death(lambda_n[size(lambda_n,1)]),0) )
             if allow_inf_intervals
                 push!(lambda_n,  make_MyPair( Inf , 0 ) )
@@ -581,6 +580,14 @@ function *(con::Real, first::PersistenceLandscape)
     return multiplyLanscapeByRealNumberNotOverwrite(first, con)
 end
 
+# function /(first::PersistenceLandscape, con::Real)
+#     return divideLanscapeByRealNumberNotOverwrite(first, con)
+# end
+#
+# function /(con::Real, first::PersistenceLandscape)
+#     return divideLanscapeByRealNumberNotOverwrite(first, con)
+# end
+
 # function Base.+=(this::PersistenceLandscape, rhs::PersistenceLandscape)
 #     return this + rhs
 # end
@@ -593,7 +600,7 @@ end
 #     return this * x
 # end
 
-function /(this::PersistenceLandscape, x::Float64 )
+function /(this::PersistenceLandscape, x::Real)
     x == 0  && throw(DomainError("In Base./=, division by 0. Program terminated." ))
     return this / x
 end
@@ -712,20 +719,22 @@ function operationOnPairOfLandscapes( land1::PersistenceLandscape, land2::Persis
                 local_dbg && println("first if, first values are equal")
 
                 if q==1
-                    new_pair = MyPair(
-                                      min( land1.land[i][p].first,
-                                          land2.land[i][q].first),
-                                      max( land1.land[i][p].second,
-                                          land2.land[i][q].second)
-                                     )
+                    element_before = MyPair(land1.land[i][p].first,0)
+                    # new_pair = MyPair(
+                    #                   min(land1.land[i][p].first,
+                    #                       land2.land[i][q].first),
+                    #                   max( land1.land[i][p].second,
+                    #                       land2.land[i][q].second)
+                    #                  )
                 else
-                    end_value = functionValue(land2.land[i][q-1],
-                                                land2.land[i][q],
-                                                land1.land[i][p].first
-                                            )
-                    operaion_result = oper(land1.land[i][p].second, end_value)
-                    new_pair = make_MyPair(land1.land[i][p].first , operaion_result)
+                    element_before = land2.land[i][q-1]
                 end
+                end_value = functionValue(element_before,
+                                            land2.land[i][q],
+                                            land1.land[i][p].first
+                                        )
+                operaion_result = oper(land1.land[i][p].second, end_value)
+                new_pair = make_MyPair(land1.land[i][p].first , operaion_result)
 
                 local_dbg && println("end_value = $(end_value)")
                 local_dbg && println("operation_result = $(operation_result)")
@@ -741,20 +750,22 @@ function operationOnPairOfLandscapes( land1::PersistenceLandscape, land2::Persis
                 local_dbg && println("Second if, first values are equal")
 
                 if p==1
-                    new_pair = MyPair(
-                                      min( land1.land[i][p].first,
-                                          land2.land[i][q].first),
-                                      max( land1.land[i][p].second,
-                                          land2.land[i][q].second)
-                                     )
+                    element_before = MyPair(land2.land[i][q].first,0)
+                    # new_pair = MyPair(
+                    #                   min( land1.land[i][p].first,
+                    #                       land2.land[i][q].first),
+                    #                   max( land1.land[i][p].second,
+                    #                       land2.land[i][q].second)
+                    #                  )
                 else
-                    end_value = functionValue(land1.land[i][p],
-                                                land1.land[i][p-1],
-                                                land2.land[i][q].first
-                                                )
-                    operation_result = oper(end_value, land2.land[i][q].second)
-                    new_pair = make_MyPair(land2.land[i][q].first, operation_result )
+                    element_before =land1.land[i][p-1]
                 end
+                end_value = functionValue(land1.land[i][p],
+                                            element_before,
+                                            land2.land[i][q].first
+                                            )
+                operation_result = oper(end_value, land2.land[i][q].second)
+                new_pair = make_MyPair(land2.land[i][q].first, operation_result )
 
                 local_dbg && println("end_value = $(end_value)")
                 local_dbg && println("operation_result = $(operation_result)")
@@ -771,7 +782,7 @@ function operationOnPairOfLandscapes( land1::PersistenceLandscape, land2::Persis
                 @debug "Last if, land1 == land2"
                 # local_dbg && println("Third")
                 # division by a factor of 2 was added in julia version
-                operation_result = oper(land1.land[i][p].second ,land2.land[i][q].second)/2
+                operation_result = oper(land1.land[i][p].second ,land2.land[i][q].second)
 
                 new_pair = make_MyPair(land2.land[i][q].first, operation_result)
 
@@ -893,7 +904,6 @@ end
 # end
 
 function dim(land::PersistenceLandscape)
-    # @debug "Not sure if this should work this way"
     return land.dimension
 end
 
@@ -1619,6 +1629,21 @@ function multiplyLanscapeByRealNumberNotOverwrite(land::PersistenceLandscape, x:
     # res.land = result
     return PersistenceLandscape(result, land.dimension)
 end# multiplyLanscapeByRealNumberOverwrite
+
+# function divideLanscapeByRealNumberNotOverwrite(land::PersistenceLandscape, x::Real )
+#     result = Vector{Vector{MyPair}}()
+#     for dim = 1 : size(land)
+#         lambda_dim = MyPair[]
+#         for i = 1 : size(land.land[dim],1)
+#             push!(lambda_dim, make_MyPair( land.land[dim][i].first , land.land[dim][i].second/x ))
+#         end
+#
+#         push!(result, lambda_dim)
+#     end
+#     # CHANGE
+#     # res.land = result
+#     return PersistenceLandscape(result, land.dimension)
+# end# multiplyLanscapeByRealNumberOverwrite
 
 
 # original function took arguments which were m,odified in the function. Now it returns values required
