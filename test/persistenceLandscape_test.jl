@@ -110,6 +110,10 @@ end
 
 
 @testset "PersistenceLandscape operations" begin
+    singular_landscape_a = PersistenceLandscape(PersistenceBarcodes([MyPair(1,3)],1))
+    singular_landscape_b = PersistenceLandscape(PersistenceBarcodes([MyPair(0,4)],1))
+    singular_landscape_c = PersistenceLandscape(PersistenceBarcodes([MyPair(0,2)],1))
+    singular_landscape_d = PersistenceLandscape(PersistenceBarcodes([MyPair(2,4)],1))
     @testset "equality" begin
         @test typeof(pl0+pl0) == PersistenceLandscape
         @test typeof(pl0-pl0) == PersistenceLandscape
@@ -128,10 +132,6 @@ end
     @testset "addition" begin
 
         # Check adding single element
-        singular_landscape_a = PersistenceLandscape(PersistenceBarcodes([MyPair(1,3)],1))
-        singular_landscape_b = PersistenceLandscape(PersistenceBarcodes([MyPair(0,4)],1))
-        singular_landscape_c = PersistenceLandscape(PersistenceBarcodes([MyPair(0,2)],1))
-        singular_landscape_d = PersistenceLandscape(PersistenceBarcodes([MyPair(2,4)],1))
 
         # comutative test
         @test singular_landscape_a + singular_landscape_a == singular_landscape_a + singular_landscape_a
@@ -193,7 +193,9 @@ end
         # plot!(plt_average , ticks=0:1:10, xlims=[1,11])
         # final_plot = plot(plt_a, plt_b, plt_average, layout=(3,1), size=(600, 400*3))
     end
-end
+
+
+e nd
 
 
 @testset "PersistenceLandscape test on eirene results" begin
