@@ -241,19 +241,20 @@ end
 
 
 
-function standardDeviation(v_space_pland::VectorSpaceOfPersistenceLandscapes, whichDistance )
+function standardDeviation(v_space_pland::VectorSpaceOfPersistenceLandscapes; whichDistance::String="regular")
     av = average(v_space_pland)
     distanceToAverage = 0
 
     for i = 1 : size(v_space_pland.vectOfLand,1)
-        if whichDistance > 0
+        if whichDistance == "regular"
             #L^whichDistance distance
-            distance = computeDiscanceOfLandscapes( av , v_space_pland.vectOfLand[i] , (unsigned)whichDistance )
-        else
+            distance = computeDiscanceOfLandscapes(av, v_space_pland.vectOfLand[i], whichDistance)
+        elseif whichDistance == "maxNorm"
             #L^infty distance
-            distance = computeMaxNormDiscanceOfLandscapes( av , v_space_pland.vectOfLand[i] )
+            distance = computeMaxNormDiscanceOfLandscapes(av, v_space_pland.vectOfLand[i])
         end
-        distanceToAverage += distance*distance
+        # distanceToAverage += distance*distance
+        distanceToAverage += distance^2
     end
     deviation = sqrt(distanceToAverage/size(v_space_pland.vectOfLand,1))
     return deviation
