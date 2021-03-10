@@ -1,4 +1,5 @@
 using Eirene
+using Plots
 
 @testset "constructors tests" begin
     bars1 = [MyPair(0, 3), MyPair(0, 6), MyPair(0,10)]
@@ -145,25 +146,34 @@ end
         end
 
         # Figure tests
-        # fig5_data_a = [MyPair(2, 9), MyPair(4, 8), MyPair(4,5), MyPair(8,10)]
-        # fig5_bars_a = PersistenceBarcodes(fig5_data_a, 1)
-        # fig5_pl_a = PersistenceLandscape(fig5_bars_a)
-        #
-        # fig5_data_b = [MyPair(2, 9), MyPair(4, 8), MyPair(5,6), MyPair(7,9)]
-        # fig5_bars_b = PersistenceBarcodes(fig5_data_b, 1)
-        # fig5_pl_b = PersistenceLandscape(fig5_bars_b)
-        #
-        # plt_a = plot_persistence_landscape(fig5_pl_a)
-        # plot!(plt_a  , ticks=0:1:10, xlims=[1,11])
-        # plt_b = plot_persistence_landscape(fig5_pl_b)
-        # plot!(plt_b, ticks=0:1:10, xlims=[1,11])
-        # landscpae_collection = VectorSpaceOfPersistenceLandscapes([fig5_pl_a, fig5_pl_b])
-        # plt_average = plot_persistence_landscape(average(landscpae_collection))
-        # plot!(plt_average , ticks=0:1:10, xlims=[1,11])
-        # final_plot = plot(plt_a, plt_b, plt_average, layout=(3,1), size=(600, 400*3))
+        fig5_data_a = [MyPair(2, 9), MyPair(4, 8), MyPair(4,5), MyPair(8,10)]
+        fig5_bars_a = PersistenceBarcodes(fig5_data_a, 1)
+        fig5_pl_a = PersistenceLandscape(fig5_bars_a)
+
+        fig5_data_b = [MyPair(2, 9), MyPair(4, 8), MyPair(5,6), MyPair(7,9)]
+        fig5_bars_b = PersistenceBarcodes(fig5_data_b, 1)
+        fig5_pl_b = PersistenceLandscape(fig5_bars_b)
+
+        plt_a = plot_persistence_landscape(fig5_pl_a)
+        plot!(plt_a  , ticks=0:1:10, xlims=[1,11])
+        plt_b = plot_persistence_landscape(fig5_pl_b)
+        plot!(plt_b, ticks=0:1:10, xlims=[1,11])
+        landscpae_collection = VectorSpaceOfPersistenceLandscapes([fig5_pl_a, fig5_pl_b])
+        plt_average = plot_persistence_landscape(average(landscpae_collection))
+        plot!(plt_average , ticks=0:1:10, xlims=[1,11])
+        final_plot = plot(plt_a, plt_b, plt_average, layout=(3,1), size=(600, 400*3))
+    end
+end
+
+@testset "Distances tests" begin
+    @testset "(regular) distance of landscapes" begin
+
     end
 
+    @testset "max norm distance of landscapes" begin
 
+
+    end
 end
 
 
