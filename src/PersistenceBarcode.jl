@@ -293,7 +293,7 @@ function Base.sort(bars::Vector{MyPair})
 end
 
 # tested
-function compare(pers_barcode::PersistenceBarcodes,  b::PersistenceBarcodes; dbg::Bool = true)::Bool
+function compare(pers_barcode::PersistenceBarcodes,  b::PersistenceBarcodes; dbg::Bool = false)::Bool
     if ( dbg )
         println("pers_barcode.barcodes.size(): $(size(pers_barcode.barcodes,1))")
         println("b.barcodes.size(): $(size(b.barcodes,1))")
@@ -308,8 +308,8 @@ function compare(pers_barcode::PersistenceBarcodes,  b::PersistenceBarcodes; dbg
     sorted_b = sort(b);
     for i = 1:size(sorted_pers_barcode.barcodes,1)
         if sorted_pers_barcode.barcodes[i] != b.barcodes[i]
-            println("sorted_pers_barcode.barcodes[$(i)] = $(sorted_pers_barcode.barcodes[i])")
-            println("sorted_b.barcodes[$(i)] = $(sorted_b.barcodes[i])")
+            # println("sorted_pers_barcode.barcodes[$(i)] = $(sorted_pers_barcode.barcodes[i])")
+            # println("sorted_b.barcodes[$(i)] = $(sorted_b.barcodes[i])")
             # getchar();
             return false;
         end
