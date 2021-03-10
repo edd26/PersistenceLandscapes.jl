@@ -57,9 +57,7 @@ end
 
 @testset "basic PersistenceBarcode info tests" begin
     @test size(my_persi_barcode) == 1
-    @test_broken empty(my_persi_barcode)
     @test dim(my_persi_barcode) == 2
-
 end
 
 @testset "compareAccordingToLength tests" begin
