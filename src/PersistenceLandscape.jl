@@ -830,16 +830,18 @@ function operationOnPairOfLandscapes( land1::PersistenceLandscape, land2::Persis
     end
 
     # if land1 is longer
+    start_val = min(size(land1.land,1), size(land2.land,1) )
+    stop_val = max(size(land1.land,1), size(land2.land,1) )
     if size(land1.land,1) > min( size(land1.land,1) , size(land2.land,1))
         @debug "first if modifier"
         local_dbg && println("size(land1.land,1) > $(min( size(land1.land,1), size(land2.land,1) ))")
 
-        append_nonoverlapping_elements!(result, land1; zero_tailing=true, zero_start=false)
+        append_nonoverlapping_elements!(result, land1, stop_val, start_val, oper; zero_tailing=true, zero_start=false)
     elseif size(land2.land,1) > min( size(land1.land,1) , size(land2.land,1))
         @debug "second if modifier"
         local_dbg && println("( size(land2.land,1) > $(min( size(land1.land,1) , size(land2.land,1))) ")
 
-        append_nonoverlapping_elements!(result, land2; zero_tailing=true, zero_start=false)
+        append_nonoverlapping_elements!(result, land2, stop_val, start_val, oper; zero_tailing=false, zero_start=true)
     end
 
     local_dbg && println("operationOnPairOfLandscapes")
@@ -849,10 +851,8 @@ function operationOnPairOfLandscapes( land1::PersistenceLandscape, land2::Persis
 end# operationOnPairOfLandscapes
 
 
-function append_nonoverlapping_elements!(result, selected_land::PersistenceLandscape; zero_tailing=false, zero_start=false)
+function append_nonoverlapping_elements!(result, selected_land::PersistenceLandscape, stop_val, start_val, oper; zero_tailing=false, zero_start=false)
     # append all elements form land1 that are above length of land2
-    start_val = min(size(land1.land,1), size(land2.land,1) )
-    stop_val = max(size(land1.land,1), size(land2.land,1) )
 
     for i = start_val:stop_val
         # lambda_n = MyPair[]
@@ -860,7 +860,7 @@ function append_nonoverlapping_elements!(result, selected_land::PersistenceLands
         lambda_n = selected_land.land[i]
         for nr = 1 : size(selected_land.land[i],1)
             if zero_tailing && !zero_start
-                oper_result = oper(selected_land.land[i][nr].second, 0)
+                oper_result  = oper(selected_land.land[i][nr].second, 0)
             elseif !zero_tailing && zero_start
                 oper_result = oper(0 , selected_land.land[i][nr].second)
             end
@@ -1649,8 +1649,10 @@ end# multiplyLanscapeByRealNumberOverwrite
 # end# multiplyLanscapeByRealNumberOverwrite
 
 
-# original function took arguments which were m,odified in the function. Now it returns values required
+# Edit1: original function took arguments which were m,odified in the function. Now it returns values required
 # function computeMaximalDistanceNonSymmetric( pl1::PersistenceLandscape, pl2::PersistenceLandscape , nrOfLand::UInt , x::Float64, y1::Float64, y2::Float64)::PersistenceLandscape
+# Edit2: This function was modified, because it was modyfying arguments and returning new results; To make it
+# working again for landscapes distances, an intermidiate function had to be added.
 function computeMaximalDistanceNonSymmetric( pl1::PersistenceLandscape, pl2::PersistenceLandscape)# , nrOfLand::UInt , x::Float64, y1::Float64, y2::Float64)
     # this distance is not symmetric. It compute ONLY distance between inflection points of pl1 and pl2.
    maxDist = 0
@@ -1734,7 +1736,7 @@ function computeMaximalDistanceNonSymmetric2(pl1::PersistenceLandscape, pl2::Per
 
     # this distance is not symmetric. It compute ONLY distance between inflection points of pl1 and pl2.
     maxDist = 0
-    minimalNumberOfLevels = min( size(pl1.land) , size(pl2.land))[1]
+    minimalNumberOfLevels = min( size(pl1.land) , size(pl2.land))[1] # why indexing here?
     for  level = 1 : minimalNumberOfLevels
         if (dbg)
             println("Level : $(level)")
@@ -1749,21 +1751,21 @@ function computeMaximalDistanceNonSymmetric2(pl1::PersistenceLandscape, pl2::Per
             # cin.ignore()
         end
 
-        p2Count = 0
+        p2Count = 1
         for i = 1 : size(l1.land[level],1)-1  # w tym przypadku nie rozwarzam punktow w nieskocznosci
-            while ( true )
+            while true
                 if (pl1.land[level][i].first >= pl2.land[level][p2Count].first) &&
                     (pl1.land[level][i].first <= pl2.land[level][p2Count+1].first)
                     break
                 end
                 p2Count += 1
             end
-            val = abs(
-                     functionValue(pl2.land[level][p2Count],
-                                   pl2.land[level][p2Count+1],
-                                   pl1.land[level][i].first
-                                  ) - pl1.land[level][i].second
-                    )
+            point_approximation = functionValue(pl2.land[level][p2Count],
+                                                pl2.land[level][p2Count+1],
+                                                pl1.land[level][i].first
+                                                )
+            val = abs(point_approximation - pl1.land[level][i].second)
+
             if maxDist <= val
                 maxDist = val
             end
@@ -1811,11 +1813,12 @@ function computeDiscanceOfLandscapes(first::PersistenceLandscape ,second::Persis
 end
 
 function computeMaxNormDiscanceOfLandscapes(first::PersistenceLandscape, second::PersistenceLandscape)::PersistenceLandscape
-    @warn "This function may not work, as max is not defined for PersistenceLandscape structure"
-    return max(
-               computeMaximalDistanceNonSymmetric(first,second),
-               computeMaximalDistanceNonSymmetric(second,first)
-              )
+    # this is being solved now: @warn "This function may not work, as max is not defined for PersistenceLandscape structure"
+
+    distance1 = computeMaximalDistanceNonSymmetric(first,second)
+    distance2 = computeMaximalDistanceNonSymmetric(second,first)
+
+    return max(distance1, distance2)
 end
 
 function comparePairsForMerging(first::MyPair, second::MyPair )
