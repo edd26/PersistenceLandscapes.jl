@@ -1,5 +1,6 @@
 module PersistenceLandscapes
 
+    # PersistenceBarcodes exports
     export MyPair,
             PersistenceBarcodes,
             size,
@@ -30,18 +31,23 @@ module PersistenceLandscapes
 
     # TODO add file writing functions here
 
+    # PersistenceLandscape exports
     export almostEqual,
            PersistenceLandscape,
            create_PersistenceLandscape,
            plot_persistence_landscape,
            get_peaks_and_positions
 
+    # VectorSpaceOfPersistenceLandscapes exports
     export VectorSpaceOfPersistenceLandscapes,
-           average
+           computeIntegralOfLandscape,
+           computeDiscanceOfLandscapes,
+           average,
+           standardDeviation
 
-    export configure
+    # export configure
 
-    export main
+    # export main
 
     include("VectorSpaceOfPersistenceLandscapes.jl")
     # include("PersistenceBarcode.jl")

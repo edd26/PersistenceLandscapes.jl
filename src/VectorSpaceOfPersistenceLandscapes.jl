@@ -248,10 +248,10 @@ function standardDeviation(v_space_pland::VectorSpaceOfPersistenceLandscapes; wh
     for i = 1 : size(v_space_pland.vectOfLand,1)
         if whichDistance == "regular"
             #L^whichDistance distance
-            distance = computeDiscanceOfLandscapes(av, v_space_pland.vectOfLand[i]) # , whichDistance)
+            distance = computeDiscanceOfLandscapes(av, v_space_pland.vectOfLand[i], 1)
         elseif whichDistance == "maxNorm"
             #L^infty distance
-            distance = computeMaxNormDiscanceOfLandscapes(av, v_space_pland.vectOfLand[i])
+            distance = computeMaxNormDiscanceOfLandscapes(av, v_space_pland.vectOfLand[i], 0)
         end
         # distanceToAverage += distance*distance
         distanceToAverage += distance^2

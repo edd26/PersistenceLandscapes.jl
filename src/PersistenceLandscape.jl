@@ -1189,36 +1189,43 @@ function check( i::UInt, v::Vector{MyPair} )
     return false
 end
 
-function computeIntegralOfLandscape(land::PersistenceLandscape)
+function computeIntegralOfLandscape(land::PersistenceLandscape; local_dbg = false)
     result = 0
-    for i = 1 : size(land,1)
-        for nr = 2:size(land.land[i],1)-1
+    for i = 1 : size(land) # for every layer
+        for nr = 2:size(land.land[i],1)-1 # for every point in layer
             # it suffices to compute every planar integral and then sum them ap for each lambda_n
-            result += 0.5*( land.land[i][nr].first - land.land[i][nr-1].first )*(land.land[i][nr].second + land.land[i][nr-1].second)
+            val1 = land.land[i][nr].first - land.land[i][nr-1].first
+            val2 = land.land[i][nr].second + land.land[i][nr-1].second
+            result += 0.5*val1*val2
         end
     end
     return result
 end
 
-function computeIntegralOfLandscape(land::PersistenceLandscape, p::Float64; local_dbg = false)
-   result = 0
-    for i = 1 : size(land,1)
+function computeIntegralOfLandscape(land::PersistenceLandscape, p::Real; local_dbg = false)
+    result = 0
+    for i = 1 : size(land)
         for nr = 2:size(land.land[i],1)-1
             local_dbg && println("nr : $(nr)")
             # In this interval, the landscape has a form f(x) = ax+b. We want to compute integral of (ax+b)^p = 1/a * (ax+b)^p+1end/(p+1)
             coef = computeParametersOfALine( land.land[i][nr] , land.land[i][nr-1] )
             a = coef.first
             b = coef.second
-            local_dbg && println("($(land.land[i][nr].first),$(land.land[i][nr].second)) , $(land.land[i][nr-1].first) $(land.land[i][nr].second)))")
+            local_dbg && println("($(land.land[i][nr].first),$(land.land[i][nr].second)) , $(land.land[i][nr-1].first) $(land.land[i][nr-1].second)))")
 
             if land.land[i][nr].first == land.land[i][nr-1].first
                 continue
             end
 
             if a != 0
-                result += 1/(a*(p+1)) * ( ((a*land.land[i][nr].first+b)^(p+1)) - ((a*land.land[i][nr-1].first+b)^(p+1)))
+                val1 = a*land.land[i][nr].first+b
+                val2 = a*land.land[i][nr-1].first+b
+                denominator = a*(p+1)
+                result += ( (val1^(p+1)) - (val2^(p+1))) / denominator
             else
-                result += ( land.land[i][nr].first - land.land[i][nr-1].first )*( (land.land[i][nr].second^p) )
+                val1 = land.land[i][nr].first - land.land[i][nr-1].first
+                val2 = land.land[i][nr].second
+                result += val1 * (val2^p)
             end
 
             if local_dbg
@@ -1226,7 +1233,6 @@ function computeIntegralOfLandscape(land::PersistenceLandscape, p::Float64; loca
                 println("result : $(result)")
             end
         end
-        # if (local_dbg) cin.ignore()
     end
     return result
 end
@@ -1577,7 +1583,7 @@ function abs_pl(land::PersistenceLandscape; local_debug = false)
     # PersistenceLandscape result;
     result = Vector{Vector{MyPair}}()
 
-    for level = 1 : size(land,1)
+    for level = 1 : size(land)
         if ( local_debug ) println("level: $(level)") end
 
         lambda_n = MyPair[]
@@ -1609,7 +1615,7 @@ function abs_pl(land::PersistenceLandscape; local_debug = false)
         end
         push!(result, lambda_n )
     end
-    return result
+    return PersistenceLandscape(result,land.dimension)
 end
 
 function multiplyLanscapeByRealNumberNotOverwrite(land::PersistenceLandscape, x::Real )
@@ -1789,7 +1795,7 @@ function computeMaximalDistanceNonSymmetric2(pl1::PersistenceLandscape, pl2::Per
     return maxDist
 end
 
-function computeDiscanceOfLandscapes(first::PersistenceLandscape, second::PersistenceLandscape, p::UInt)
+function computeDiscanceOfLandscapes(first::PersistenceLandscape, second::PersistenceLandscape, p::Real)
     # This is what we want to compute: (\int_- \inftyend^+\inftyend| first-second |^p)^(1/p). We will do it one step at a time:
     # first-second :
     lan = first-second
