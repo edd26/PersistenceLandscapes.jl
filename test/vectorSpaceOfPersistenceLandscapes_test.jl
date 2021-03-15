@@ -120,20 +120,24 @@ end
     @test computeIntegralOfLandscape(singular_landscape_c, 1) == computeIntegralOfLandscape(singular_landscape_d, 1)
     @test computeIntegralOfLandscape(singular_landscape_c, 2) == computeIntegralOfLandscape(singular_landscape_d, 2)
 
-    singular_landscape_e 
+    # Test for double peak landscape
+    @test computeIntegralOfLandscape(singular_landscape_e, 0) == 5
+    @test computeIntegralOfLandscape(singular_landscape_e, 1) == 3
+    @test computeIntegralOfLandscape(singular_landscape_e, 2) == computeIntegralOfLandscape(singular_landscape_e, 2)
 
     # Tests for layered landscapes
     two_layer_landscape_a = PersistenceLandscape(PersistenceBarcodes([MyPair(0,4), MyPair(0,2)],1))
     two_layer_landscape_b = PersistenceLandscape(PersistenceBarcodes([MyPair(0,4), MyPair(1,3)],1))
     two_layer_landscape_c = PersistenceLandscape(PersistenceBarcodes([MyPair(0,4), MyPair(2,4)],1))
+    two_layer_landscape_d = PersistenceLandscape(PersistenceBarcodes([MyPair(0,4), MyPair(3,5)],1))
 
-    two_layer_landscape_a = PersistenceLandscape(PersistenceBarcodes([MyPair(1,3), MyPair(0,4)],1))
-    two_layer_landscape_a = PersistenceLandscape(PersistenceBarcodes([MyPair(1,3), MyPair(0,4)],1))
-    singular_landscape_a = PersistenceLandscape(PersistenceBarcodes([MyPair(1,3)],1))
-    singular_landscape_b = PersistenceLandscape(PersistenceBarcodes([MyPair(0,4)],1))
-    singular_landscape_c = PersistenceLandscape(PersistenceBarcodes([MyPair(0,2)],1))
-    singular_landscape_d = PersistenceLandscape(PersistenceBarcodes([MyPair(2,4)],1))
+    @test computeIntegralOfLandscape(two_layer_landscape_a, 0) == 3
+    @test computeIntegralOfLandscape(two_layer_landscape_b, 0) == 3
+    @test computeIntegralOfLandscape(two_layer_landscape_c, 0) == 3
+    @test computeIntegralOfLandscape(two_layer_landscape_d, 0) == 4.5
 
+    @test computeIntegralOfLandscape(two_layer_landscape_a, 0) == computeIntegralOfLandscape(two_layer_landscape_b, 0)
+    @test computeIntegralOfLandscape(two_layer_landscape_a, 0) == computeIntegralOfLandscape(two_layer_landscape_c, 0)
 end
 
 @testset "landscape distance test" begin
