@@ -425,7 +425,7 @@ end
 
 # functions used in PersistenceLandscape( PersistenceBarcodes& p ) constructor:
 # comparePointsDBG::Bool = false
-function comparePoints( f::MyPair, s::MyPair )
+function comparePoints( f::MyPair, s::MyPair; local_debug::Bool=false)
     differenceBirth = birth(f)-birth(s)
 
     if differenceBirth < 0
@@ -438,59 +438,48 @@ function comparePoints( f::MyPair, s::MyPair )
     end
 
     if (differenceBirth < epsi) && (differenceDeath < epsi)
-        if comparePointsDBG
-            println("CP1")
-        end
+        local_debug && println("CP1")
         return false
     end
     if differenceBirth < epsi
         # consider birth points the same. If we are here, we know that death points are NOT the same
         if death(f) < death(s)
-            if comparePointsDBG
-                println("CP2")
-            end
+            local_debug && println("CP2")
             return true
         end
-        if(comparePointsDBG)
-            println("CP3")
-        end
+        local_debug && println("CP3")
+
         return false
     end
     if differenceDeath < epsi
         # we consider death points the same and since we are here, the birth points are not the same!
         if birth(f) < birth(s)
-            if(comparePointsDBG)
-				println("CP4")
-            end
+            local_debug && println("CP4")
+
             return false
         end
-        if(comparePointsDBG)
-            println("CP5")
-        end
+        local_debug && println("CP5")
+
         return true
     end
     if birth(f) > birth(s)
-        if(comparePointsDBG)
-            println("CP6")
-        end
+        local_debug && println("CP6")
+
         return false
     end
     if birth(f) < birth(s)
-        if(comparePointsDBG)
-            println("CP7")
-        end
+        local_debug && println("CP7")
+
         return true
     end
     # if this is true, we assume that death(f)<=death(s) -- othervise I have had a lot of roundoff problems here!
     if death(f)<=death(s)
-        if(comparePointsDBG)
-            println("CP8")
-        end
+        local_debug && println("CP8")
+
         return false
     end
-    if(comparePointsDBG)
-        println("CP9")
-    end
+    local_debug && println("CP9")
+
     return true
 end
 
@@ -542,7 +531,7 @@ function lDimBegin(land::PersistenceLandscape, dim::UInt)
     return land[dim][1]
 end
 
-function lDimEnd(dim::UInt)
+function lDimEnd(land::PersistenceLandscape, dim::UInt)
     if dim > size(land,1)
         throw(DomainError("Calling lDimIterator in a dimension higher that dimension of landscape"))
     end
@@ -733,8 +722,8 @@ function operationOnPairOfLandscapes( land1::PersistenceLandscape, land2::Persis
                                             land2.land[i][q],
                                             land1.land[i][p].first
                                         )
-                operaion_result = oper(land1.land[i][p].second, end_value)
-                new_pair = make_MyPair(land1.land[i][p].first , operaion_result)
+                operation_result = oper(land1.land[i][p].second, end_value)
+                new_pair = make_MyPair(land1.land[i][p].first , operation_result)
 
                 local_dbg && println("end_value = $(end_value)")
                 local_dbg && println("operation_result = $(operation_result)")
@@ -798,9 +787,10 @@ function operationOnPairOfLandscapes( land1::PersistenceLandscape, land2::Persis
         # original +1 was changed to -1
         while (p <= size(land1.land[i], 1)) && (q >= size(land2.land[i], 1))
             @debug "second while loop, p: $(p), q: $(q)"
-            local_dbg && println("New point : $(land1.land[i][p].first)  oper(land1.land[i][p].second,0) : $( oper(land1.land[i][p].second,0))")
 
             oper_result = oper(land1.land[i][p].second, 0)
+            local_dbg && println("New point : $(land1.land[i][p].first)  oper(land1.land[i][p].second,0) : $(oper_result)")
+
             new_pair = make_MyPair(land1.land[i][p].first , oper_result)
 
             push!(lambda_n, new_pair)
@@ -812,9 +802,9 @@ function operationOnPairOfLandscapes( land1::PersistenceLandscape, land2::Persis
         while (p >= size(land1.land[i],1)) && (q <= size(land2.land[i],1))
             @debug "third while loop, p: $(p), q: $(q)"
 
-            local_dbg && println("New point : $(land2.land[i][q].first) oper(0,land2.land[i][q].second) : $( oper(0,land2.land[i][q].second))")
-
             oper_result = oper(0,land2.land[i][q].second)
+            local_dbg && println("New point : $(land2.land[i][q].first) oper(0,land2.land[i][q].second) : $(oper_result)")
+
             new_pair = make_MyPair(land2.land[i][q].first, oper_result)
 
             push!(lambda_n, new_pair)
@@ -978,12 +968,12 @@ function computeNthMoment(land::PersistenceLandscape, n::UInt , center , level::
    result = 0
     if size(land,1) > level
         for i = 2:size(land.land[level],1)-1 
-            if land.land[level][i].first - this->land[level][i-1].first == 0
+            if land.land[level][i].first - land.land[level][i-1].first == 0
                 continue
             end
-            # between land.land[level][i] and this->land[level][i-1] the lambda_level is of the form ax+b. First we need to find a and b.
-            a = (land.land[level][i].second - this->land[level][i-1].second)/(this->land[level][i].first - this->land[level][i-1].first)
-            b = land.land[level][i-1].second - a*this->land[level][i-1].first
+            # between land.land[level][i] and land.land[level][i-1] the lambda_level is of the form ax+b. First we need to find a and b.
+            a = (land.land[level][i].second - land.land[level][i-1].second)/(land.land[level][i].first - land.land[level][i-1].first)
+            b = land.land[level][i-1].second - a*land.land[level][i-1].first
             x1 = land.land[level][i-1].first
             x2 = land.land[level][i].first
             #first = b*(pow((x2-center),(double)(n+1))/(n+1)-pow((x1-center),(double)(n+1))/(n+1))
@@ -992,9 +982,9 @@ function computeNthMoment(land::PersistenceLandscape, n::UInt , center , level::
             #               a/(n+1)*( pow((x2-center),(double)(n+2))/(n+2) - pow((x1-center),(double)(n+2))/(n+2) )
             # result += first
             # result += second
-            first = a/(n+2)*( pow( (x2-center) , (double)(n+2) ) - pow( (x1-center) , (double)(n+2) ) )
-            second = center/(n+1)*( pow( (x2-center) , (double)(n+1) ) - pow( (x1-center) , (double)(n+1) ) )
-            third = b/(n+1)*( pow( (x2-center) , (double)(n+1) ) - pow( (x1-center) , (double)(n+1) ) )
+            first = a/(n+2)*( ( (x2-center)^(n+2) ) - ( (x1-center)^(n+2) ) )
+            second = center/(n+1)*( ( (x2-center)^(n+1) ) - ( (x1-center)^(n+1) ) )
+            third = b/(n+1)*( ( (x2-center)^(n+1) ) - ( (x1-center)^(n+1) ) )
             if local_debug
                 println("x1 : $(x1)")
                 println("x2 : $(x2)")
@@ -1017,27 +1007,27 @@ function testLandscape(land::PersistenceLandscape, b::PersistenceBarcodes )
             if land.land[level][i].second < epsi
                 continue
             end
-            # check if over land.land[level][i].first-this->land[level][i].second , this->land[level][i].first+this->land[level][i].second] there are level barcodes.
+            # check if over land.land[level][i].first-land.land[level][i].second , land.land[level][i].first+land.land[level][i].second] there are level barcodes.
             nrOfOverlapping = 0
             for nr = 1:size(b.barcodes,1) 
-                if ( b.barcodes[nr].first-epsi <= land.land[level][i].first-this->land[level][i].second
+                if ( b.barcodes[nr].first-epsi <= land.land[level][i].first-land.land[level][i].second
                       &&
-                      ( b.barcodes[nr].second+epsi >= land.land[level][i].first+this->land[level][i].second )
+                      ( b.barcodes[nr].second+epsi >= land.land[level][i].first+land.land[level][i].second )
                    )
                     nrOfOverlapping += 1
                 end
             end
             if nrOfOverlapping != level+1
                 println("We have a problem :")
-                println("land.land[level][i].first : $(this->land[level][i].first)")
-                println("land.land[level][i].second : $(this->land[level][i].second)")
-                println("[$(land.land[level][i].first-this->land[level][i].second) $(this->land[level][i].first+this->land[level][i].second)]")
+                println("land.land[level][i].first : $(land.land[level][i].first)")
+                println("land.land[level][i].second : $(land.land[level][i].second)")
+                println("[$(land.land[level][i].first-land.land[level][i].second) $(land.land[level][i].first+land.land[level][i].second)]")
                 println("level : $(level) , nrOfOverlapping: $(nrOfOverlapping)")
                 # getchar()
                 for nr = 1:size(b.barcodes,1) 
-                    if ( b.barcodes[nr].first <= land.land[level][i].first-this->land[level][i].second
+                    if ( b.barcodes[nr].first <= land.land[level][i].first-land.land[level][i].second
                           &&
-                          ( b.barcodes[nr].second >= land.land[level][i].first+this->land[level][i].second )
+                          ( b.barcodes[nr].second >= land.land[level][i].first+land.land[level][i].second )
                        )
                         println("($(b.barcodes[nr].first) $(b.barcodes[nr].second))")
                     end
@@ -1111,7 +1101,7 @@ function computeLandscapeOnDiscreteSetOfPoints(land::PersistenceLandscape, b::Pe
      if ( local_dbg )println("Now we fill in the suitable vecors in this landscape")end
     land = Vector{Vector{MyPair}}()
      for  dim = 0 : indexOfLastNonzeroLandscape 
-         land[dim].push_back( make_MyPair( INT_MIN,0 ) )
+         land[dim].push_back( make_MyPair( -Inf,0 ) )
      end
      i = 0
      for  x = bmin : bmax 
@@ -1121,7 +1111,7 @@ function computeLandscapeOnDiscreteSetOfPoints(land::PersistenceLandscape, b::Pe
          i += 1
      end
      for  dim = 0 : indexOfLastNonzeroLandscape 
-         land[dim].push_back( make_MyPair( INT_MAX,0 ) )
+         land[dim].push_back( make_MyPair( Inf,0 ) )
      end
      land.land.clear()
      land.land.swap(land)
@@ -1141,11 +1131,11 @@ function multiplyByIndicatorFunction(land::PersistenceLandscape, indicator::Vect
             end
             for nr = 0:size(land.land[dim],1) 
                 if (local_dbg)
-                    cout << "land.land[dim][nr] : $(this->land[dim][nr].first) $(this->land[dim][nr].second)"
+                    println( "land.land[dim][nr] : $(land.land[dim][nr].first) $(land.land[dim][nr].second)")
                 end
                 if land.land[dim][nr].first < indicator[dim].first
                     if (local_dbg)
-                        cout << "Below treshold"
+                        println( "Below treshold")
                     end
                     continue
                 end
@@ -1167,20 +1157,20 @@ function multiplyByIndicatorFunction(land::PersistenceLandscape, indicator::Vect
                          )
                     break
                 end
-                if (land.land[dim][nr].first >= indicator[dim].first) && (this->land[dim][nr-1].first <= indicator[dim].first)
+                if (land.land[dim][nr].first >= indicator[dim].first) && (land.land[dim][nr-1].first <= indicator[dim].first)
                     if (local_dbg)
-                        cout << "Entering the indicator"
+                        println( "Entering the indicator")
                     end
                     push!(lambda_n,  make_MyPair( indicator[dim].first , 0 ) )
-                    push!(lambda_n,  make_MyPair( indicator[dim].first , functionValue(land.land[dim][nr-1],this->land[dim][nr],indicator[dim].first) ) )
+                    push!(lambda_n,  make_MyPair( indicator[dim].first , functionValue(land.land[dim][nr-1],land.land[dim][nr],indicator[dim].first) ) )
                 end
                 if (local_dbg)
-                    cout << "We are here"
+                    println( "We are here")
                 end
-                push!(lambda_n,  make_MyPair( land.land[dim][nr].first , this->land[dim][nr].second ) )
+                push!(lambda_n,  make_MyPair( land.land[dim][nr].first , land.land[dim][nr].second ) )
             end
         end
-        push!(lambda_n,  make_MyPair( 0 , INT_MIN ) )
+        push!(lambda_n,  make_MyPair( 0 , -Inf) )
         if size(lambda_n,1) > 2
             result.land.push_back( lambda_n )
         end
@@ -1201,10 +1191,10 @@ end
 
 function computeIntegralOfLandscape(land::PersistenceLandscape)
     result = 0
-    for i = 0 : size(land,1)
+    for i = 1 : size(land,1)
         for nr = 2:size(land.land[i],1)-1
             # it suffices to compute every planar integral and then sum them ap for each lambda_n
-            result += 0.5*( land.land[i][nr].first - this->land[i][nr-1].first )*(this->land[i][nr].second + this->land[i][nr-1].second)
+            result += 0.5*( land.land[i][nr].first - land.land[i][nr-1].first )*(land.land[i][nr].second + land.land[i][nr-1].second)
         end
     end
     return result
@@ -1212,27 +1202,27 @@ end
 
 function computeIntegralOfLandscape(land::PersistenceLandscape, p::Float64; local_dbg = false)
    result = 0
-    for i = 0 : size(land,1)
+    for i = 1 : size(land,1)
         for nr = 2:size(land.land[i],1)-1
             local_dbg && println("nr : $(nr)")
             # In this interval, the landscape has a form f(x) = ax+b. We want to compute integral of (ax+b)^p = 1/a * (ax+b)^p+1end/(p+1)
             coef = computeParametersOfALine( land.land[i][nr] , land.land[i][nr-1] )
             a = coef.first
             b = coef.second
-            local_dbg && println("($(land.land[i][nr].first),$(this->land[i][nr].second)) , $(this->land[i][nr-1].first) $(this->land[i][nr].second)))")
+            local_dbg && println("($(land.land[i][nr].first),$(land.land[i][nr].second)) , $(land.land[i][nr-1].first) $(land.land[i][nr].second)))")
 
-            if land.land[i][nr].first == this->land[i][nr-1].first
+            if land.land[i][nr].first == land.land[i][nr-1].first
                 continue
             end
 
             if a != 0
-                result += 1/(a*(p+1)) * ( pow((a*land.land[i][nr].first+b),p+1) - pow((a*this->land[i][nr-1].first+b),p+1))
+                result += 1/(a*(p+1)) * ( ((a*land.land[i][nr].first+b)^(p+1)) - ((a*land.land[i][nr-1].first+b)^(p+1)))
             else
-                result += ( land.land[i][nr].first - this->land[i][nr-1].first )*( pow(this->land[i][nr].second,p) )
+                result += ( land.land[i][nr].first - land.land[i][nr-1].first )*( (land.land[i][nr].second^p) )
             end
 
             if local_dbg
-                println("a : " <<a << " , b : $(b)")
+                println("a : $(a), b : $(b)")
                 println("result : $(result)")
             end
         end
@@ -1260,14 +1250,14 @@ function removePairsOfLocalMaximumMinimumOfEpsPersistence(land::PersistenceLands
     for dim = 0  : size(land,1)
         ( 2 > land.land[dim].size()-3 ) && continue #  to make sure that the loop in below is not infinite.
         for nr = 2:size(land.land[dim],1)-3
-            if (abs_pl(land.land[dim][nr].second - this->land[dim][nr+1].second) < epsilon) &&
-                (this->land[dim][nr].second != this->land[dim][nr+1].second)
+            if (abs_pl(land.land[dim][nr].second - land.land[dim][nr+1].second) < epsilon) &&
+                (land.land[dim][nr].second != land.land[dim][nr+1].second)
                 # right now we modify only the lalues of a points. That means that angles of lines in the landscape changes a bit. This is the easiest computational
                 # way of doing this. But I am not sure if this is the best way of doing such a reduction of nonessential critical points. Think about this!
-                if land.land[dim][nr].second < this->land[dim][nr+1].second
-                    land.land[dim][nr].second = this->land[dim][nr+1].second
+                if land.land[dim][nr].second < land.land[dim][nr+1].second
+                    land.land[dim][nr].second = land.land[dim][nr+1].second
                 else
-                    land.land[dim][nr+1].second = this->land[dim][nr].second
+                    land.land[dim][nr+1].second = land.land[dim][nr].second
                 end
                 numberOfReducedPairs += 1
             end
@@ -1280,7 +1270,7 @@ end
 function reduceAllPairsOfLowPersistenceMaximaMinima(land::PersistenceLandscape,epsilon )
     numberOfReducedPoints = 1
     while ( numberOfReducedPoints )
-        numberOfReducedPoints = land.removePairsOfLocalMaximumMinimumOfEpsPersistence( epsilon )
+        numberOfReducedPoints = removePairsOfLocalMaximumMinimumOfEpsPersistence(land, epsilon )
     end
 end
 
@@ -1292,10 +1282,10 @@ function reduceAlignedPoints(land::PersistenceLandscape,tollerance; local_debug 
         lambda_n = MyPair[]
         push!(lambda_n,  land.land[dim][0] )
         while ( nr != land.land[dim].size()-2 )
-            # first, compute a and b in formula y=ax+b of a line crossing land.land[dim][nr] and this->land[dim][nr+1].
+            # first, compute a and b in formula y=ax+b of a line crossing land.land[dim][nr] and land.land[dim][nr+1].
             res = computeParametersOfALine( land.land[dim][nr] , land.land[dim][nr+1] )
             if local_debug
-                println("Considering points : $(land.land[dim][nr]) and $(this->land[dim][nr+1])")
+                println("Considering points : $(land.land[dim][nr]) and $(land.land[dim][nr+1])")
                 println("Adding : $(land.land[dim][nr] << " to lambda_n.")")
             end
             push!(lambda_n,  land.land[dim][nr] )
@@ -1321,12 +1311,11 @@ function reduceAlignedPoints(land::PersistenceLandscape,tollerance; local_debug 
             println("Out  of main while loop, done with this dimension ")
             println("Adding:size($(land.land[dim][size(land.land[dim],1)-2 ]) to lamnda_n ")
             println("Adding:size($(land.land[dim][size(land.land[dim],1)-1 ]) to lamnda_n ")
-            cin.ignore()
         end
 
         @error "Some code needs to be fixed in here"
-        push!(lambda_n,  land.land[dim][ this->land[dim].size()-2 ] )
-        push!(lambda_n,  land.land[dim][ this->land[dim].size()-1 ] )
+        push!(lambda_n,  land.land[dim][ land.land[dim].size()-2 ] )
+        push!(lambda_n,  land.land[dim][ land.land[dim].size()-1 ] )
         # if something was reduced, then replace land.land[dim] with the new lambda_n.
 
         if size(lambda_n,1) < size(land.land[dim])
@@ -1345,7 +1334,7 @@ function penalty(A::MyPair, B::MyPair, C::MyPair)
     return abs(functionValue(A,C,B.first)-B.second)
 end# penalty
 
-function reducePoints(tollerance, penalty; local_debug = false)::PersistenceLandscape
+function reducePoints(land::PersistenceLandscape,tollerance, penalty; local_debug = false)::PersistenceLandscape
 
     numberOfPointsReduced = 0
     for dim = 0  : size(land,1)
@@ -1382,15 +1371,15 @@ function reducePoints(tollerance, penalty; local_debug = false)::PersistenceLand
     return numberOfPointsReduced
 end
 
+# Untested
 function findZeroOfALineSegmentBetweenThoseTwoPoints( p1::MyPair, p2::MyPair )
     if p1.first == p2.first
         return p1.first
     end
     if p1.second*p2.second > 0
-        Error("In function findZeroOfALineSegmentBetweenThoseTwoPoints the agguments are: ($(p1.first)),$(p1.second)) and ($(p2.first), $(p2.second)). There is no zero in line between those two points. Program terminated.")
-        char* err = errMessageStr.c_str()
-        throw(err)
+       error("In function findZeroOfALineSegmentBetweenThoseTwoPoints the agguments are: ($(p1.first)),$(p1.second)) and ($(p2.first), $(p2.second)). There is no zero in line between those two points. Program terminated.")
     end
+
     # we assume here, that x \in [ p1.first, p2.first ] and p1 and p2 are points between which we will put the line segment
     a = (p2.second - p1.second)/(p2.first - p1.first)
     b = p1.second - a*p1.first
@@ -1411,8 +1400,8 @@ function computeValueAtAGivenPoint(land::PersistenceLandscape, level::UInt, x::F
     if local_dbg
         println("Tutaj")
         println("x : $(x)")
-        println("land.land[level][coordBegin].first : $(this->land[level][coordBegin].first)")
-        println("land.land[level][coordEnd].first : $(this->land[level][coordEnd].first)")
+        println("land.land[level][coordBegin].first : $(land.land[level][coordBegin].first)")
+        println("land.land[level][coordEnd].first : $(land.land[level][coordEnd].first)")
     end
     # in this case x is outside the support of the landscape, therefore the value of the landscape is 0.
     if x <= land.land[level][coordBegin].first
@@ -1426,31 +1415,29 @@ function computeValueAtAGivenPoint(land::PersistenceLandscape, level::UInt, x::F
         if (local_dbg)
             println("coordBegin : $(coordBegin)")
             println("coordEnd : $(coordEnd)")
-            println("land.land[level][coordBegin].first : $(this->land[level][coordBegin].first)")
-            println("land.land[level][coordEnd].first : $(this->land[level][coordEnd].first)")
+            println("land.land[level][coordBegin].first : $(land.land[level][coordBegin].first)")
+            println("land.land[level][coordEnd].first : $(land.land[level][coordEnd].first)")
         end
         newCord = (unsigned)floor((coordEnd+coordBegin)/2.0)
         if (local_dbg)
             println("newCord : $(newCord)")
-            println("land.land[level][newCord].first : $(this->land[level][newCord].first)")
-            cin.ignore()
+            println("land.land[level][newCord].first : $(land.land[level][newCord].first)")
         end
         if land.land[level][newCord].first <= x
             coordBegin = newCord
-            if ( land.land[level][newCord].first == x )return this->land[level][newCord].second
+            if ( land.land[level][newCord].first == x )return land.land[level][newCord].second
         end
         else
             coordEnd = newCord
         end
     end
     if (local_dbg)
-        println("x : $(x) is between : $(land.land[level][coordBegin].first) $(this->land[level][coordEnd].first))")
-        println("the y coords are : $(land.land[level][coordBegin].second) $(this->land[level][coordEnd].second)")
+        println("x : $(x) is between : $(land.land[level][coordBegin].first) $(land.land[level][coordEnd].first))")
+        println("the y coords are : $(land.land[level][coordBegin].second) $(land.land[level][coordEnd].second)")
         println("coordBegin : $(coordBegin)")
         println("coordEnd : $(coordEnd)")
-        cin.ignore()
     end
-    return functionValue( land.land[level][coordBegin] , this->land[level][coordEnd] , x )
+    return functionValue( land.land[level][coordBegin] , land.land[level][coordEnd] , x )
 end
 # Operations on landscapes <<<
 # ===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-
@@ -1578,8 +1565,8 @@ end
 # end
 
 function multiplyLanscapeByRealNumberOverwrite(land::PersistenceLandscape, x::Float64 )
-    for dim = 0 : size(land,1) 
-        for i = 0:size(land.land[dim],1) 
+    for dim = 0 : size(land,1)
+        for i = 0:size(land.land[dim],1)
              land.land[dim][i].second *= x
         end
     end
@@ -1587,33 +1574,40 @@ end
 
 
 function abs_pl(land::PersistenceLandscape; local_debug = false)
-    result = Vector{Vector{MyPair}}
+    # PersistenceLandscape result;
+    result = Vector{Vector{MyPair}}()
 
-    for level = 0 : size(land,1)
+    for level = 1 : size(land,1)
         if ( local_debug ) println("level: $(level)") end
+
         lambda_n = MyPair[]
-        push!(lambda_n,  make_MyPair( INT_MIN , 0 ) )
-        for i = 1:size(land.land[level],1) 
-            local_debug  && println("land.land[$(level) $(i)] : $(land.land[level][i])")
-            # if a line segment between land.land[level][i-1] and this->land[level][i] crosses the x-axis, then we have to add one landscape point t oresult
-            if (land.land[level][i-1].second)*(this->land[level][i].second)  < 0
-               zero = findZeroOfALineSegmentBetweenThoseTwoPoints( land.land[level][i-1] , this->land[level][i] )
+
+        if allow_inf_intervals
+            push!(lambda_n,  make_MyPair( -Inf, 0))
+        end
+
+        for i = 2:size(land.land[level],1)
+            local_debug && println("land.land[$(level) $(i)] : $(land.land[level][i])")
+
+            # if a line segment between land.land[level][i-1] and this->land[level][i] crosses the x-axis, then we have to add one landscape point to result
+            if (land.land[level][i-1].second)*(land.land[level][i].second)  < 0
+                # function below is not yet julia valid
+                zero = findZeroOfALineSegmentBetweenThoseTwoPoints( land.land[level][i-1] , land.land[level][i] )
+
                 push!(lambda_n,  make_MyPair(zero , 0) )
-                push!(lambda_n,  make_MyPair(land.land[level][i].first , abs(this->land[level][i].second)) )
+                push!(lambda_n,  make_MyPair(land.land[level][i].first , abs(land.land[level][i].second)) )
+
                 if local_debug
-                    println("Adding pair : ($(zero << ",0)")")
-                    println("In the same step adding pair : ($(land.land[level][i].first) $(abs(this->land[level][i].second))) ")
-                    cin.ignore()
+                    println("Adding pair : ($(zero),0)")
+                    println("In the same step adding pair : ($(land.land[level][i].first) $(abs(land.land[level][i].second))) ")
                 end
             else
-                push!(lambda_n,  make_MyPair(land.land[level][i].first , abs(this->land[level][i].second)) )
-                if local_debug
-                    println("Adding pair : ($(land.land[level][i].first) $(abs(this->land[level][i].second))) ")
-                    cin.ignore()
-                end
+                push!(lambda_n,  make_MyPair(land.land[level][i].first , abs(land.land[level][i].second)) )
+
+                local_debug && println("Adding pair : ($(land.land[level][i].first) $(abs(land.land[level][i].second))) ")
             end
         end
-        push!(result_land,  lambda_n )
+        push!(result, lambda_n )
     end
     return result
 end
@@ -1795,7 +1789,7 @@ function computeMaximalDistanceNonSymmetric2(pl1::PersistenceLandscape, pl2::Per
     return maxDist
 end
 
-function computeDiscanceOfLandscapes(first::PersistenceLandscape ,second::PersistenceLandscape, p::UInt)
+function computeDiscanceOfLandscapes(first::PersistenceLandscape, second::PersistenceLandscape, p::UInt)
     # This is what we want to compute: (\int_- \inftyend^+\inftyend| first-second |^p)^(1/p). We will do it one step at a time:
     # first-second :
     lan = first-second

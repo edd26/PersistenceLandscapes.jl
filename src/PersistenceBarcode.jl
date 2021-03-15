@@ -95,8 +95,6 @@ struct PersistenceBarcodes
         # CHANGE
         new(barcodes, UInt(dimensionOfBarcode))
     end
-
-
 end
 
 
@@ -135,7 +133,7 @@ end
 function operator_to_std(out, bar::PersistenceBarcodes) # operator<<
 
     for i = 0:size(bar.barcodes,1)
-        printline("$(bar.barcodes[i].first) $(bar.barcodes[i].second)")
+        println("$(bar.barcodes[i].first) $(bar.barcodes[i].second)")
     end
     return out;
 end

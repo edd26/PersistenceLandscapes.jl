@@ -159,7 +159,7 @@ function configure(;config_file_name::String = "configure", config_dict::Dict = 
             end
             vaiableNumber += 1
         else
-            dbg && std::cout << "IGNORE THIS LINE : " << line << endl
+            println("IGNORE THIS LINE : ")
 
             isThisAFirsLine = false
         end

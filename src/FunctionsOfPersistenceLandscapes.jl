@@ -54,7 +54,7 @@ function averageBarcodeLength( b::PersistenceBarcodes)
     for  i in b
         av += abs(i.second - i.first);
     end
-    av = av / b.size();
+    av = av / size(b)
     return av;
 end
 
