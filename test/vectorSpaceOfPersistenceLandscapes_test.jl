@@ -79,7 +79,15 @@ end
                                                                     MyPair(3, 1/2),
                                                                     MyPair(4, 0)
                                                                     ]], 1)
-
-
 end
 
+@testset "standard deviation tests" begin
+    singular_landscape_a = PersistenceLandscape(PersistenceBarcodes([MyPair(1,3)],1))
+    singular_landscape_b = PersistenceLandscape(PersistenceBarcodes([MyPair(0,4)],1))
+    singular_landscape_c = PersistenceLandscape(PersistenceBarcodes([MyPair(0,2)],1))
+    singular_landscape_d = PersistenceLandscape(PersistenceBarcodes([MyPair(2,4)],1))
+
+    landscpae_collection = VectorSpaceOfPersistenceLandscapes([singular_landscape_a, singular_landscape_a])
+
+    standardDeviation(landscpae_collection)
+end
