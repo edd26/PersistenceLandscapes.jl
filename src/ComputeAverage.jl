@@ -18,8 +18,8 @@
 
 using ArgParse
 
-include("FilesReader.jl")
-include("VectorSpaceOfPersistenceLandscapes.jl")
+# include("FilesReader.jl")
+# include("VectorSpaceOfPersistenceLandscapes.jl")
 
 programInfo ="""
 This is ComputeAverage program which is a part of Peristence Landscape Toolbox by Pawel Dlotko. It takes as input the following parameter: \n\

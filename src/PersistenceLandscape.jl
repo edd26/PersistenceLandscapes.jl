@@ -19,7 +19,8 @@
 # TODO Add MyPair module
 
 #include "Configure.h"
-include("PersistenceBarcode.jl")
+# include("PersistenceBarcode.jl")
+
 using Plots
 using Eirene
 

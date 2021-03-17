@@ -1,4 +1,4 @@
-include("PersistenceLandscape.jl")
+# include("PersistenceLandscape.jl")
 
 #functions of landscape:
 #integral

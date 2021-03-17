@@ -17,8 +17,8 @@
 #    along with PLT.  If not, see <http://www.gnu.org/licenses/>.
 
 
-include("PersistenceLandscape.jl")
-include("VectorSpaceOfPersistenceLandscapes.jl")
+# include("PersistenceLandscape.jl")
+# include("VectorSpaceOfPersistenceLandscapes.jl")
 
 DescriptorOfTopology = Union{PersistenceLandscape, PersistenceBarcodes} # a temporary solution, as this is a function (most probably)
 

@@ -36,12 +36,13 @@ module PersistenceLandscapes
            PersistenceLandscape,
            create_PersistenceLandscape,
            plot_persistence_landscape,
-           get_peaks_and_positions
+           get_peaks_and_positions,
+           computeDiscanceOfLandscapes,
+           abs_pl,
+            computeIntegralOfLandscape
 
     # VectorSpaceOfPersistenceLandscapes exports
     export VectorSpaceOfPersistenceLandscapes,
-           computeIntegralOfLandscape,
-           computeDiscanceOfLandscapes,
            average,
            standardDeviation
 
@@ -49,9 +50,10 @@ module PersistenceLandscapes
 
     # export main
 
+    include("Configure.jl")
+    include("PersistenceBarcode.jl")
+    include("PersistenceLandscape.jl")
     include("VectorSpaceOfPersistenceLandscapes.jl")
-    # include("PersistenceBarcode.jl")
-    # include("PersistenceLandscape.jl")
     include("Anova.jl")
     # include("Main.jl")
 

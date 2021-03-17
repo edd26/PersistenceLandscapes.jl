@@ -20,7 +20,7 @@
 This code is used to create average landscape
 =#
 
-include("PersistenceLandscape.jl")
+# include("PersistenceLandscape.jl")
 
 import Base.size
 

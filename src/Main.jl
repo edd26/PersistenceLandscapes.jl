@@ -48,8 +48,8 @@ function parse_commandline()
     return parse_args(s)
 end
 
-include("Anova.jl")
-include("FunctionsOfPersistenceLandscapes.jl")
+# include("Anova.jl")
+# include("FunctionsOfPersistenceLandscapes.jl")
 #include("FilesReader.jl")
 
 
