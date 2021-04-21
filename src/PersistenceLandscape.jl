@@ -1519,9 +1519,14 @@ function get_peaks_and_positions(lambdas)
 end
 
 function plot_persistence_landscape(pl1::PersistenceLandscape; max_layers=size(pl1.land,1), plot_kwargs...)
+    colors = cgrad(:cmyk, max_layers, categorical = true, rev=true)
+    try
+        colors = cgrad(plot_kwargs[:palette], max_layers, categorical = true, rev=true)
+    catch
+        @debug "Catched no palette"
+    end
 
     canvas1 = plot()
-
     for k in 1:max_layers
         peaks_position, peaks = get_peaks_and_positions(pl1.land[k])
 
