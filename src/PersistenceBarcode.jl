@@ -46,7 +46,7 @@ struct PersistenceBarcodes
     end
 
     # This hould be transformed into constructor from matrix nx2
-    # function PersistenceBarcodes(pers_barcode::PersistenceBarcodes,  vect::Vector , dimensionOfBarcode::UInt )
+    # function PersistenceBarcodes(pers_barcode::PersistenceBarcodes,  vect::Vector, dimensionOfBarcode::UInt )
     #     1+1
     #     # *this = PersistenceBarcodes(vect);
     #     # pers_barcode.dimensionOfBarcode = dimensionOfBarcode;
@@ -81,18 +81,59 @@ struct PersistenceBarcodes
         for i = 1:total_pairs
             if ( bars[i].second != infty )
                 # this is a finite interval
-                push!(barcodes, make_MyPair( bars[i].first , bars[i].second ))
+                push!(barcodes, make_MyPair( bars[i].first, bars[i].second ))
                 nr += 1
             end
             # to keep it all compact for now I am removing infinite intervals from consideration.
             #=else
                 # this is infinite interval:
-                barcodes[i] =  make_MyPair( bars[i].first , INT_MAX );
+                barcodes[i] =  make_MyPair( bars[i].first, INT_MAX );
             }=#
         end
         barcodes = sort(barcodes)
 
         # CHANGE
+        new(barcodes, UInt(dimensionOfBarcode))
+    end
+
+    function PersistenceBarcodes(filename::String, startin_point::Float64, step::Float64)
+        barcodes= MyPair[]
+        infty = Inf;
+        dimensionOfBarcode = 0;
+        open(filename, "r") do io
+            # read till end of file
+            while !eof(io)
+                s = readline(io)
+                splitted = split(s, " ")
+                beginning = splitted[1]
+                ending= splitted[2]
+                if ending != infty
+                    if ending < beginning
+                        z = ending;
+                        ending = beginning;
+                        beginning = z;
+                    end
+                    if ( begin != end )
+                        push!(barcodes, MyPair( startin_point+beginning*step,startin_point+ending*step ) )
+                    end
+                end
+            end
+        end
+
+        new(barcodes, UInt(dimensionOfBarcode))
+    end
+
+    function PersistenceBarcodes(filename::String, dimensionOfBarcode::UInt )
+        my_pairs = MyPair[]
+        open(filename, "r") do io
+            # read till end of file
+            while !eof(io)
+                s = readline(f)
+                splitted = split(s, " ")
+                push!(my_pairs, MyPair(splitted[1], splitted[2]))
+            end
+        end
+
         new(barcodes, UInt(dimensionOfBarcode))
     end
 end
@@ -203,7 +244,7 @@ end
 # end
 
 # tested
-function compareAccordingToLength( f::MyPair , s::MyPair)::Bool
+function compareAccordingToLength( f::MyPair, s::MyPair)::Bool
     l1 = abs(f.second - f.first); #::Float64
     l2 = abs(s.second - s.first); #::Float64
     return (l1 > l2);
@@ -219,7 +260,7 @@ function removeBarcodesThatBeginsBeforeGivenNumber(pers_barcode::PersistenceBarc
         else
             # pers_barcode.barcodes[i].first <= number
             if ( pers_barcode.barcodes[i].second > number )
-                push!(newBarcodes, make_MyPair( number , pers_barcode.barcodes[i].second) );
+                push!(newBarcodes, make_MyPair( number, pers_barcode.barcodes[i].second) );
             end
             # in the opposite case pers_barcode.barcodes[i].second <= in which case, we totally ignore this point.
         end
@@ -249,7 +290,7 @@ function putToBins(pers_barcode::PersistenceBarcodes, numberOfBins; dbg::Bool = 
         rightBinEnd = myPair_minMax.first+(rightBinNumber+0.5)*dx; #::Float64
 
         if leftBinEnd != rightBinEnd
-            push!(binnedData, make_MyPair(leftBinEnd , rightBinEnd) )
+            push!(binnedData, make_MyPair(leftBinEnd, rightBinEnd) )
         end
 
         if dbg
@@ -279,9 +320,13 @@ function compareMyPairs( f::MyPair, s::MyPair)::Bool
     return false;
 end
 
-function Base.sort(pers_barcode::PersistenceBarcodes)
+function Base.sort(pers_barcode::PersistenceBarcodes; rev::Bool=false)
 	# sorted = sort([1:mat_size;], by=i->(sorted_values[i],matrix_indices[i]))
 	sorted = sort(pers_barcode.barcodes, lt= compareMyPairs)
+
+    if rev
+        sorted = [sorted[k] for k in size(sorted,1):-1:1]
+    end
     # sort( pers_barcode.barcodes.begin() , pers_barcode.barcodes.end() , compareMyPairs );
     return PersistenceBarcodes(sorted, pers_barcode.dimensionOfBarcode)
 end
@@ -498,8 +543,8 @@ function restrictBarcodesToGivenInterval(pers_barcode::PersistenceBarcodes,  int
         end
         push!(new_pairs,
                 make_MyPair(
-                    max( interval.first , pers_barcode.barcodes[i].first ),
-                    min( interval.second , pers_barcode.barcodes[i].second )
+                    max( interval.first, pers_barcode.barcodes[i].first ),
+                    min( interval.second, pers_barcode.barcodes[i].second )
                    )
                )
     end
@@ -531,7 +576,7 @@ function minMax(pers_barcode::PersistenceBarcodes)
             bmax = pers_barcode.barcodes[i].second
         end
     end
-    return make_MyPair( bmin , bmax );
+    return make_MyPair( bmin, bmax );
 end # minMax
 
 
@@ -573,7 +618,7 @@ function  produceBettiNumbersOnAGridFromMinToMaxRangeWithAStepBeingParameterOfTh
         first = (pers_barcode.barcodes[i].first-minMax_val.first)/dx;
         second = (pers_barcode.barcodes[i].second-minMax_val.first)/dx;
 
-        @debug first , second
+        @debug first, second
         # @debug getchar()
         for j = floor(Int, first):1:ceil(Int, second)
             bettiNumbers[j] += 1
@@ -596,30 +641,32 @@ function writeBarcodesSortedAccordingToLengthToAFile(pers_barcode::PersistenceBa
 
     open(filename, "w") do io
         for i = 1:size(sorted_bars,1)
-            write(io, "$(sortedBars[i].first) $(sortedBars[i].second)")
+            write(io, "$(sorted_bars[i].first) $(sorted_bars[i].second)")
         end
     end
 end
 
 function writeToFile(pers_barcode::PersistenceBarcodes,  filename::String )
     open(filename, "w") do io
+        # TODO change this to for loop with condition that last read  line was EOF line
         for i = 1:size(sorted_bars,1)
             write(io, "$(pers_barcode.barcodes[i].first) $(pers_barcode.barcodes[i].second)")
         end
     end
 end
 
-function putToAFileHistogramOfBarcodesLengths(pers_barcode::PersistenceBarcodes, filename::String ,  howMany::Real , shouldWeAlsoPutResponsibleBarcodes::Bool )
+function putToAFileHistogramOfBarcodesLengths(pers_barcode::PersistenceBarcodes, filename::String, howMany::Real, shouldWeAlsoPutResponsibleBarcodes::Bool )
 
     barsLenghts = Any[]
     for i = 1:size(pers_barcode.barcodes,1)
         bar_diff = abs(pers_barcode.barcodes[i].second - pers_barcode.barcodes[i].first)
 
-        push!(barsLenghts, (bar_diff , MyPair(pers_barcode.barcodes[i].first , pers_barcode.barcodes[i].second )))
+        push!(barsLenghts, (bar_diff, MyPair(pers_barcode.barcodes[i].first, pers_barcode.barcodes[i].second )))
     end
 
-    sorted = sort(pers_barcode.barcodes, by= x-> x[1])
-    reverse( begining(barsLenghts) , ending(barsLenghts) );
+    # sorted = sort(pers_barcode.barcodes, by= x-> x[1])
+    # reverse( begining(barsLenghts) , ending(barsLenghts) );
+    sorted = sort(pers_barcode, rev=true)
 
     open(filename, "w") do io
         if shouldWeAlsoPutResponsibleBarcodes
@@ -635,19 +682,20 @@ function putToAFileHistogramOfBarcodesLengths(pers_barcode::PersistenceBarcodes,
 end # putToAFileHistogramOfBarcodesLengths
 
 
-function putToAFileHistogramOfBarcodesLengths(pers_barcode::PersistenceBarcodes,  filename::String ,  beginn::Real ,  endd::Real , shouldWeAlsoPutResponsibleBarcodes::Bool )
+function putToAFileHistogramOfBarcodesLengths(pers_barcode::PersistenceBarcodes,  filename::String, beginn::Real, endd::Real, shouldWeAlsoPutResponsibleBarcodes::Bool )
     if beginn >= endd
         throw(DomainError("Wrong parameters of putToAFileHistogramOfBarcodesLengths procedure. Begin points is greater that the end point. Program will now terminate"))
     end
 
-    # std::vector<std::pair< double , std::pair<double,double> > > barsLenghts(this->barcodes.size());
+    # std::vector<std::pair< double, std::pair<double,double> > > barsLenghts(this->barcodes.size());
     barsLenghts = Any[]
     for i = 1:size(pers_barcode.barcodes,1)
         bar_diff = abs(pers_barcode.barcodes[i].second - pers_barcode.barcodes[i].first)
 
-        push!(barsLenghts, (bar_diff , MyPair(pers_barcode.barcodes[i].first , pers_barcode.barcodes[i].second )))
+        push!(barsLenghts, (bar_diff, MyPair(pers_barcode.barcodes[i].first, pers_barcode.barcodes[i].second )))
     end
-    sorted = sort(pers_barcode.barcodes, by= x-> x[1])
+    # sorted = sort(pers_barcode.barcodes, by= x-> x[1])
+    sorted = sort(pers_barcode)
 
     # reverse
     barsLenghts = barsLenghts[end:-1:1]
@@ -680,43 +728,6 @@ function putToAFileHistogramOfBarcodesLengths(pers_barcode::PersistenceBarcodes,
 end # putToAFileHistogramOfBarcodesLengths
 
 
-function PersistenceBarcodes(pers_barcode::PersistenceBarcodes, filename::String , startin_point::Float64, step::Float64)
-    barcodes= MyPair[]
-    infty = Inf;
-    dimensionOfBarcode = 0;
-    open(filename, "r") do io
-        # read till end of file
-        while !eof(io)
-            s = readline(io)
-            splitted = split(s, " ")
-            beginning = splitted[1]
-            ending= splitted[2]
-            if ending != infty
-                if ending < beginning
-                    z = ending;
-                    ending = beginning;
-                    beginning = z;
-                end
-                if ( begin != end )
-                    push!(barcodes, MyPair( startin_point+beginning*step,startin_point+ending*step ) )
-                end
-            end
-        end
-    end
-
-end
-
-function PersistenceBarcodes(pers_barcode::PersistenceBarcodes, filename::String , dimensionOfBarcode::UInt )
-    my_pairs = MyPair[]
-    open(filename, "r") do io
-        # read till end of file
-        while !eof(io)
-            s = readline(f)
-            splitted = split(s, " ")
-            push!(my_pairs, MyPair(splitted[1], splitted[2]))
-        end
-    end
-    return PersistenceBarcodes(my_pairs, dimensionOfBarcode)
-end
+# function PersistenceBarcodes(pers_barcode::PersistenceBarcodes, filename::String, startin_point::Float64, step::Float64)
 
 # File operations <<<
