@@ -22,7 +22,8 @@
 #global variables and their default values.
 
 # DrWatson added for packing all config values into single dictionary so that it is more accesible
-using DrWatson
+# using DrWatson
+using UnPack
 using Plots
 using Eirene
 
