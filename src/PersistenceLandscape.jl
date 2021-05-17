@@ -1530,7 +1530,7 @@ function plot_persistence_landscape(pl1::PersistenceLandscape; max_layers=size(p
     for k in 1:max_layers
         peaks_position, peaks = get_peaks_and_positions(pl1.land[k])
 
-        plot!(canvas1, peaks_position, peaks; plot_kwargs...)
+        plot!(canvas1, peaks_position, peaks; c=colors[k], plot_kwargs...)
     end
 
     return canvas1
