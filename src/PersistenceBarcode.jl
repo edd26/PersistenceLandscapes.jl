@@ -736,12 +736,12 @@ end # putToAFileHistogramOfBarcodesLengths
 /*
 # this function ocmpute L^p bottleneck distance beteen diagrams.
 # MyPair< double , < MyPair< MyPair<double,double> , MyPair<double,double> > > >
-# This will have to be added 
+# This will have to be added
 # https://github.com/Gnimuc/Hungarian.jl
 function computeBottleneckDistance(first::PersistenceBarcodes,
                                    second::PersistenceBarcodes,
                                    p::UInt;
-                                  local_debug:Bool=false)
+                                  local_debug::Bool=false)
 
     # If first and second have different sizes, then I want to rename them in the way that first is the larger one:
     firstBar = MyPair( firstBar.end() , first.barcodes.begin() , first.barcodes.end() )
@@ -760,7 +760,7 @@ function computeBottleneckDistance(first::PersistenceBarcodes,
        some_array[i] = zeros((size(firstBar)+size(secondBar)))
    end
 
-   #= 
+   #=
    to illustrate how the matrix is create let us look at the following
    example. Suppose one set of bars consist of two points A, B, and another
    consist of a single point C.
@@ -884,7 +884,7 @@ function computeBottleneckDistance(first::PersistenceBarcodes,
         end
     end
 
-    MyPair< double , < MyPair< MyPair<double,double>,MyPair<double,double> > > > result = std::make_pair( pow(cost/(double)bigNumber,1/(double)p) , matching );
+    # MyPair< double , < MyPair< MyPair<double,double>,MyPair<double,double> > > > result = std::make_pair( pow(cost/(double)bigNumber,1/(double)p) , matching );
+    result = MyPair( pow(cost/(double)bigNumber,1/(double)p) , matching );
     return result;
 end
-
