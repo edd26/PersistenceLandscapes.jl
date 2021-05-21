@@ -15,14 +15,14 @@
 #    GNU Lesser General Public License for more details.
 #
 #    You should have received a copy of the GNU Lesser General Public License
-#    along with PLT.  If not, see <http://www.gnu.org/licenses/>.
+#    along with PLT.  If not, see <http:# www.gnu.org/licenses/>.
 
 # include("Configure.jl")
 import Base.size, Base.isempty, Base.copy, Base.sort
 # import Base.abs
 
 
-# code taken from http://ranger.uta.edu/~weems/NOTES5311/hungarian.c
+# code taken from http:# ranger.uta.edu/~weems/NOTES5311/hungarian.c
 #include "HungarianC.h"
 
 # tested
@@ -687,7 +687,7 @@ function putToAFileHistogramOfBarcodesLengths(pers_barcode::PersistenceBarcodes,
         throw(DomainError("Wrong parameters of putToAFileHistogramOfBarcodesLengths procedure. Begin points is greater that the end point. Program will now terminate"))
     end
 
-    # std::vector<std::pair< double, std::pair<double,double> > > barsLenghts(this->barcodes.size());
+    # <MyPair< double, MyPair<double,double> > > barsLenghts(this->barcodes.size());
     barsLenghts = Any[]
     for i = 1:size(pers_barcode.barcodes,1)
         bar_diff = abs(pers_barcode.barcodes[i].second - pers_barcode.barcodes[i].first)
@@ -731,3 +731,160 @@ end # putToAFileHistogramOfBarcodesLengths
 # function PersistenceBarcodes(pers_barcode::PersistenceBarcodes, filename::String, startin_point::Float64, step::Float64)
 
 # File operations <<<
+
+
+/*
+# this function ocmpute L^p bottleneck distance beteen diagrams.
+# MyPair< double , < MyPair< MyPair<double,double> , MyPair<double,double> > > >
+# This will have to be added 
+# https://github.com/Gnimuc/Hungarian.jl
+function computeBottleneckDistance(first::PersistenceBarcodes,
+                                   second::PersistenceBarcodes,
+                                   p::UInt;
+                                  local_debug:Bool=false)
+
+    # If first and second have different sizes, then I want to rename them in the way that first is the larger one:
+    firstBar = MyPair( firstBar.end() , first.barcodes.begin() , first.barcodes.end() )
+    secondBar = MyPair( secondBar.end() , second.barcodes.begin() , second.barcodes.end())
+
+    if local_debug
+        @debug "size(firstBar)  : $(size(firstBar))"
+        @debug "size(secondBar)  : $(size(secondBar))"
+    end
+
+    # Result = char[(size(firstBar)+size(secondBar))];
+    # some_array = zeros(Int[(size(firstBar)+size(secondBar))];
+
+   for  i=0:(size(firstBar)+size(secondBar))
+       Result[i] = zeros((size(firstBar)+size(secondBar)))
+       some_array[i] = zeros((size(firstBar)+size(secondBar)))
+   end
+
+   #= 
+   to illustrate how the matrix is create let us look at the following
+   example. Suppose one set of bars consist of two points A, B, and another
+   consist of a single point C.
+    The matrix should look like this in that case:
+           |      A       |      B      |  diag( C )  |
+      C    |    d(A,C)    |   d(A,B)    | d(C,diag(C))|
+    diag(A)| d(A,diag(A)) |    0        |  0          |
+    diag(B)|     0        |d(B,diag(B)) |  0          |
+
+    Therefore as one can clearly see, the matrix can be parition in to 4 essential parts:
+        P1 | P2
+        P3 | P4
+    Where:
+    P1 -- submatrix of distances between points
+    P2 -- Distances from 'barcodes C' to diagonal
+    P3 -- distances from 'barcodes a&B' to diagonal
+    P4 -- matrix of zeros.
+
+    this implementation of Hungarian algorithm accepts only int's. That is why
+    I converge all the double numbers here to ints by multipling by this big
+    number:
+   =#
+
+   bigNumber = 10000
+   local_debug && @debug "Starting creation of cost matrix "
+
+    for coll = 1 :(size(firstBar)+size(secondBar))
+        for row = 1 :(size(firstBar)+size(secondBar))
+            local_debug && println("row = $(row )\ncoll : $(coll )")
+            if ( ( coll < size(firstBar) ) && ( row < size(secondBar) ) )
+                # P1
+                some_array[coll][row] = bigNumber*pow(computeDistanceOfPointsInPlane( firstBar[coll] , secondBar[row] ),p);
+
+                if local_debug
+                    "Region P1, computing distance between : " << firstBar[coll] << " and " << secondBar[row] << "\n";
+                    "The distance is : " << some_array[coll][row]
+                    "The distance is : " << computeDistanceOfPointsInPlane( firstBar[coll] , secondBar[row] )
+                end
+            end
+            if ( (coll >= size(firstBar)) && (row < size(secondBar)) )
+                # P2
+                # distance between point from secondBar and its projection to diagonal
+                some_array[coll][row] = bigNumber*pow(computeDistanceOfPointsInPlane( secondBar[row] , projectionToDiagonal(secondBar[coll - size(firstBar)]) ),p);
+
+                if local_debug
+                    "Region P2, computing distance between : " << secondBar[row] << " and projection(" <<secondBar[coll - size(firstBar)] << ") which is : "  << projectionToDiagonal(secondBar[coll - size(firstBar)]) << "\n"
+                    "The distance is : " << some_array[coll][row]
+                end
+            end
+
+            if ( (coll < size(firstBar)) && (row >= size(secondBar)) )
+                # distance between point from firstBar and its projection to diagonal
+                some_array[coll][row] = (int)bigNumber*pow(computeDistanceOfPointsInPlane( firstBar[coll] , projectionToDiagonal(firstBar[row-size(secondBar)]) ),(double)p);
+                if local_debug
+                    println("Region P3, computing distance between : $(firstBar[coll]) and projection($(firstBar[row-size(secondBar)])  which is : $(projectionToDiagonal(firstBar[row-size(secondBar)]))")
+
+                    println("The distance is : $(some_array[coll][row])")
+                end
+            end
+            if ( (coll >= size(firstBar)) && (row >= size(secondBar)) )
+                # P4
+                local_debug && println("Region P4, set to infinitey")
+                some_array[coll][row] = 0;
+            end
+           # if (local_debug)
+           #      # stop wih user inpu
+           # end
+        end
+    end
+
+   if local_debug
+       for i = 1 :(size(firstBar)+size(secondBar))
+           for j = 0:(size(firstBar)+size(secondBar))
+              print("$(some_array[y][x]) ")
+             end
+             println()
+       end
+        "Matrix has been created\n";
+        # stop wih user inpu
+   end
+
+
+
+    cost = hungarian(some_array,Result,(size(firstBar)+size(secondBar)),(size(firstBar)+size(secondBar)));
+    if local_debug
+        for y=0:(size(firstBar)+size(secondBar))
+            for x=0:(size(firstBar)+size(secondBar))
+                print("$(Result[y][x]) ")
+            end
+        println()
+        end
+    end
+
+    # < MyPair< MyPair<double,double> , MyPair<double,double> > > matching;
+    matching = MyPair[];
+
+    for y=0:(size(firstBar)+size(secondBar))
+        for x=0:(size(firstBar)+size(secondBar))
+            if ( Result[x][y] )
+                store = false;
+                if ( x < size(firstBar) )
+                    local_debug && print(firstBar[x])
+                    store = true;
+                else
+                    local_debug && print("projection($(secondBar[x - size(firstBar)] )")
+                end
+                local_debug && print(" is paired with")
+                if ( y < size(secondBar) )
+                    local_debug && print(secondBar[y])
+                    store = true;
+                else
+                    v:lua.s_tab_complete()local_debug && print("projection( $(firstBar[y - size(secondBar)])")
+                end
+                local_debug && println()
+
+                if ( store )
+                # at least one element in not from diagonal:
+                    push!(matching, MyPair(firstBar[x] , secondBar[y]) )
+                end
+            end
+        end
+    end
+
+    MyPair< double , < MyPair< MyPair<double,double>,MyPair<double,double> > > > result = std::make_pair( pow(cost/(double)bigNumber,1/(double)p) , matching );
+    return result;
+end
+
