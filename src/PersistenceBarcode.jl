@@ -37,6 +37,15 @@ import Base.size, Base.isempty, Base.copy, Base.sort
 # end
 
 # tested
+"""
+Structure to hold information about persistence barcodes:
+- barcodes- vector where elements are barcodes. Each barcodes is a pair of
+    numbers, where first one is the birth time, second one is the death time
+- dimensionOfBarcode - is the dimension for which all of the barcodes were generated
+
+TODO rename MyPair to Point2D
+TODO create a structure Barcode from Point2D (a level of abstraction)
+"""
 struct PersistenceBarcodes
     barcodes::Vector{MyPair}
     dimensionOfBarcode::UInt
@@ -138,7 +147,14 @@ struct PersistenceBarcodes
     end
 end
 
+# ===-===-===-===-
+# MyPair >>>
 
+"""
+Compute Euclidean distance for a pair of values.
+
+TODO This should be extracted to Point2D related script.
+"""
 function  computeDistanceOfPointsInPlane(p1::MyPair, p2::MyPair)::Float64
     # cerr << "Computing distance of points :(" << p1.first << "," << p1.second << ") and (" << p2.first << "," << p2.second << ")\n";
     # cerr << "Distance :" << sqrt( (p1.first-p2.first)*(p1.first-p2.first) + (p1.second-p2.second)*(p1.second-p2.second) ) << "\n";
@@ -146,10 +162,64 @@ function  computeDistanceOfPointsInPlane(p1::MyPair, p2::MyPair)::Float64
 end # computeDistanceOfPointsInPlane
 
 
-function projectionToDiagonal(p::MyPair )::MyPair
+"""
+Projects point to the diagonal of a cube.
 
+NOTE! This is not verified description.
+
+Creates a new Point2D  which coordinates are average value of input coordinates.
+TODO This should be extracted to Point2D related script.
+"""
+function projectionToDiagonal(p::MyPair)::MyPair
     return make_MyPair( 0.5*(p.first+p.second),0.5*(p.first+p.second) );
 end
+
+# tested
+"""
+Check if the barcode 'f' is longer than barcode 's'.
+
+TODO An alternative could be added with just f>s
+TODO This should be extracted to Point2D related script.
+"""
+function compareAccordingToLength( f::MyPair, s::MyPair)::Bool
+    l1 = abs(f.second - f.first); #::Float64
+    l2 = abs(s.second - s.first); #::Float64
+    return (l1 > l2);
+end
+
+# tested
+"""
+Compare two structures MyPair with the following logic:
+- return true if 's' was born before 'f'
+- return false if 'f' was born before 's'
+- return true if 's' died before 'f' (this applies when both are born at the same time)
+- return false if none of above applies
+"""
+function compareMyPairs( f::MyPair, s::MyPair)::Bool
+
+    if f.first < s.first
+        return true
+    end
+
+    if f.first > s.first
+        return false
+    end
+
+    if f.second < s.second
+        return true
+    end
+    return false;
+end
+
+"""
+Boolean check if birth times of 'f' is smaller than birth time of 's'.
+"""
+function compareForHistograms( f::MyPair, s::MyPair)::Bool
+    return f.first < s.first;
+end
+
+# MyPair <<<
+# ===-===-===-===-
 
 
 
@@ -171,20 +241,29 @@ end
 
 # function ostream& operator<<(ostream& out, bar ::PersistenceBarcodes)
 # function operator_to_std(out::ostream, bar::PersistenceBarcodes) # operator<<
+"""
+Prints the PersistenceBarcodes structure to the output.
+"""
 function operator_to_std(out, bar::PersistenceBarcodes) # operator<<
 
     for i = 0:size(bar.barcodes,1)
         println("$(bar.barcodes[i].first) $(bar.barcodes[i].second)")
     end
-    return out;
+    # return out;
 end
 
 # tested
+"""
+Return how many barcodes are there in the structure.
+"""
 function Base.size(pers_barcode::PersistenceBarcodes)
     return length(pers_barcode.barcodes)
 end
 
 # tested
+"""
+Returns a PersistenceBarcodes structure which is a copy of an input structure.
+"""
 function Base.copy(pers_barcode::PersistenceBarcodes)
     return PersistenceBarcodes(pers_barcode.barcodes, pers_barcode.dimensionOfBarcode)
 end
@@ -195,6 +274,9 @@ end
 # end
 
 # tested
+"""
+Returns the dimension of PersistenceBarcodes structure.
+"""
 function dim(pers_barcode::PersistenceBarcodes)::UInt
     return pers_barcode.dimensionOfBarcode
 end
@@ -243,14 +325,11 @@ end
     # cout << "Gnuplot script to visualize persistence diagram written to the file:" << nameStr << ". Type load '" << nameStr << "' in gnuplot to visualize." << endl;
 # end
 
-# tested
-function compareAccordingToLength( f::MyPair, s::MyPair)::Bool
-    l1 = abs(f.second - f.first); #::Float64
-    l2 = abs(s.second - s.first); #::Float64
-    return (l1 > l2);
-end
 
 # tested
+"""
+Remove barcodes from 'pers_barcode' which begin before 'number'
+"""
 function removeBarcodesThatBeginsBeforeGivenNumber(pers_barcode::PersistenceBarcodes,  number::Int )
     newBarcodes = MyPair[]
 
@@ -271,6 +350,20 @@ end
 
 
 # tested
+"""
+Split the lifespan of barcodes into 'numberOfBins' bins and refactor bars such that
+their birth and death is one of the bins.
+
+This works as follows:
+- create barcode with earliest birth and latests death in 'pers_barcode'
+- split the range into 'numberOfBins' bins
+- get unit barcode length, that is (latest death - earliest birth)/numberOfBins
+- for each barcode from 'pers_barcode':
+    - get index of the bin where is the barcode born 
+    - get index of the bin where the barcode dies
+    - create a new barcode with birth equal to (unit length) * (birth index) and
+        death equal to (unit length) * (death index)
+"""
 function putToBins(pers_barcode::PersistenceBarcodes, numberOfBins; dbg::Bool = false)
     myPair_minMax = minMax(pers_barcode);
     binnedData = MyPair[];
@@ -303,23 +396,10 @@ function putToBins(pers_barcode::PersistenceBarcodes, numberOfBins; dbg::Bool = 
     return PersistenceBarcodes(binnedData, pers_barcode.dimensionOfBarcode)
 end
 
-# tested
-function compareMyPairs( f::MyPair, s::MyPair)::Bool
 
-    if f.first < s.first
-        return true
-    end
-
-    if f.first > s.first
-        return false
-    end
-
-    if f.second < s.second
-        return true
-    end
-    return false;
-end
-
+"""
+Sort barcodes is descending order of birth (if the same, then longer lived are beofre shorter lived).
+"""
 function Base.sort(pers_barcode::PersistenceBarcodes; rev::Bool=false)
 	# sorted = sort([1:mat_size;], by=i->(sorted_values[i],matrix_indices[i]))
 	sorted = sort(pers_barcode.barcodes, lt= compareMyPairs)
@@ -336,6 +416,14 @@ function Base.sort(bars::Vector{MyPair})
 end
 
 # tested
+"""
+Check if two PersistenceBarcodes structures are exactly the same.
+
+- return false if size is mismatched
+- sort both PersistenceBarcodes structures
+- return false if any of pairs is not exactly the same
+- return tru if none of above applies
+"""
 function compare(pers_barcode::PersistenceBarcodes,  b::PersistenceBarcodes; dbg::Bool = false)::Bool
     if ( dbg )
         println("pers_barcode.barcodes.size(): $(size(pers_barcode.barcodes,1))")
@@ -360,12 +448,25 @@ function compare(pers_barcode::PersistenceBarcodes,  b::PersistenceBarcodes; dbg
     return true;
 end
 
+"""
+Rerurn a strucure which is smaller.
+
+- reurn f if f<s
+- return s otherwise
+"""
 function minn(f,  s )
     (f < s) && return f
     return s;
 end
 
 
+"""
+Reurn average midpoint of barcodes in 'pers_barcode'.
+
+Midpoin is expressed as average of the both ends of the bar, that is (death-birth)/2
+
+For every persistenece barcode, compute midpoint, then compute average of all midpoints.
+"""
 function computeAverageOfMidpointOfBarcodes(pers_barcode::PersistenceBarcodes)::Float64
     averages = 0; #::Float64
     for i = 1:size(pers_barcode.barcodes,1)
@@ -377,6 +478,9 @@ function computeAverageOfMidpointOfBarcodes(pers_barcode::PersistenceBarcodes)::
 end# computeAverageOfMidpointOfBarcodes
 
 
+"""
+Return new PersistenceBarcodes structure, where midpoint of all barcoeds is 0.
+"""
 function setAverageMidpointToZero(pers_barcode::PersistenceBarcodes; dbg::Bool = false)
 
     # average = pers_barcode.computeAverageOfMidpointOfBarcodes(); #::Float64
@@ -398,6 +502,9 @@ function setAverageMidpointToZero(pers_barcode::PersistenceBarcodes; dbg::Bool =
     return PersistenceBarcodes(new_pairs, pers_barcode.dimensionOfBarcode)
 end
 
+"""
+Returns new PersistenceBarcodes structure in which average barcodes length from 'pers_barcode' is 1.
+"""
 function setAveragedLengthToOne(pers_barcode::PersistenceBarcodes)
     # first compute average length of barcode:
     sumOfLengths = 0
@@ -407,6 +514,7 @@ function setAveragedLengthToOne(pers_barcode::PersistenceBarcodes)
 
     # averageLength:size(:Float64 = (double)sumOfLengths / (double)pers_barcode.barcodes,1);
     averageLength = sumOfLengths / size(pers_barcode.barcodes,1)
+    # averageLength = [barcodesLength(b) for b in pers_barcode.barcodes] |> average
 
     # now we need to rescale the length by 1/averageLength
     new_pairs = MyPair[]
@@ -421,13 +529,18 @@ function setAveragedLengthToOne(pers_barcode::PersistenceBarcodes)
     return PersistenceBarcodes(new_pairs, pers_barcode.dimensionOfBarcode)
 end
 
-function averageBarcodes(pers_barcode::PersistenceBarcodes, )
-    pers_barcode = setAverageMidpointToZero(pers_barcode);
-    pers_barcode = setAveragedLengthToOne(pers_barcode);
-    return pers_barcode
+"""
+Returns a new PersistenceBarcodes structure where midpoint is set to 0 and average length of barcodes is 1.
+"""
+function averageBarcodes(pers_barcode::PersistenceBarcodes)
+    # pers_barcode = setAverageMidpointToZero(pers_barcode);
+    # pers_barcode = setAveragedLengthToOne(pers_barcode);
+    # return pers_barcode
+    pers_barcode |> setAverageMidpointToZero |> setAveragedLengthToOne
 end
 
 
+# TODO this has to be expressed as setRange
 function setRangeToMinusOneOne(pers_barcode::PersistenceBarcodes, )
     # first we need to find min and max endpoint of intervals:
     min_val = Inf #INT_MAX; #::Float64
@@ -465,6 +578,7 @@ function setRangeToMinusOneOne(pers_barcode::PersistenceBarcodes, )
     return PersistenceBarcodes(new_pairs, pers_barcode.dimensionOfBarcode)
 end
 
+# TODO this has to be expressed as a restrictBarcodesToGivenInterval
 function setRange(pers_barcode::PersistenceBarcodes,  beginn::Real, endd::Real)
     if beginn >= endd
         throw(DomainError("Bar ranges in the setRange procedure."))
@@ -511,13 +625,14 @@ end # computeAverageOfMidpointOfBarcodesWeightedByLength
 
 
 
-function compareForHistograms( f::MyPair, s::MyPair)::Bool
-    return f.first < s.first;
-end
 
 
 
 
+"""
+Returns new PersistenceBarcodes structure where all barcodes from 'pers_barcode' which lenght is smaller than
+'minimalDiameterOfBarcode' are removed.
+"""
 function removeShortBarcodes(pers_barcode::PersistenceBarcodes,  minimalDiameterOfBarcode::Real)
 
     cleanedBarcodes = MyPair[]
@@ -530,6 +645,9 @@ function removeShortBarcodes(pers_barcode::PersistenceBarcodes,  minimalDiameter
 end
 
 
+"""
+Returns new PersistenceBarcodes structure where birth and death times are restruced to 'interval'
+"""
 function restrictBarcodesToGivenInterval(pers_barcode::PersistenceBarcodes,  interval::MyPair )::PersistenceBarcodes
     new_pairs= MyPair[]
     for i = 1:size(pers_barcode.barcodes,1)
@@ -565,6 +683,13 @@ end
 #     return *this;
 # end
 
+"""
+Create a barcode for which:
+- birth is the earliest birth in the 'pers_barcode structure'
+- death is the latests death in the 'pers_barcode structure'
+
+NOTE! This needs to be verified.
+"""
 function minMax(pers_barcode::PersistenceBarcodes)
     bmin = Inf # INT_MAX; #::Float64
     bmax = -Inf # INT_MIN; #::Float64
@@ -596,7 +721,7 @@ end
 
 
 
-function  produceBettiNumbersOnAGridFromMinToMaxRangeWithAStepBeingParameterOfThisFunction(pers_barcode::PersistenceBarcodes,  step::UInt  , minn::Float64, maxx::Float64; dbg::Bool = false)::Vector{UInt}
+function produceBettiNumbersOnAGridFromMinToMaxRangeWithAStepBeingParameterOfThisFunction(pers_barcode::PersistenceBarcodes,  step::UInt  , minn::Float64, maxx::Float64; dbg::Bool = false)::Vector{UInt}
 
     if ( minn == Inf)
         minMax_val = minMax(pers_barcode);
@@ -733,7 +858,7 @@ end # putToAFileHistogramOfBarcodesLengths
 # File operations <<<
 
 
-/*
+# /*
 # this function ocmpute L^p bottleneck distance beteen diagrams.
 # MyPair< double , < MyPair< MyPair<double,double> , MyPair<double,double> > > >
 # This will have to be added
