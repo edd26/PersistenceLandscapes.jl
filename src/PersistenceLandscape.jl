@@ -1190,7 +1190,11 @@ function check( i::UInt, v::Vector{MyPair} )
     return false
 end
 
+"""
+Compute the integral of the landscape for p=0.
+"""
 function computeIntegralOfLandscape(land::PersistenceLandscape; local_dbg = false)
+    # TODO this should be expressed as the same funciton called with param p=0 (or whichever is equivalent)
     result = 0
     for i = 1 : size(land) # for every layer
         for nr = 2:size(land.land[i],1)-1 # for every point in layer
@@ -1203,16 +1207,24 @@ function computeIntegralOfLandscape(land::PersistenceLandscape; local_dbg = fals
     return result
 end
 
+"""
+Compute the integral of the landscape for p.
+
+In this interval, the landscape has a form f(x) = ax+b. We want to compute
+integral of (ax+b)^p = 1/a * (ax+b)^(p+1)/(p+1)
+"""
 function computeIntegralOfLandscape(land::PersistenceLandscape, p::Real; local_dbg = false)
     result = 0
     for i = 1 : size(land)
+        # total_points_in_layer = size(land.land[i],1)-1 # -1 because of the (0,0) point
+        # for nr = 2:total_points_in_layer
         for nr = 2:size(land.land[i],1)-1
             local_dbg && println("nr : $(nr)")
             # In this interval, the landscape has a form f(x) = ax+b. We want to compute integral of (ax+b)^p = 1/a * (ax+b)^p+1end/(p+1)
             coef = computeParametersOfALine( land.land[i][nr] , land.land[i][nr-1] )
             a = coef.first
             b = coef.second
-            local_dbg && println("($(land.land[i][nr].first),$(land.land[i][nr].second)) , $(land.land[i][nr-1].first) $(land.land[i][nr-1].second)))")
+            local_dbg && println("current: ($(land.land[i][nr].first),$(land.land[i][nr].second)) ,\n previous: ($(land.land[i][nr-1].first) $(land.land[i][nr-1].second))")
 
             if land.land[i][nr].first == land.land[i][nr-1].first
                 continue
