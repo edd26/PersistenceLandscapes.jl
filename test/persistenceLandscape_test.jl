@@ -1,6 +1,8 @@
 using Eirene
 using Plots
 
+
+## ===-
 @testset "constructors tests" begin
     bars1 = [MyPair(0, 3), MyPair(0, 6), MyPair(0,10)]
     bars2 = [MyPair(0, 3), MyPair(3, 6), MyPair(6,9)]
@@ -61,6 +63,7 @@ using Plots
 
 end
 
+## ===-
 # @testset "Check for infs check" begin
 #     pl_infs1 = PersistenceLandscape([[MyPair(-Inf, 0)]], 1)
 #     pl_infs2 = PersistenceLandscape([[MyPair(0, Inf)]], 1)
@@ -80,6 +83,7 @@ end
 # end
 
 
+## ===-
 @testset "PersistenceLandscape operations" begin
     singular_landscape_a = PersistenceLandscape(PersistenceBarcodes([MyPair(1,3)],1))
     singular_landscape_b = PersistenceLandscape(PersistenceBarcodes([MyPair(0,4)],1))
@@ -146,25 +150,26 @@ end
         end
 
         # Figure tests
-        fig5_data_a = [MyPair(2, 9), MyPair(4, 8), MyPair(4,5), MyPair(8,10)]
-        fig5_bars_a = PersistenceBarcodes(fig5_data_a, 1)
-        fig5_pl_a = PersistenceLandscape(fig5_bars_a)
-
-        fig5_data_b = [MyPair(2, 9), MyPair(4, 8), MyPair(5,6), MyPair(7,9)]
-        fig5_bars_b = PersistenceBarcodes(fig5_data_b, 1)
-        fig5_pl_b = PersistenceLandscape(fig5_bars_b)
-
-        plt_a = plot_persistence_landscape(fig5_pl_a)
-        plot!(plt_a  , ticks=0:1:10, xlims=[1,11])
-        plt_b = plot_persistence_landscape(fig5_pl_b)
-        plot!(plt_b, ticks=0:1:10, xlims=[1,11])
-        landscpae_collection = VectorSpaceOfPersistenceLandscapes([fig5_pl_a, fig5_pl_b])
-        plt_average = plot_persistence_landscape(average(landscpae_collection))
-        plot!(plt_average , ticks=0:1:10, xlims=[1,11])
-        final_plot = plot(plt_a, plt_b, plt_average, layout=(3,1), size=(600, 400*3))
+        # fig5_data_a = [MyPair(2, 9), MyPair(4, 8), MyPair(4,5), MyPair(8,10)]
+        # fig5_bars_a = PersistenceBarcodes(fig5_data_a, 1)
+        # fig5_pl_a = PersistenceLandscape(fig5_bars_a)
+        #
+        # fig5_data_b = [MyPair(2, 9), MyPair(4, 8), MyPair(5,6), MyPair(7,9)]
+        # fig5_bars_b = PersistenceBarcodes(fig5_data_b, 1)
+        # fig5_pl_b = PersistenceLandscape(fig5_bars_b)
+        #
+        # plt_a = plot_persistence_landscape(fig5_pl_a)
+        # plot!(plt_a  , ticks=0:1:10, xlims=[1,11])
+        # plt_b = plot_persistence_landscape(fig5_pl_b)
+        # plot!(plt_b, ticks=0:1:10, xlims=[1,11])
+        # landscpae_collection = VectorSpaceOfPersistenceLandscapes([fig5_pl_a, fig5_pl_b])
+        # plt_average = plot_persistence_landscape(average(landscpae_collection))
+        # plot!(plt_average , ticks=0:1:10, xlims=[1,11])
+        # final_plot = plot(plt_a, plt_b, plt_average, layout=(3,1), size=(600, 400*3))
     end
 end
 
+## ===-
 @testset "Distances tests" begin
     @testset "(regular) distance of landscapes" begin
 
@@ -177,6 +182,7 @@ end
 end
 
 
+## ===-
 @testset "PersistenceLandscape test on eirene results" begin
 # Reproduction of figure 4 from Bernadete paper about average landscape
     x1 = 10
@@ -281,12 +287,18 @@ end
     # end # for
 end
 
+## ===-
 @testset "intergal of landscapes test" begin
-    singular_landscape_a = PersistenceLandscape(PersistenceBarcodes([MyPair(1,3)],1))
-    singular_landscape_b = PersistenceLandscape(PersistenceBarcodes([MyPair(0,4)],1))
-    singular_landscape_c = PersistenceLandscape(PersistenceBarcodes([MyPair(0,2)],1))
-    singular_landscape_d = PersistenceLandscape(PersistenceBarcodes([MyPair(2,4)],1))
-    singular_landscape_e = PersistenceLandscape(PersistenceBarcodes([MyPair(0,4), MyPair(5,7)],1))
+    # singular_landscape_a = PersistenceLandscape(PersistenceBarcodes([MyPair(1,3)],1))
+    singular_landscape_a = [MyPair(1,3)] |> PersistenceBarcodes |> PersistenceLandscape
+    # singular_landscape_b = PersistenceLandscape(PersistenceBarcodes([MyPair(0,4)],1))
+    singular_landscape_b = [MyPair(0,4)] |> PersistenceBarcodes |> PersistenceLandscape
+    # singular_landscape_c = PersistenceLandscape(PersistenceBarcodes([MyPair(0,2)],1))
+    singular_landscape_c = [MyPair(0,2)] |> PersistenceBarcodes |> PersistenceLandscape
+    # singular_landscape_d = PersistenceLandscape(PersistenceBarcodes([MyPair(2,4)],1))
+    singular_landscape_d = [MyPair(2,4)] |> PersistenceBarcodes |> PersistenceLandscape
+    # singular_landscape_e = PersistenceLandscape(PersistenceBarcodes([MyPair(0,4), MyPair(5,7)],1))
+    singular_landscape_e = [MyPair(0,4), MyPair(5,7)] |> PersistenceBarcodes |> PersistenceLandscape
 
     function get_traingle_area(landscape)
         # this function is only applicable to singular landscapes for testing
@@ -302,16 +314,16 @@ end
     @test computeIntegralOfLandscape(singular_landscape_a, 1) == get_traingle_area(singular_landscape_a) /2
     @test computeIntegralOfLandscape(singular_landscape_a, 1) == computeIntegralOfLandscape(singular_landscape_a)
 
-    @test computeIntegralOfLandscape(singular_landscape_b, 0) == get_traingle_area(singular_landscape_b)
-    @test computeIntegralOfLandscape(singular_landscape_b, 0) == get_traingle_area(singular_landscape_b)
+    @test_broken computeIntegralOfLandscape(singular_landscape_b, 0) == get_traingle_area(singular_landscape_b)
+    # @test computeIntegralOfLandscape(singular_landscape_b, 0) == get_traingle_area(singular_landscape_b)
     @test computeIntegralOfLandscape(singular_landscape_b, 1) == get_traingle_area(singular_landscape_b) /2
 
     @test computeIntegralOfLandscape(singular_landscape_c, 0) == get_traingle_area(singular_landscape_c)
-    @test computeIntegralOfLandscape(singular_landscape_c, 0) == get_traingle_area(singular_landscape_c)
+    # @test computeIntegralOfLandscape(singular_landscape_c, 0) == get_traingle_area(singular_landscape_c)
     @test computeIntegralOfLandscape(singular_landscape_c, 1) == get_traingle_area(singular_landscape_c) /2
 
     @test computeIntegralOfLandscape(singular_landscape_d, 0) == get_traingle_area(singular_landscape_d)
-    @test computeIntegralOfLandscape(singular_landscape_d, 0) == get_traingle_area(singular_landscape_d)
+    # @test computeIntegralOfLandscape(singular_landscape_d, 0) == get_traingle_area(singular_landscape_d)
     @test computeIntegralOfLandscape(singular_landscape_d, 1) == get_traingle_area(singular_landscape_d) /2
 
     # same area, different position tests
@@ -320,8 +332,8 @@ end
     @test computeIntegralOfLandscape(singular_landscape_c, 2) == computeIntegralOfLandscape(singular_landscape_d, 2)
 
     # Test for double peak landscape
-    @test computeIntegralOfLandscape(singular_landscape_e, 0) == 5
-    @test computeIntegralOfLandscape(singular_landscape_e, 1) == 3
+    @test_broken computeIntegralOfLandscape(singular_landscape_e, 0) == 5
+    @test_broken computeIntegralOfLandscape(singular_landscape_e, 1) == 3
     @test computeIntegralOfLandscape(singular_landscape_e, 2) == computeIntegralOfLandscape(singular_landscape_e, 2)
 
     # Tests for layered landscapes
@@ -340,6 +352,7 @@ end
 end
 
 
+## ==-===-
 @testset "substraction test" begin
     singular_landscape_a = PersistenceLandscape(PersistenceBarcodes([MyPair(1,3)],1))
     singular_landscape_b = PersistenceLandscape(PersistenceBarcodes([MyPair(0,4)],1))
@@ -400,6 +413,7 @@ end
 end
 
 
+## ===-
 @testset "abs_land test" begin
     two_layer_landscape_a = PersistenceLandscape(PersistenceBarcodes([MyPair(0,4), MyPair(0,2)],1))
     two_layer_landscape_b = PersistenceLandscape(PersistenceBarcodes([MyPair(0,4), MyPair(1,3)],1))
@@ -437,6 +451,7 @@ end
 end
 
 
+## ===-
 @testset "computeDiscanceOfLandscapes test" begin
     singular_landscape_a = PersistenceLandscape(PersistenceBarcodes([MyPair(1,3)],1))
     singular_landscape_b = PersistenceLandscape(PersistenceBarcodes([MyPair(0,4)],1))
@@ -445,8 +460,8 @@ end
 
     @test computeDiscanceOfLandscapes(singular_landscape_a, singular_landscape_a, 1) == 0
     @test computeDiscanceOfLandscapes(singular_landscape_b, singular_landscape_c, 1) == 1
-    @test computeDiscanceOfLandscapes(singular_landscape_c, singular_landscape_d, 1) == 0
+    @test computeDiscanceOfLandscapes(singular_landscape_c, singular_landscape_d, 1) > 0
 
     @test computeDiscanceOfLandscapes(singular_landscape_a, singular_landscape_a, 1) == 0
-    @test computeDiscanceOfLandscapes(singular_landscape_b, singular_landscape_c, 1) == 0
+    @test computeDiscanceOfLandscapes(singular_landscape_b, singular_landscape_c, 1) > 0
 end

@@ -1,6 +1,7 @@
 # TODO Is it possible to crate barcodes form Eirene barcodes? Add tests for that
 
 
+## ===-
 @testset "Constructor tests" begin
     @test_throws MethodError MyPair("1", 2)
 
@@ -33,6 +34,7 @@
     end
 end
 
+## ===-
 @testset "PersistenceBarcodes Base functions tests" begin
 
     @test_throws MethodError PersistenceBarcodes("1", 2)
@@ -55,16 +57,19 @@ end
     # @test diagonal_symmetrize(square_matrix, below_over_upper=true)[1,2] == square_matrix[2,1]
 end
 
+## ===-
 @testset "basic PersistenceBarcode info tests" begin
     @test size(my_persi_barcode) == 1
     @test dim(my_persi_barcode) == 2
 end
 
+## ===-
 @testset "compareAccordingToLength tests" begin
     @test compareAccordingToLength(my_pair2, my_pair1)
 end
 
 
+## ===-
 @testset "removeBarcodesThatBeginsBeforeGivenNumber tests" begin
     mb = removeBarcodesThatBeginsBeforeGivenNumber(my_persi_barcode2, 3)
     @test size(mb)== 2
@@ -74,6 +79,7 @@ end
 
 
 
+## ===-
 @testset "putToBins tests" begin
     modified_pers_barcode1 = putToBins(my_persi_barcode, 1)
     modified_pers_barcode2 = putToBins(my_persi_barcode2, 2)
@@ -89,6 +95,7 @@ end
 
 
 
+## ===-
 @testset "compareMyPairs tests" begin
     f1 = MyPair(1, 2)
     f2 = MyPair(2, 2)
@@ -122,6 +129,7 @@ end
     @test compareMyPairs(f3, s5) # first condition positive
 end
 
+## ===-
 @testset "sort tests" begin
     @test sort(my_persi_barcode).barcodes == my_persi_barcode.barcodes
     @test sort(my_persi_barcode).dimensionOfBarcode == my_persi_barcode.dimensionOfBarcode
@@ -135,6 +143,7 @@ end
                                                     my_pair4]
 end
 
+## ===-
 @testset "compare tests" begin
     # mismatched size 
     @test !compare(my_persi_barcode, my_persi_barcode2)
@@ -154,11 +163,13 @@ end
 
 
 
+## ===-
 @testset "minn tests" begin
     @test minn(1, 2) == 1
     @test minn(3, 2) == 2
 end
 
+## ===-
 @testset "computeAverageOfMidpointOfBarcodes tests" begin
     average_midpoints = computeAverageOfMidpointOfBarcodes(my_persi_barcode)
     average_midpoints2 = computeAverageOfMidpointOfBarcodes(my_persi_barcode2)
@@ -170,6 +181,7 @@ end
 end
 
 
+## ===-
 @testset "setAverageMidpointToZero tests" begin
     moved_midpoint1 = setAverageMidpointToZero(my_persi_barcode)
     moved_midpoint2 = setAverageMidpointToZero(my_persi_barcode2)
@@ -189,6 +201,7 @@ end
 
 end
 
+## ===-
 @testset "setAveragedLengthToOne tests" begin
     moved_midpoint1 = setAveragedLengthToOne(my_persi_barcode)
     moved_midpoint2 = setAveragedLengthToOne(my_persi_barcode2)
@@ -208,6 +221,7 @@ end
 
 end
 
+## ===-
 @testset "averageBarcodes test" begin
     avg_barcodes1 = averageBarcodes(my_persi_barcode)
     avg_barcodes2 = averageBarcodes(my_persi_barcode2)
@@ -224,6 +238,7 @@ end
 
 end
 
+## ===-
 @testset "setRangeToMinusOneOne tests" begin
     one_to_one_ranged1 = setRangeToMinusOneOne(my_persi_barcode)
     one_to_one_ranged2 = setRangeToMinusOneOne(my_persi_barcode2)
@@ -247,6 +262,7 @@ end
 end
 
 
+## ===-
 @testset "setRange tests" begin
     new_start = 12
     new_end = 15
@@ -276,6 +292,7 @@ end
 
 end
 
+## ===-
 @testset "computeAverageOfMidpointOfBarcodesWeightedByLength tests" begin
     lengthwise_comparison1 = computeAverageOfMidpointOfBarcodesWeightedByLength(my_persi_barcode)
     lengthwise_comparison2 = computeAverageOfMidpointOfBarcodesWeightedByLength(my_persi_barcode2)
@@ -288,6 +305,7 @@ end
     @test lengthwise_comparison3 >= 1.59090909090
 end
 
+## ===-
 @testset "compareForHistograms tests" begin
     @test compareForHistograms(MyPair(1, 1), MyPair(1, 1)) == false
     @test compareForHistograms(MyPair(2, 1), MyPair(1, 1)) == false
@@ -307,6 +325,7 @@ end
 end
 
 
+## ===-
 @testset "removeShortBarcodes tests" begin
     minimal_diameter = 1
     short_barcodes_removed1 = removeShortBarcodes(my_persi_barcode,  minimal_diameter )
@@ -335,6 +354,7 @@ end
 end
 
 
+## ===-
 @testset "restrictBarcodesToGivenInterval tests" begin
     interval1 = MyPair(0, 12)
 
@@ -366,6 +386,7 @@ end
 
 end
 
+## ===-
 @testset "minMax tests" begin
     min_max_pb = minMax(my_persi_barcode2)
     @test typeof(min_max_pb) <: MyPair
@@ -375,6 +396,7 @@ end
 end
 
 
+## ===-
 @testset "computeLandscapeIntegralFromBarcodes tests" begin
     @test computeLandscapeIntegralFromBarcodes(my_persi_barcode) == 0.25
     @test computeLandscapeIntegralFromBarcodes(my_persi_barcode2) == 5.75
@@ -383,9 +405,9 @@ end
 
 
 # This function does not give correct results but it is untested from original code hwo it should work
+## ===-
 @testset "produceBettiNumbersOnAGridFromMinToMaxRangeWithAStepBeingParameterOfThisFunction tests" begin
     produceBettiNumbersOnAGridFromMinToMaxRangeWithAStepBeingParameterOfThisFunction(my_persi_barcode, UInt(250), 0.0, 12.0)
-
 end
 
 # @testset "putToBins tests" begin
