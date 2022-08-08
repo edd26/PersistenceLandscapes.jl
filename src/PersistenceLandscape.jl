@@ -1532,9 +1532,9 @@ end
 
 function plot_persistence_landscape(pl1::PersistenceLandscape; max_layers=size(pl1.land,1), plot_kwargs...)
     if max_layers == 1
-        colors = cgrad(:cmyk, max_layers, categorical = true, rev=true)
-    else
         colors = cgrad(:cmyk, 2, categorical = true, rev=true)
+    else
+        colors = cgrad(:cmyk, max_layers, categorical = true, rev=true)
     end
 
     try
