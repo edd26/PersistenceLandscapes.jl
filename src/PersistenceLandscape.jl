@@ -160,7 +160,7 @@ function create_PersistenceLandscape(p::PersistenceBarcodes; dbg = false)
                         while (
                             (i+p < size(characteristicPoints, 1) ) &&
                             ( birth(point) <= birth(characteristicPoints[i+p]) ) &&
-                            (death(point)>=death(characteristicPoints[i+p])) 
+                            (death(point)>=death(characteristicPoints[i+p]))
                             )
                             push!(newCharacteristicPoints,  characteristicPoints[i+p] )
                             if (dbg)
@@ -261,7 +261,7 @@ function create_PersistenceLandscape(p::PersistenceBarcodes; dbg = false)
         # now, the basic structure is created. We need to translate it to a persistence landscape data structure.
         # To do so, first we need to sort all the vectors in criticalValuesOnPointsOfGrid[i].second
         maxNonzeroLambda = 0
-        for i = 0:size(criticalValuesOnPointsOfGrid,1) 
+        for i = 0:size(criticalValuesOnPointsOfGrid,1)
             sort( criticalValuesOnPointsOfGrid[i].second.begin() , criticalValuesOnPointsOfGrid[i].second.end() , greater<int>() )
             if criticalValuesOnPointsOfGrid[i].second.size() > maxNonzeroLambda
                 maxNonzeroLambda = criticalValuesOnPointsOfGrid[i].second.size()
@@ -269,16 +269,16 @@ function create_PersistenceLandscape(p::PersistenceBarcodes; dbg = false)
         end
         if dbg
             println("After sorting")
-            for i = 0:size(criticalValuesOnPointsOfGrid,1) 
+            for i = 0:size(criticalValuesOnPointsOfGrid,1)
                 println("x : $(criticalValuesOnPointsOfGrid[i].first << " : ")")
-                for j = 0:size(criticalValuesOnPointsOfGrid[i].second,1) 
+                for j = 0:size(criticalValuesOnPointsOfGrid[i].second,1)
                     println(criticalValuesOnPointsOfGrid[i].second[j] << " ")
                 end
                 println("\n")
             end
         end
         push!(land,aa)
-        for lambda = 0 : maxNonzeroLambda 
+        for lambda = 0 : maxNonzeroLambda
             dbg && println("Constructing lambda_$(lambda)")
             nextLambbda = MyPair[]
 
@@ -635,7 +635,7 @@ function ==(lhs::PersistenceLandscape, rhs ::PersistenceLandscape; operatorEqual
 end
 
 # function operator=(land::PersistenceLandscape, oryginal::PersistenceLandscape)
-    # remved, vbecause unnecesssary 
+    # remved, vbecause unnecesssary
 # end
 
 function Base.size(land::PersistenceLandscape)
@@ -705,7 +705,7 @@ function operationOnPairOfLandscapes( land1::PersistenceLandscape, land2::Persis
             # will be met and thus p and q will be increased, so that for second iteration this will
             # be ok. That might be the reason why (0, Inf) is added at the last iteration
             if land1.land[i][p].first < land2.land[i][q].first
-                @debug "First if, land1.first < land2.first" 
+                @debug "First if, land1.first < land2.first"
                 local_dbg && println("first if, first values are equal")
 
                 if q==1
@@ -736,7 +736,7 @@ function operationOnPairOfLandscapes( land1::PersistenceLandscape, land2::Persis
             end
 
             if land1.land[i][p].first > land2.land[i][q].first
-                @debug "Second if, land1.first > land2.first" 
+                @debug "Second if, land1.first > land2.first"
                 local_dbg && println("Second if, first values are equal")
 
                 if p==1
@@ -925,14 +925,14 @@ end
 # CAUTION, this procedure do not work yet. Please do not use it until this warning is removed.
 # PersistenceBarcodes PersistenceLandscape::convertToBarcode()
 # function body removed
-# 
+#
 # ===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-
 
 
 
 
 # ===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-
-# Operations on landscapes 
+# Operations on landscapes
 # this function find maximum of lambda_n
 function gimmeProperLandscapePoints(land::PersistenceLandscape)::Vector{MyPair}
     result = MyPair[]
@@ -968,7 +968,7 @@ function computeNthMoment(land::PersistenceLandscape, n::UInt , center , level::
     end
    result = 0
     if size(land,1) > level
-        for i = 2:size(land.land[level],1)-1 
+        for i = 2:size(land.land[level],1)-1
             if land.land[level][i].first - land.land[level][i-1].first == 0
                 continue
             end
@@ -1003,14 +1003,14 @@ function computeNthMoment(land::PersistenceLandscape, n::UInt , center , level::
 end# computeNthMoment
 
 function testLandscape(land::PersistenceLandscape, b::PersistenceBarcodes )
-    for level = 1 : size(land,1) 
-        for i = 1:size(land.land[level],1)-1 
+    for level = 1 : size(land,1)
+        for i = 1:size(land.land[level],1)-1
             if land.land[level][i].second < epsi
                 continue
             end
             # check if over land.land[level][i].first-land.land[level][i].second , land.land[level][i].first+land.land[level][i].second] there are level barcodes.
             nrOfOverlapping = 0
-            for nr = 1:size(b.barcodes,1) 
+            for nr = 1:size(b.barcodes,1)
                 if ( b.barcodes[nr].first-epsi <= land.land[level][i].first-land.land[level][i].second
                       &&
                       ( b.barcodes[nr].second+epsi >= land.land[level][i].first+land.land[level][i].second )
@@ -1025,7 +1025,7 @@ function testLandscape(land::PersistenceLandscape, b::PersistenceBarcodes )
                 println("[$(land.land[level][i].first-land.land[level][i].second) $(land.land[level][i].first+land.land[level][i].second)]")
                 println("level : $(level) , nrOfOverlapping: $(nrOfOverlapping)")
                 # getchar()
-                for nr = 1:size(b.barcodes,1) 
+                for nr = 1:size(b.barcodes,1)
                     if ( b.barcodes[nr].first <= land.land[level][i].first-land.land[level][i].second
                           &&
                           ( b.barcodes[nr].second >= land.land[level][i].first+land.land[level][i].second )
@@ -1062,12 +1062,12 @@ function computeLandscapeOnDiscreteSetOfPoints(land::PersistenceLandscape, b::Pe
 
      local_dbg && println("Vector initally filled in")
 
-     for i = 0:size(b.barcodes,1) 
+     for i = 0:size(b.barcodes,1)
          # adding barcode b.barcodes[i] to out mesh:
         beginBar = b.barcodes[i].first
         endBar = b.barcodes[i].second
         index = ceil((beginBar-bmin)/(dx/2))
-        while result[index].first < beginBar 
+        while result[index].first < beginBar
              index += 1
         end
         while result[index].first < beginBar
@@ -1101,17 +1101,17 @@ function computeLandscapeOnDiscreteSetOfPoints(land::PersistenceLandscape, b::Pe
      end
      if ( local_dbg )println("Now we fill in the suitable vecors in this landscape")end
     land = Vector{Vector{MyPair}}()
-     for  dim = 0 : indexOfLastNonzeroLandscape 
+     for  dim = 0 : indexOfLastNonzeroLandscape
          land[dim].push_back( make_MyPair( -Inf,0 ) )
      end
      i = 0
-     for  x = bmin : bmax 
-         for nr = 0:size(result[i].second,1) 
+     for  x = bmin : bmax
+         for nr = 0:size(result[i].second,1)
               land[nr].push_back(make_MyPair( result[i].first , result[i].second[nr] ))
          end
          i += 1
      end
-     for  dim = 0 : indexOfLastNonzeroLandscape 
+     for  dim = 0 : indexOfLastNonzeroLandscape
          land[dim].push_back( make_MyPair( Inf,0 ) )
      end
      land.land.clear()
@@ -1121,7 +1121,7 @@ end
 
 function multiplyByIndicatorFunction(land::PersistenceLandscape, indicator::Vector{MyPair} ; local_dbg::Bool = false)
     result = Vector{Vector{MyPair}}
-    for dim = 0 : size(land,1) 
+    for dim = 0 : size(land,1)
         if(local_dbg)println("dim : $(dim)")end
         lambda_n = MyPair[]
         push!(lambda_n,  make_MyPair( 0 , INT_MIN ) )
@@ -1130,7 +1130,7 @@ function multiplyByIndicatorFunction(land::PersistenceLandscape, indicator::Vect
                 println("There is nonzero indicator in this dimension")
                 println("[ $(indicator[dim].first) $(indicator[dim].second)]")
             end
-            for nr = 0:size(land.land[dim],1) 
+            for nr = 0:size(land.land[dim],1)
                 if (local_dbg)
                     println( "land.land[dim][nr] : $(land.land[dim][nr].first) $(land.land[dim][nr].second)")
                 end
@@ -1296,7 +1296,7 @@ end
 # It may happened that some landscape points obtained as a aresult of an algorithm lies in a line. In this case, the following procedure allows to
 # remove unnecesary points.
 function reduceAlignedPoints(land::PersistenceLandscape,tollerance; local_debug = false)# this parapeter says how much the coeficients a and b in a formula y=ax+b may be different to consider points aligned.
-    for dim = 0  : size(land,1) 
+    for dim = 0  : size(land,1)
          nr = 1
         lambda_n = MyPair[]
         push!(lambda_n,  land.land[dim][0] )
@@ -1531,7 +1531,12 @@ function get_peaks_and_positions(lambdas)
 end
 
 function plot_persistence_landscape(pl1::PersistenceLandscape; max_layers=size(pl1.land,1), plot_kwargs...)
-    colors = cgrad(:cmyk, max_layers, categorical = true, rev=true)
+    if max_layers == 1
+        colors = cgrad(:cmyk, max_layers, categorical = true, rev=true)
+    else
+        colors = cgrad(:cmyk, 2, categorical = true, rev=true)
+    end
+
     try
         colors = cgrad(plot_kwargs[:palette], max_layers, categorical = true, rev=true)
     catch
@@ -1675,7 +1680,7 @@ function computeMaximalDistanceNonSymmetric( pl1::PersistenceLandscape, pl2::Per
     # this distance is not symmetric. It compute ONLY distance between inflection points of pl1 and pl2.
    maxDist = 0
     minimalNumberOfLevels = min( size(pl1.land,1) , pl2.land.size() )[1]
-    for level = 1 : minimalNumberOfLevels 
+    for level = 1 : minimalNumberOfLevels
         p2Count = 0
         for i = 1 : size(l1.land[level],1)-1  # w tym przypadku nie rozwarzam punktow w nieskocznosci
             while ( true )
@@ -1709,7 +1714,7 @@ function computeMaximalDistanceNonSymmetric( pl1::PersistenceLandscape, pl2::Per
     end
     if minimalNumberOfLevels < size(pl1.land,1)
         for level = minimalNumberOfLevels : size(pl1.land,1)
-            for i = 1 : psize(l1.land[level]) 
+            for i = 1 : psize(l1.land[level])
                 if maxDist < pl1.land[level][i].second
                     maxDist = pl1.land[level][i].second
                     nrOfLand = level
@@ -1759,7 +1764,7 @@ function computeMaximalDistanceNonSymmetric2(pl1::PersistenceLandscape, pl2::Per
         if (dbg)
             println("Level : $(level)")
             println("PL1 :")
-            for i = 0 : psize(l1.land[level]) 
+            for i = 0 : psize(l1.land[level])
                 println("($(pl1.land[level][i].first),$(pl1.land[level][i].second))")
             end
             println("PL2 :")
@@ -2049,14 +2054,14 @@ end
 #     # # if ( to > size(land,1) )throw("Error in printToFiles( char* filename , from::UInt, unsigned to ). 'to' is out of range.")
 #     # if ( to > size(land,1) )to = size(land,1);end
 #     # ofstream write
-#     # for dim = from :to 
+#     # for dim = from :to
 #     #     ostringstream name
 #     #     name << filename << "_" << dim << ".dat"
 #     #     string fName = name.str()
 #     #     char* FName = fName.c_str()
 #     #     write.open(FName)
 #     #     write << "#lambda_" << dim
-#     #     for i = 1:size(land.land[dim],1)-1 
+#     #     for i = 1:size(land.land[dim],1)-1
 #     #         write << land.land[dim][i].first << "  " << this->land[dim][i].second
 #     #     end
 #     #     write.close()
@@ -2076,7 +2081,7 @@ end
 #   #      char* FName = fName.c_str()
 #   #      write.open(FName)
 #   #      write << "#lambda_" << dim
-#   #      for i = 1:size(land.land[dim],1)-1 
+#   #      for i = 1:size(land.land[dim],1)-1
 #   #          write << land.land[dim][i].first << "  " << this->land[dim][i].second
 #   #      end
 #   #      write.close()
@@ -2094,9 +2099,9 @@ end
 #     # ofstream write
 #     # write.open(filename)
 #     # write << land.dimension
-#     # for dim = from : to 
+#     # for dim = from : to
 #     #     write << "#lambda_" << dim
-#     #     for i = 1:size(land.land[dim],1)-1 
+#     #     for i = 1:size(land.land[dim],1)-1
 #     #         write << land.land[dim][i].first << "  " << this->land[dim][i].second
 #     #     end
 #     # end
@@ -2125,7 +2130,7 @@ end
 # function printBettiNumbersHistoramIntoFileAndGenerateGnuplotCommand(land::PersistenceLandscape, char* filename )const
 #     vector< std::pair<, > > histogram = land.generateBettiNumbersHistogram()
 #     ostringstream result
-#     for i = 0:size(histogram,1) 
+#     for i = 0:size(histogram,1)
 #         result << histogram[i].first << " " << histogram[i].second
 #     end
 #     ofstream write
@@ -2147,7 +2152,7 @@ end
 #     string nameStr = nameSS.str()
 #     out.open( (char*)nameStr.c_str() )
 #
-#     if (xRangeBegin != -1) || (xRangeEnd != -1) || (yRangeBegin != -1) || (yRangeEnd != -1) 
+#     if (xRangeBegin != -1) || (xRangeEnd != -1) || (yRangeBegin != -1) || (yRangeEnd != -1)
 #         out << "set xrange [$(xRangeBegin) $(xRangeEnd)]"
 #         out << "set yrange [$(yRangeBegin) $(yRangeEnd)]"
 #     end
@@ -2156,7 +2161,7 @@ end
 #     if ( to == -1 )to = size(land,1);end
 #
 #     out << "plot "
-#     for lambda= min(from,size(land,1)) : min(to,size(land,1))[1] 
+#     for lambda= min(from,size(land,1)) : min(to,size(land,1))[1]
 #         out << "     '-' using 1:2 title 'l" << lambda << "' with lp"
 #         if lambda+1 != min(to,size(land,1))[1]
 #             out << ", \\"
@@ -2164,8 +2169,8 @@ end
 #         out
 #     end
 #
-#     for lambda= min(from,size(land,1)) : min(to,size(land,1))[1] 
-#         for i = 1:size(land.land[lambda],1)-1 
+#     for lambda= min(from,size(land,1)) : min(to,size(land,1))[1]
+#         for i = 1:size(land.land[lambda],1)-1
 #             out << land.land[lambda][i].first << " " << this->land[lambda][i].second
 #         end
 #         out << "EOF"
