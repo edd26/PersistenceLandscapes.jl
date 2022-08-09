@@ -821,15 +821,17 @@ function operationOnPairOfLandscapes( land1::PersistenceLandscape, land2::Persis
     end
 
     # if land1 is longer
-    @info "Start val = " size(land1.land,1) size(land2.land,1)
-    start_val = min(size(land1.land,1), size(land2.land,1) )
+    start_val = min(1, size(land1.land,1), size(land2.land,1) )
     stop_val = max(size(land1.land,1), size(land2.land,1) )
-    if size(land1.land,1) > min( size(land1.land,1) , size(land2.land,1))
+    is_land1_shorter() = size(land1.land,1) > min( size(land1.land,1) , size(land2.land,1))
+    is_land2_shorter() = size(land2.land,1) > min( size(land1.land,1) , size(land2.land,1))
+
+    if is_land1_shorter()
         @debug "first if modifier"
         local_dbg && println("size(land1.land,1) > $(min( size(land1.land,1), size(land2.land,1) ))")
 
         append_nonoverlapping_elements!(result, land1, stop_val, start_val, oper; zero_tailing=true, zero_start=false)
-    elseif size(land2.land,1) > min( size(land1.land,1) , size(land2.land,1))
+    elseif is_land2_shorter()
         @debug "second if modifier"
         local_dbg && println("( size(land2.land,1) > $(min( size(land1.land,1) , size(land2.land,1))) ")
 
