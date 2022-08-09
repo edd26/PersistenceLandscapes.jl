@@ -664,7 +664,7 @@ function check_for_infs(landscape::PersistenceLandscape)
    return PersistenceLandscape(landscape_set, landscape.dimension)
 end
 
-function operationOnPairOfLandscapes( land1::PersistenceLandscape, land2::PersistenceLandscape, oper; local_dbg = false)
+function operationOnPairOfLandscapes( land1::PersistenceLandscape, land2::PersistenceLandscape, oper; local_dbg = true)
     local_dbg && println("operationOnPairOfLandscapes")
 
     #check for (-Inf,0) and (0, Inf) pairs
@@ -848,23 +848,38 @@ end# operationOnPairOfLandscapes
 function append_nonoverlapping_elements!(result, selected_land::PersistenceLandscape, stop_val, start_val, oper; zero_tailing=false, zero_start=false)
     # append all elements form land1 that are above length of land2
 
-    for i = start_val:stop_val
-        # lambda_n = MyPair[]
-        # take the tailing parirs and modify them with oper function -> why oper function?
-        lambda_n = selected_land.land[i]
-        for nr = 1 : size(selected_land.land[i],1)
+    for lambda_n = selected_land.land
+        for nr = 1 : size(lambda_n,1)
             if zero_tailing && !zero_start
-                oper_result  = oper(selected_land.land[i][nr].second, 0)
+                oper_result  = oper(lambda_n[nr].second, 0)
             elseif !zero_tailing && zero_start
-                oper_result = oper(0 , selected_land.land[i][nr].second)
+                oper_result = oper(0 , lambda_n[nr].second)
             end
 
-            new_pair = make_MyPair(selected_land.land[i][nr].first, oper_result)
+            new_pair = make_MyPair(lambda_n[nr].first, oper_result)
             lambda_n[nr] = new_pair
         end
         # CHANGE
         push!(result, lambda_n)
     end
+    # Original version:
+    # for i = start_val:stop_val
+    #     # lambda_n = MyPair[]
+    #     # take the tailing parirs and modify them with oper function -> why oper function?
+    #     lambda_n = selected_land.land[i]
+    #     for nr = 1 : size(selected_land.land[i],1)
+    #         if zero_tailing && !zero_start
+    #             oper_result  = oper(selected_land.land[i][nr].second, 0)
+    #         elseif !zero_tailing && zero_start
+    #             oper_result = oper(0 , selected_land.land[i][nr].second)
+    #         end
+    #
+    #         new_pair = make_MyPair(selected_land.land[i][nr].first, oper_result)
+    #         lambda_n[nr] = new_pair
+    #     end
+    #     # CHANGE
+    #     push!(result, lambda_n)
+    # end
 end
 
 # Basic operations on PersistenceLandscape <<<
