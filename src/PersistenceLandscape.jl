@@ -664,7 +664,7 @@ function check_for_infs(landscape::PersistenceLandscape)
    return PersistenceLandscape(landscape_set, landscape.dimension)
 end
 
-function operationOnPairOfLandscapes( land1::PersistenceLandscape, land2::PersistenceLandscape, oper; local_dbg = true)
+function operationOnPairOfLandscapes( land1::PersistenceLandscape, land2::PersistenceLandscape, oper; local_dbg = false)
     local_dbg && println("operationOnPairOfLandscapes")
 
     #check for (-Inf,0) and (0, Inf) pairs
@@ -848,6 +848,7 @@ end# operationOnPairOfLandscapes
 function append_nonoverlapping_elements!(result, selected_land::PersistenceLandscape, stop_val, start_val, oper; zero_tailing=false, zero_start=false)
     # append all elements form land1 that are above length of land2
 
+    # TODO check if the new method does the same as the old one
     for lambda_n = selected_land.land
         for nr = 1 : size(lambda_n,1)
             if zero_tailing && !zero_start
