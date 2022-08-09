@@ -821,6 +821,7 @@ function operationOnPairOfLandscapes( land1::PersistenceLandscape, land2::Persis
     end
 
     # if land1 is longer
+    @info "Start val = " size(land1.land,1) size(land2.land,1)
     start_val = min(size(land1.land,1), size(land2.land,1) )
     stop_val = max(size(land1.land,1), size(land2.land,1) )
     if size(land1.land,1) > min( size(land1.land,1) , size(land2.land,1))
