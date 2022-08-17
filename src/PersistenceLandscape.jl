@@ -546,11 +546,11 @@ end
 # Basic operations on PersistenceLandscape >>>
 # function operationOnPairOfLandscapes(land1, land2 , oper);
 
-function addTwoLandscapes( land1::PersistenceLandscape, land2::PersistenceLandscape)::PersistenceLandscape
+function addTwoLandscapes(land1::PersistenceLandscape, land2::PersistenceLandscape)::PersistenceLandscape
     return operationOnPairOfLandscapes(land1,land2, +)
 end
 
-function subtractTwoLandscapes( land1::PersistenceLandscape, land2::PersistenceLandscape)::PersistenceLandscape
+function subtractTwoLandscapes(land1::PersistenceLandscape, land2::PersistenceLandscape)::PersistenceLandscape
     return operationOnPairOfLandscapes(land1,land2, -)
 end
 
@@ -558,7 +558,7 @@ function +(first::PersistenceLandscape, second::PersistenceLandscape)
     return addTwoLandscapes(first, second)
 end
 
-function -( first::PersistenceLandscape,second::PersistenceLandscape)
+function -(first::PersistenceLandscape,second::PersistenceLandscape)
     return subtractTwoLandscapes(first, second )
 end
 
@@ -1045,6 +1045,7 @@ function testLandscape(land::PersistenceLandscape, b::PersistenceBarcodes )
                 println("level : $(level) , nrOfOverlapping: $(nrOfOverlapping)")
                 # getchar()
                 for nr = 1:size(b.barcodes,1)
+                    # TODO fix landscapes substraction
                     if ( b.barcodes[nr].first <= land.land[level][i].first-land.land[level][i].second
                           &&
                           ( b.barcodes[nr].second >= land.land[level][i].first+land.land[level][i].second )
@@ -1852,9 +1853,12 @@ end
 function computeDiscanceOfLandscapes(first::PersistenceLandscape, second::PersistenceLandscape, p::Real)
     # This is what we want to compute: (\int_- \inftyend^+\inftyend| first-second |^p)^(1/p). We will do it one step at a time:
     # first-second :
+    # TODO fix landscape subtraction
     lan = first-second
+
     # | first-second |:
     lan = abs_pl(lan)
+
     # \int_- \inftyend^+\inftyend| first-second |^p
     if p != 1
         result = computeIntegralOfLandscape(lan, p)
