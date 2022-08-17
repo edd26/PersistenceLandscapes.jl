@@ -1631,7 +1631,13 @@ function abs_pl(in_landscape::PersistenceLandscape; local_debug=false)
         lambda_n = MyPair[]
         total_points = size(land_layer, 1)
 
-        for x_index = 2:total_points
+        for x_index = 1:total_points
+            if x_index == 1
+                current_point = land_layer[x_index]
+                push!(lambda_n, MyPair(current_point.first, current_point.second))
+                continue
+            end
+
             local_debug && println("in_landscape.land[$(level)][$(x_index)] : $(land_layer[x_index])")
 
             # if a line segment between land.land[level][i-1] and this->land[level][i] crosses the x-axis, then we have to add one landscape point to result
