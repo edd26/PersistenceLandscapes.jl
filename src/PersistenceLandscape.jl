@@ -1,5 +1,6 @@
 #=     Copyright 2013-2014 University of Pennsylvania
-#     Created by Pawel Dlotko
+#     Copyright 2020-2022 University of Hertfordshire
+#     C version created by Pawel Dlotko; Julia version created by Emil Dmitruk
 #
 #     This file is part of Persistence Landscape Toolbox (PLT).
 #
