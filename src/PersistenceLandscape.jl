@@ -1411,6 +1411,7 @@ end
 
 # Untested
 function findZeroOfALineSegmentBetweenThoseTwoPoints( p1::MyPair, p2::MyPair )
+    # TODO Investigate: This function returns Nan if both of the y values in p1 and p2 are 0
     if p1.first == p2.first
         return p1.first
     end
@@ -1638,7 +1639,7 @@ function abs_pl(in_landscape::PersistenceLandscape; local_debug=false)
             y_previous_step = previous_point.second
             current_point = land_layer[x_index]
             y_current_step = current_point.second
-            if (y_previous_step * y_current_step) <= 0
+            if (y_previous_step * y_current_step) < 0
                 # function below is not yet julia valid
                 zero = findZeroOfALineSegmentBetweenThoseTwoPoints(previous_point, current_point)
                 first = current_point.first
