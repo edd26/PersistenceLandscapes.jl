@@ -1617,43 +1617,52 @@ function multiplyLanscapeByRealNumberOverwrite(land::PersistenceLandscape, x::Fl
 end
 
 
-function abs_pl(land::PersistenceLandscape; local_debug = false)
+function abs_pl(in_landscape::PersistenceLandscape; local_debug=false)
     # PersistenceLandscape result;
     result = Vector{Vector{MyPair}}()
 
-    for level = 1 : size(land)
-        if ( local_debug ) println("level: $(level)") end
+    # level = 1
+    # land_layer = in_landscape.land[level]
+    for (level, land_layer) in in_landscape.land |> enumerate
+        # for level = 1:total_levels
+        local_debug && println("level: $(level)")
 
         lambda_n = MyPair[]
+        total_points = size(land_layer, 1)
 
-        if allow_inf_intervals
-            push!(lambda_n,  make_MyPair( -Inf, 0))
-        end
-
-        for i = 2:size(land.land[level],1)
-            local_debug && println("land.land[$(level) $(i)] : $(land.land[level][i])")
+        for x_index = 2:total_points
+            local_debug && println("in_landscape.land[$(level)][$(x_index)] : $(land_layer[x_index])")
 
             # if a line segment between land.land[level][i-1] and this->land[level][i] crosses the x-axis, then we have to add one landscape point to result
-            if (land.land[level][i-1].second)*(land.land[level][i].second)  < 0
+            previous_point = land_layer[x_index-1]
+            y_previous_step = previous_point.second
+            current_point = land_layer[x_index]
+            y_current_step = current_point.second
+            if (y_previous_step * y_current_step) <= 0
                 # function below is not yet julia valid
-                zero = findZeroOfALineSegmentBetweenThoseTwoPoints( land.land[level][i-1] , land.land[level][i] )
+                zero = findZeroOfALineSegmentBetweenThoseTwoPoints(previous_point, current_point)
+                first = current_point.first
+                second = abs(current_point.second)
 
-                push!(lambda_n,  make_MyPair(zero , 0) )
-                push!(lambda_n,  make_MyPair(land.land[level][i].first , abs(land.land[level][i].second)) )
+                push!(lambda_n, MyPair(zero, 0))
+                push!(lambda_n, MyPair(first, second))
 
                 if local_debug
                     println("Adding pair : ($(zero),0)")
-                    println("In the same step adding pair : ($(land.land[level][i].first) $(abs(land.land[level][i].second))) ")
+                    println("In the same step adding pair : ($(first) $(second)) ")
                 end
             else
-                push!(lambda_n,  make_MyPair(land.land[level][i].first , abs(land.land[level][i].second)) )
+                first = current_point.first
+                second = abs(current_point.second)
 
-                local_debug && println("Adding pair : ($(land.land[level][i].first) $(abs(land.land[level][i].second))) ")
+                push!(lambda_n, MyPair(first, second))
+
+                local_debug && println("Adding pair : ($(first) $(second))")
             end
         end
-        push!(result, lambda_n )
+        push!(result, lambda_n)
     end
-    return PersistenceLandscape(result,land.dimension)
+    return PersistenceLandscape(result, in_landscape.dimension)
 end
 
 function multiplyLanscapeByRealNumberNotOverwrite(land::PersistenceLandscape, x::Real )
