@@ -21,18 +21,18 @@ using ArgParse
 # include("FilesReader.jl")
 # include("VectorSpaceOfPersistenceLandscapes.jl")
 
-programInfo ="""
-This is ComputeAverage program which is a part of Peristence Landscape Toolbox by Pawel Dlotko. It takes as input the following parameter: \n\
-A file containing a list of files with persistence landscapes (.lan files) or persistence barcodes have to be provided.
-"""
+programInfo = """
+ This is ComputeAverage program which is a part of Peristence Landscape Toolbox by Pawel Dlotko. It takes as input the following parameter: \n\
+ A file containing a list of files with persistence landscapes (.lan files) or persistence barcodes have to be provided.
+ """
 
 
-function main(int argc, char *argv[])
+function main(argc, char * argv[])
 
     configure()
     println(programInfo)
 
-    if ( argc != 2 )
+    if (argc != 2)
         println("Wrong usage of a program. Please call <program name> ")
         println("<name of the file with names of files with persistence landscapes/barcodes> ")
         println("The program will now terminate.")
@@ -46,31 +46,31 @@ function main(int argc, char *argv[])
 
     #End of a small talk with the User. Let's get to work.
     #First, read the names of files:
-    namesOfFiles = readFileNames( fileWithInputFiles )
+    namesOfFiles = readFileNames(fileWithInputFiles)
 
     #now generate landscapes based on that files:
     println("Creating Persistence Landscapes.")
-    landscapes = createLandscapesFromTheFiles( namesOfFiles )
+    landscapes = createLandscapesFromTheFiles(namesOfFiles)
     println("Done.")
 
     #And finally, do the permutation test:
     println("Computing avereage landscape. When finished, they will be found in the file 'distances.txt'")
 
     v = vectorSpaceOfPersistenceLandscapes()
-    for  size_t i = 0 : size(landscapes)
-        v.addLandscape( landscapes[i] )
+    for i = 0:size(landscapes)
+        v.addLandscape(landscapes[i])
     end
-    PersistenceLandscape average = v.average()
+    average = v.average()
 
 
-    ostringstream name
-    name << fileWithInputFiles << "_average.lan"
-    string fName = name.str()
+
+    name = "$(fileWithInputFiles)" * "_average.lan"
+    fName = name.str()
     FName = fName.c_str()
-    average.printToFile( (char*)FName )
+    average.printToFile(FName)
 
     println("That is all. Have a good day!")
 
 
-	return 0
+    return 0
 end
