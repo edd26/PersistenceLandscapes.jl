@@ -1468,7 +1468,8 @@ function computeValueAtAGivenPoint(land::PersistenceLandscape, level::UInt, x::F
         end
         if land.land[level][newCord].first <= x
             coordBegin = newCord
-            if ( land.land[level][newCord].first == x )return land.land[level][newCord].second
+            if ( land.land[level][newCord].first == x )
+                return land.land[level][newCord].second
         end
         else
             coordEnd = newCord
