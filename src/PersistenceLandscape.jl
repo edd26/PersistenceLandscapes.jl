@@ -411,7 +411,7 @@ end
 # ===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-
 
 function almostEqual( a::Float64 , b::Float64 )
-    if abs(a-b) < epsi
+    if abs(a-b) < eps()
         return true
     end
     return false
