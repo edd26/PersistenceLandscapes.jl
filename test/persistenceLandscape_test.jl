@@ -290,6 +290,122 @@ end
         # plot!(plt_average , ticks=0:1:10, xlims=[1,11])
         # final_plot = plot(plt_a, plt_b, plt_average, layout=(3,1), size=(600, 400*3))
     end
+    ## ==-===-
+    @testset "substraction test" begin
+
+        # ===-
+        # zero landscapes tests
+        diff_result = pl0 - pl0
+        for land_point in diff_result.land[1]
+            @test land_point.second == 0
+        end
+
+        diff_result = pl6 - pl6
+        for land_point in diff_result.land[1]
+            @test land_point.second == 0
+        end
+
+        diff_result = pl9 - pl9
+        for land_point in diff_result.land[1]
+            @test land_point.second == 0
+        end
+        ##
+
+        # ===-===-
+        # Lenght tests
+        # ===-
+        # single layer and single layer
+        @test length((pl2 - pl3).land) == max(length(pl2.land), length(pl3.land))
+        @test length((pl3 - pl2).land) == max(length(pl3.land), length(pl2.land))
+        @test length((pl5 - pl0).land) == max(length(pl5.land), length(pl0.land))
+        @test length((pl0 - pl5).land) == max(length(pl0.land), length(pl5.land))
+        # ===-
+        # single layer and two layers
+        @test length((pl0 - pl6).land) == max(length(pl0.land), length(pl6.land))
+        @test length((pl6 - pl0).land) == max(length(pl6.land), length(pl0.land))
+        # ===-
+        # many layer and two layers
+        @test length((pl9 - pl8).land) == max(length(pl9.land), length(pl8.land))
+        @test length((pl8 - pl9).land) == max(length(pl8.land), length(pl9.land))
+
+        # ===-===-
+        # Resutlting landscape tests
+        # ===-
+        @test (pl1 - pl2) ==
+              [[MyPair(0, 0), MyPair(1, 0), MyPair(2, 2), MyPair(4, 0)]] |>
+              PersistenceLandscape
+        @test (pl2 - pl1) ==
+              [[MyPair(0, 0), MyPair(1, 0), MyPair(2, -2), MyPair(4, 0)]] |>
+              PersistenceLandscape
+        # ===-
+        @test (pl2 - pl0) ==
+              [[MyPair(0, 0), MyPair(1, 1), MyPair(2, -1), MyPair(3, 0)]] |>
+              PersistenceLandscape
+        @test (pl0 - pl2) ==
+              [[MyPair(0, 0), MyPair(1, -1), MyPair(2, 1), MyPair(3, 0)]] |>
+              PersistenceLandscape
+        # ===- Two layers
+        @test (pl6 - pl1) ==
+              [
+            [MyPair(0, 0), MyPair(2, 0), MyPair(4, 0)],
+            [MyPair(1, 0), MyPair(2, 1), MyPair(3, 0)],
+        ] |> PersistenceLandscape
+        @test (pl1 - pl6) ==
+              [
+            [MyPair(0, 0), MyPair(2, 0), MyPair(4, 0)],
+            [MyPair(1, 0), MyPair(2, -1), MyPair(3, 0)],
+        ] |> PersistenceLandscape
+        # ===- Many layers
+        @test (pl9 - pl4) ==
+              [
+            [
+                MyPair(0, 0),
+                MyPair(2, 0),
+                MyPair(3, 2),
+                MyPair(3.5, 2),
+                MyPair(4, 3),
+                MyPair(5, 2),
+                MyPair(5.5, 1),
+                MyPair(6, 1),
+                MyPair(7, 1),
+                MyPair(8, 0),
+            ],
+            [MyPair(1, 0), MyPair(3.5, 2.5), MyPair(5, 1), MyPair(5.5, 1.5), MyPair(7, 0)],
+            [MyPair(3, 0), MyPair(4, 1), MyPair(4.5, 0.5), MyPair(5, 1), MyPair(6, 0)],
+            [MyPair(4, 0), MyPair(4.5, 0.5), MyPair(5, 0)],
+        ] |> PersistenceLandscape
+
+
+        # ===-===-
+        # Subtraction order
+        @test (pl1 - pl2 - pl3) == ((pl1 - pl2) - pl3)
+        @test (pl9 - pl1 - pl6) == ((pl9 - pl1) - pl6)
+
+        # ===-===-
+        # Tests for layered landscapes
+        diff_result = pl7 - pl7
+        for k = 1:2
+            for land_point in diff_result.land[k]
+                @test land_point.second == 0
+            end
+        end
+
+        diff_result = pl6 - pl6
+        for k = 1:2
+            for land_point in diff_result.land[k]
+                @test land_point.second == 0
+            end
+        end
+
+        diff_result1 = pl7 - pl6
+        diff_result2 = pl6 - pl7
+        @test diff_result1.land[1] == diff_result2.land[1]
+        @test diff_result1.land[2][1] == diff_result2.land[2][1]
+        @test abs(diff_result1.land[2][2].second) == abs(diff_result2.land[2][2].second)
+        @test abs(diff_result1.land[2][3].second) == abs(diff_result2.land[2][3].second)
+        @test diff_result1.land[2][4] == diff_result2.land[2][4]
+    end
+    ##
 end
 ##
 
