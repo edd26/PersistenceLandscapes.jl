@@ -1,7 +1,4 @@
-# using Eirene
-# using Plots
-
-## ===-
+# ===-
 generate_testing_lanscapes() =
     map(
         x -> x |> PersistenceBarcodes |> PersistenceLandscape,
@@ -20,18 +17,18 @@ generate_testing_lanscapes() =
     )
 ## ===-
 @testset "constructors tests" begin
-    ##
+    #
     bars1 = [MyPair(0, 3), MyPair(0, 6), MyPair(0, 10)]
     bars2 = [MyPair(0, 3), MyPair(3, 6), MyPair(6, 9)]
     bars3 = [MyPair(0, 4), MyPair(2, 10), MyPair(3, 7), MyPair(6, 14)]
     bars4 = [MyPair(2, 6), MyPair(4, 12), MyPair(5, 9), MyPair(8, 16)]
-    ##
+    #
 
     target_sizes = [length(bars1), length(bars2), length(bars3) + 1, length(bars4) + 1]
     target_sizes2 = [length(bars1), length(bars2), length(bars3), length(bars4)]
     all_bars = [bars1, bars2, bars3, bars4]
 
-    ##
+    #
     @testset "from barcodes" begin
         for (ind, bar) in enumerate(all_bars)
             barcodes = PersistenceBarcodes(bar)
@@ -45,7 +42,7 @@ generate_testing_lanscapes() =
             @test length(filtered_pl) == target_sizes[ind]
         end
     end
-    ##
+    #
 
     @testset "from Vector{Vector{MyPair}}" begin
         for (ind, bar1) in enumerate(all_bars)
@@ -60,7 +57,6 @@ generate_testing_lanscapes() =
         end
 
     end
-
     # @test typeof(pl1.land) == Vector{Vector{MyPair}}
     # @test pl1.land == [a, b]
     # @test pl1.land[1] == a
@@ -294,7 +290,8 @@ end
         # plot!(plt_average , ticks=0:1:10, xlims=[1,11])
         # final_plot = plot(plt_a, plt_b, plt_average, layout=(3,1), size=(600, 400*3))
     end
-    ## ==-===-
+
+    # ==-===-
     @testset "substraction test" begin
 
         # ===-
@@ -313,7 +310,7 @@ end
         for land_point in diff_result.land[1]
             @test land_point.second == 0
         end
-        ##
+        #
 
         # ===-===-
         # Lenght tests
@@ -409,7 +406,6 @@ end
         @test abs(diff_result1.land[2][3].second) == abs(diff_result2.land[2][3].second)
         @test diff_result1.land[2][4] == diff_result2.land[2][4]
     end
-    ##
 end
 ##
 
