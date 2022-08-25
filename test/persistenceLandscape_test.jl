@@ -460,47 +460,54 @@ end
 @testset "abs_land test" begin
     pl0, pl1, pl2, pl3, pl4, pl5, pl6, pl7, pl8, pl9 = generate_testing_lanscapes()
 
-    diff_result = abs_pl(pl6 - pl6)
-    for k = 1:2
-        for land_point in diff_result.land[k]
-            @test land_point.second == 0
-        end
-    end
+    # ===-
+    # Test length
+    @test length((abs_pl(pl0)).land) == length(pl0.land)
+    @test length((abs_pl(pl6)).land) == length(pl6.land)
+    @test length((abs_pl(pl9)).land) == length(pl9.land)
 
-    diff_result = abs_pl(pl6 - pl7)
-    for k = 1:2
-        for land_point in diff_result.land[k]
-            @test land_point.second >= 0
-        end
-    end
+    @test length(abs_pl(pl6 - pl0).land) == max(length(pl6.land), length(pl0.land))
+    @test length(abs_pl(pl9 - pl6).land) == max(length(pl9.land), length(pl6.land))
+    @test length(abs_pl(pl6 - pl9).land) == max(length(pl6.land), length(pl9.land))
 
-    diff_result = abs_pl(pl7 - pl6)
-    for k = 1:2
-        for land_point in diff_result.land[k]
-            @test land_point.second >= 0
-        end
-    end
+    # ===-
+    # Test strucure of non-negative landscape
+    @test abs_pl(pl1+pl9) == pl1+pl9
+    @test abs_pl(pl6+pl9) == pl6+pl9
 
-    # diff_result = abs_pl(two_layer_landscape_d - two_layer_landscape_c)
-    for k = 1:2
-        for land_point in diff_result.land[k]
-            @test land_point.second >= 0
-        end
-    end
+    # ===-
+    # Test abs of diff of non-overlapping landscapes
+    @test pl2-pl3 |> abs_pl == pl2+pl3
+    @test pl8-pl2 |> abs_pl == pl8+pl2
+    # ===-
+    # Test abs of diff of overlapping landscapes
+    @test pl7 - pl6 |> abs_pl == pl6 - pl7 |> abs_pl
+    @test pl9 - pl6 |> abs_pl == pl6 - pl9 |> abs_pl
+    @test pl9 - pl1 |> abs_pl == pl1 - pl9 |> abs_pl
+    # ===-
+    # Test abs structure
+    @test pl7 - pl6 |> abs_pl ==
+          [[ MyPair(0, 0), MyPair(1, 0), MyPair(2, 0), MyPair(4, 0)],
+        [MyPair(0, 0), MyPair(1, 1), MyPair(1.5, 0), MyPair(2, 1), MyPair(3, 0)],
+    ] |> PersistenceLandscape
+    @test pl6 - pl7 |> abs_pl ==
+          [[ MyPair(0, 0), MyPair(1, 0), MyPair(2, 0), MyPair(4, 0)],
+        [MyPair(0, 0), MyPair(1, 1), MyPair(1.5, 0), MyPair(2, 1), MyPair(3, 0)],
+    ] |> PersistenceLandscape
 
 end
+##
 
-
-## ===-
 @testset "computeDiscanceOfLandscapes test" begin
     pl0, pl1, pl2, pl3, pl4, pl5, pl6, pl7, pl8, pl9 = generate_testing_lanscapes()
 
-    @test computeDiscanceOfLandscapes(pl0, pl0, 1) == 0
-    @test computeDiscanceOfLandscapes(pl1, pl2, 1) == 1
-    @test computeDiscanceOfLandscapes(pl2, pl3, 1) > 0
+    @test computeDiscanceOfLandscapes(pl0, pl0, 0) == 0
+    @test computeDiscanceOfLandscapes(pl1, pl2, 0) == Inf
+    @test computeDiscanceOfLandscapes(pl2, pl3, 0) == Inf
 
     @test computeDiscanceOfLandscapes(pl0, pl0, 1) == 0
-    @test computeDiscanceOfLandscapes(pl1, pl2, 1) > 0
+    @test computeDiscanceOfLandscapes(pl1, pl2, 1) == 3
+    @test computeDiscanceOfLandscapes(pl2, pl3, 1) == 2
 end
 
 ## ===-
