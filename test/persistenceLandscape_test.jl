@@ -363,61 +363,44 @@ end
     @test computeIntegralOfLandscape(pl4, 2) == computeIntegralOfLandscape(pl4, 2)
 
     # Tests for layered landscapes
-    two_layer_landscape_a =
-        PersistenceLandscape(PersistenceBarcodes([MyPair(0, 4), MyPair(0, 2)], 1))
-    two_layer_landscape_b =
-        PersistenceLandscape(PersistenceBarcodes([MyPair(0, 4), MyPair(1, 3)], 1))
-    two_layer_landscape_c =
-        PersistenceLandscape(PersistenceBarcodes([MyPair(0, 4), MyPair(2, 4)], 1))
-    two_layer_landscape_d =
-        PersistenceLandscape(PersistenceBarcodes([MyPair(0, 4), MyPair(3, 5)], 1))
+    pl7 = PersistenceLandscape(PersistenceBarcodes([MyPair(0, 4), MyPair(0, 2)], 1))
+    pl6 = PersistenceLandscape(PersistenceBarcodes([MyPair(0, 4), MyPair(1, 3)], 1))
+    @test computeIntegralOfLandscape(pl7, 0) == 3
+    @test computeIntegralOfLandscape(pl6, 0) == 3
 
-    @test computeIntegralOfLandscape(two_layer_landscape_a, 0) == 3
-    @test computeIntegralOfLandscape(two_layer_landscape_b, 0) == 3
-    @test computeIntegralOfLandscape(two_layer_landscape_c, 0) == 3
-    @test computeIntegralOfLandscape(two_layer_landscape_d, 0) == 4.5
-
-    @test computeIntegralOfLandscape(two_layer_landscape_a, 0) ==
-          computeIntegralOfLandscape(two_layer_landscape_b, 0)
-    @test computeIntegralOfLandscape(two_layer_landscape_a, 0) ==
-          computeIntegralOfLandscape(two_layer_landscape_c, 0)
+    @test computeIntegralOfLandscape(pl7, 0) == computeIntegralOfLandscape(pl6, 0)
+    # @test computeIntegralOfLandscape(pl7, 0) ==
     ##
 end
 
 
 ## ===-
 @testset "abs_land test" begin
-    two_layer_landscape_a =
-        PersistenceLandscape(PersistenceBarcodes([MyPair(0, 4), MyPair(0, 2)], 1))
-    two_layer_landscape_b =
-        PersistenceLandscape(PersistenceBarcodes([MyPair(0, 4), MyPair(1, 3)], 1))
-    two_layer_landscape_c =
-        PersistenceLandscape(PersistenceBarcodes([MyPair(0, 4), MyPair(2, 4)], 1))
-    two_layer_landscape_d =
-        PersistenceLandscape(PersistenceBarcodes([MyPair(0, 4), MyPair(3, 5)], 1))
+    pl7
+    pl6
 
-    diff_result = abs_pl(two_layer_landscape_b - two_layer_landscape_b)
+    diff_result = abs_pl(pl6 - pl6)
     for k = 1:2
         for land_point in diff_result.land[k]
             @test land_point.second == 0
         end
     end
 
-    diff_result = abs_pl(two_layer_landscape_b - two_layer_landscape_a)
+    diff_result = abs_pl(pl6 - pl7)
     for k = 1:2
         for land_point in diff_result.land[k]
             @test land_point.second >= 0
         end
     end
 
-    diff_result = abs_pl(two_layer_landscape_a - two_layer_landscape_b)
+    diff_result = abs_pl(pl7 - pl6)
     for k = 1:2
         for land_point in diff_result.land[k]
             @test land_point.second >= 0
         end
     end
 
-    diff_result = abs_pl(two_layer_landscape_d - two_layer_landscape_c)
+    # diff_result = abs_pl(two_layer_landscape_d - two_layer_landscape_c)
     for k = 1:2
         for land_point in diff_result.land[k]
             @test land_point.second >= 0
