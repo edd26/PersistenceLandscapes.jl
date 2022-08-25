@@ -425,60 +425,34 @@ end
 
 ## ===-
 @testset "intergal of landscapes test" begin
-    ##
+    #
     pl0, pl1, pl2, pl3, pl4, pl5, pl6, pl7, pl8, pl9 = generate_testing_lanscapes()
 
-    ##
+    # for p=0
+    @test_broken computeIntegralOfLandscape(pl0) == 2
+    @test computeIntegralOfLandscape(pl1, 0) == 4
+    @test computeIntegralOfLandscape(pl2, 0) == 2
+    @test computeIntegralOfLandscape(pl3, 0) == 2
+    @test computeIntegralOfLandscape(pl4, 0) == 6
+    @test computeIntegralOfLandscape(pl5, 0) == 4
+    @test computeIntegralOfLandscape(pl6, 0) == 6
+    @test computeIntegralOfLandscape(pl7, 0) == 6
+    @test computeIntegralOfLandscape(pl8, 0) == 8
+    @test computeIntegralOfLandscape(pl9, 0) == 18
 
-    function get_traingle_area(landscape)
-        # this function is only applicable to singular landscapes for testing
-        start_pt = landscape.land[1][1].first
-        end_pt = landscape.land[1][3].first
-        base_len = end_pt - start_pt
-        h = landscape.land[1][2].second
+    # methods comparison
+    @test computeIntegralOfLandscape(pl0) == computeIntegralOfLandscape(pl0, 1)
+    @test computeIntegralOfLandscape(pl1) == computeIntegralOfLandscape(pl1, 1)
+    @test computeIntegralOfLandscape(pl2) == computeIntegralOfLandscape(pl2, 1)
+    @test computeIntegralOfLandscape(pl3) == computeIntegralOfLandscape(pl3, 1)
+    @test computeIntegralOfLandscape(pl4) == computeIntegralOfLandscape(pl4, 1)
+    @test computeIntegralOfLandscape(pl5) == computeIntegralOfLandscape(pl5, 1)
+    @test computeIntegralOfLandscape(pl6) == computeIntegralOfLandscape(pl6, 1)
+    @test computeIntegralOfLandscape(pl7) == computeIntegralOfLandscape(pl7, 1)
+    @test computeIntegralOfLandscape(pl8) == computeIntegralOfLandscape(pl8, 1)
+    @test computeIntegralOfLandscape(pl9) == computeIntegralOfLandscape(pl9, 1)
 
-        return (base_len * h) / 2
-    end
-
-    ##
-    @test computeIntegralOfLandscape(pl0, 0) == get_traingle_area(pl0)
-    @test computeIntegralOfLandscape(pl0, 1) == get_traingle_area(pl0) / 2
-    @test computeIntegralOfLandscape(pl0, 1) == computeIntegralOfLandscape(pl0)
-
-    ##
-    @test_broken computeIntegralOfLandscape(pl1, 0) == get_traingle_area(pl1)
-    # @test computeIntegralOfLandscape(pl1, 0) == get_traingle_area(pl1)
-    @test computeIntegralOfLandscape(pl1, 1) == get_traingle_area(pl1) / 2
-
-    @test computeIntegralOfLandscape(pl2, 0) == get_traingle_area(pl2)
-    # @test computeIntegralOfLandscape(pl2, 0) == get_traingle_area(pl2)
-    @test computeIntegralOfLandscape(pl2, 1) == get_traingle_area(pl2) / 2
-    ##
-
-    @test computeIntegralOfLandscape(pl3, 0) == get_traingle_area(pl3)
-    # @test computeIntegralOfLandscape(pl3, 0) == get_traingle_area(pl3)
-    @test computeIntegralOfLandscape(pl3, 1) == get_traingle_area(pl3) / 2
-
-    # same area, different position tests
-    @test computeIntegralOfLandscape(pl2, 0) == computeIntegralOfLandscape(pl3, 0)
-    @test computeIntegralOfLandscape(pl2, 1) == computeIntegralOfLandscape(pl3, 1)
-    @test computeIntegralOfLandscape(pl2, 2) == computeIntegralOfLandscape(pl3, 2)
-
-    ##
-    # Test for double peak landscape
-    @test_broken computeIntegralOfLandscape(pl4, 0) == 5
-    @test_broken computeIntegralOfLandscape(pl4, 1) == 3
-    @test computeIntegralOfLandscape(pl4, 2) == computeIntegralOfLandscape(pl4, 2)
-
-    # Tests for layered landscapes
-    pl7 = PersistenceLandscape(PersistenceBarcodes([MyPair(0, 4), MyPair(0, 2)], 1))
-    pl6 = PersistenceLandscape(PersistenceBarcodes([MyPair(0, 4), MyPair(1, 3)], 1))
-    @test computeIntegralOfLandscape(pl7, 0) == 3
-    @test computeIntegralOfLandscape(pl6, 0) == 3
-
-    @test computeIntegralOfLandscape(pl7, 0) == computeIntegralOfLandscape(pl6, 0)
-    # @test computeIntegralOfLandscape(pl7, 0) ==
-    ##
+    #
 end
 
 
