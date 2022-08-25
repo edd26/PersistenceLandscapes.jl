@@ -779,7 +779,7 @@ function operationOnPairOfLandscapes(in_land1::PersistenceLandscape, in_land2::P
 
     # Append only the elements that are beyond the end of the vector
     # if land1 is longer
-    start_val = min(size(land1.land, 1), size(land2.land, 1))+1
+    start_val = min(size(land1.land, 1), size(land2.land, 1)) + 1
     stop_val = max(size(land1.land, 1), size(land2.land, 1))
     is_land1_longer() = size(land1.land, 1) > min(size(land1.land, 1), size(land2.land, 1))
     is_land2_longer() = size(land2.land, 1) > min(size(land1.land, 1), size(land2.land, 1))
