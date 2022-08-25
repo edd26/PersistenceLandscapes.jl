@@ -775,23 +775,27 @@ function operationOnPairOfLandscapes(in_land1::PersistenceLandscape, in_land2::P
         # result.land[i] = lambda_n
         push!(result, lambda_n)
     end
+    ##
 
+    # Append only the elements that are beyond the end of the vector
     # if land1 is longer
-    start_val = min(1, size(land1.land, 1), size(land2.land, 1))
+    start_val = min(size(land1.land, 1), size(land2.land, 1))+1
     stop_val = max(size(land1.land, 1), size(land2.land, 1))
-    is_land1_shorter() = size(land1.land, 1) > min(size(land1.land, 1), size(land2.land, 1))
-    is_land2_shorter() = size(land2.land, 1) > min(size(land1.land, 1), size(land2.land, 1))
+    is_land1_longer() = size(land1.land, 1) > min(size(land1.land, 1), size(land2.land, 1))
+    is_land2_longer() = size(land2.land, 1) > min(size(land1.land, 1), size(land2.land, 1))
 
-    if is_land1_shorter()
+    if is_land1_longer()
         @debug "first if modifier"
         local_dbg && println("size(land1.land,1) > $(min( size(land1.land,1), size(land2.land,1) ))")
 
-        append_nonoverlapping_elements!(result, land1, stop_val, start_val, oper; zero_tailing=true, zero_start=false)
-    elseif is_land2_shorter()
+        result = append_nonoverlapping_elements(result, land1, stop_val, start_val, oper; zero_tailing=true, zero_start=false)
+    elseif is_land2_longer()
         @debug "second if modifier"
         local_dbg && println("( size(land2.land,1) > $(min( size(land1.land,1) , size(land2.land,1))) ")
 
-        append_nonoverlapping_elements!(result, land2, stop_val, start_val, oper; zero_tailing=false, zero_start=true)
+        result = append_nonoverlapping_elements(result, land2, stop_val, start_val, oper; zero_tailing=false, zero_start=true)
+    else
+        @debug "Both have the same number of layers, so there is no need to append anything."
     end
 
     local_dbg && println("operationOnPairOfLandscapes")
@@ -801,11 +805,19 @@ function operationOnPairOfLandscapes(in_land1::PersistenceLandscape, in_land2::P
 end# operationOnPairOfLandscapes
 
 
-function append_nonoverlapping_elements!(result, selected_land::PersistenceLandscape, stop_val, start_val, oper; zero_tailing=false, zero_start=false)
-    # append all elements form land1 that are above length of land2
+function append_nonoverlapping_elements(result, args...; kwargs...)
+    new_result = deepcopy(result)
 
-    # TODO check if the new method does the same as the old one
-    for lambda_n = selected_land.land
+    append_nonoverlapping_elements!(new_result, args...; kwargs...)
+    return new_result
+end
+
+function append_nonoverlapping_elements!(result, selected_land::PersistenceLandscape, stop_val, start_val, oper; zero_tailing=false, zero_start=false)
+    # append results with all layers that are in selected_land and are between stop val and start val
+
+    # TODO check if the new method does the same as the old one -> it didnt
+    for lambda_n = selected_land.land[start_val:stop_val]
+
         for nr = 1:size(lambda_n, 1)
             if zero_tailing && !zero_start
                 oper_result = oper(lambda_n[nr].second, 0)
@@ -813,7 +825,7 @@ function append_nonoverlapping_elements!(result, selected_land::PersistenceLands
                 oper_result = oper(0, lambda_n[nr].second)
             end
 
-            new_pair = make_MyPair(lambda_n[nr].first, oper_result)
+            new_pair = MyPair(lambda_n[nr].first, oper_result)
             lambda_n[nr] = new_pair
         end
         # CHANGE
