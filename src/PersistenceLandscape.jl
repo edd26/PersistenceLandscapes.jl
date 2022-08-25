@@ -1455,14 +1455,9 @@ end
 # Other functions  >>>
 
 function computeParametersOfALine(p1::MyPair, p2::MyPair)
-    # p1.second = a*p1.first + b => b = p1.second - a*p1.first
-    # p2.second = a*p2.first + b = a*p2.first + p1.second - a*p1.first = p1.second + a*( p2.first - p1.first )
-    # =>
-    # (p2.second-p1.second)/( p2.first - p1.first )  = a
-    # b = p1.second - a*p1.first.
     a = (p2.second - p1.second) / (p2.first - p1.first)
     b = p1.second - a * p1.first
-    return make_MyPair(a, b)
+    return MyPair(a, b)
 end
 
 # Other functions <<<
