@@ -85,10 +85,21 @@ end
 
 ## ===-
 @testset "PersistenceLandscape operations" begin
-    singular_landscape_a = PersistenceLandscape(PersistenceBarcodes([MyPair(1,3)],1))
-    singular_landscape_b = PersistenceLandscape(PersistenceBarcodes([MyPair(0,4)],1))
-    singular_landscape_c = PersistenceLandscape(PersistenceBarcodes([MyPair(0,2)],1))
-    singular_landscape_d = PersistenceLandscape(PersistenceBarcodes([MyPair(2,4)],1))
+    ##
+    pl0, pl1, pl2, pl3 = map(
+        x -> x |> PersistenceBarcodes |> PersistenceLandscape,
+        [
+            [MyPair(1, 3)],
+            [MyPair(0, 4)],
+            [MyPair(0, 2)],
+            [MyPair(2, 4)],
+        ],
+    )
+    pl0 = PersistenceLandscape(PersistenceBarcodes([MyPair(1,3)],1))
+    pl1 = PersistenceLandscape(PersistenceBarcodes([MyPair(0,4)],1))
+    pl2 = PersistenceLandscape(PersistenceBarcodes([MyPair(0,2)],1))
+    pl3 = PersistenceLandscape(PersistenceBarcodes([MyPair(2,4)],1))
+    ##
     @testset "equality" begin
         @test typeof(pl0+pl0) == PersistenceLandscape
         @test typeof(pl0-pl0) == PersistenceLandscape
@@ -104,31 +115,32 @@ end
         @test (pl0==pl1) == false
     end
 
+    ##
     @testset "addition" begin
 
         # Check adding single element
 
         # comutative test
-        @test singular_landscape_a + singular_landscape_a == singular_landscape_a + singular_landscape_a
-        @test singular_landscape_a + singular_landscape_b == singular_landscape_b + singular_landscape_a
-        @test singular_landscape_a + singular_landscape_c == singular_landscape_c + singular_landscape_a
-        @test singular_landscape_c + singular_landscape_d == singular_landscape_d + singular_landscape_c
+        @test pl0 + pl0 == pl0 + pl0
+        @test pl0 + pl1 == pl1 + pl0
+        @test pl0 + pl2 == pl2 + pl0
+        @test pl2 + pl3 == pl3 + pl2
 
 
-        @test singular_landscape_a + singular_landscape_a == 2*singular_landscape_a
-        @test singular_landscape_a + singular_landscape_b == PersistenceLandscape([[
+        @test pl0 + pl0 == 2*pl0
+        @test pl0 + pl1 == PersistenceLandscape([[
                                                                                     MyPair(0,0),
                                                                                     MyPair(1,1),
                                                                                     MyPair(2,3),
                                                                                     MyPair(3,1),
                                                                                     MyPair(4,0)
                                                                                    ]],1)
-        @test singular_landscape_a + singular_landscape_c == PersistenceLandscape([[MyPair(0, 0),
+        @test pl0 + pl2 == PersistenceLandscape([[MyPair(0, 0),
                                                                                     MyPair(1, 1),
                                                                                     MyPair(2, 1),
                                                                                     MyPair(3, 0)
                                                                                    ]],1)
-        @test singular_landscape_c + singular_landscape_d == PersistenceLandscape([[MyPair(0, 0),
+        @test pl2 + pl3 == PersistenceLandscape([[MyPair(0, 0),
                                                                                     MyPair(1, 1),
                                                                                     MyPair(2, 0),
                                                                                     MyPair(3, 1),
@@ -136,8 +148,8 @@ end
                                                                                    ]], 1)
 
         # first values innew landscape should be a unique colleciton of x vals from both components
-        for land1 = [singular_landscape_a, singular_landscape_b, singular_landscape_c, singular_landscape_d]
-            for land2 = [singular_landscape_a, singular_landscape_b, singular_landscape_c, singular_landscape_d]
+        for land1 = [pl0, pl1, pl2, pl3]
+            for land2 = [pl0, pl1, pl2, pl3]
 
                 sum_res = land1 + land2
                 unique_first_vals = unique( sort( vcat(
@@ -289,16 +301,16 @@ end
 
 ## ===-
 @testset "intergal of landscapes test" begin
-    # singular_landscape_a = PersistenceLandscape(PersistenceBarcodes([MyPair(1,3)],1))
-    singular_landscape_a = [MyPair(1,3)] |> PersistenceBarcodes |> PersistenceLandscape
-    # singular_landscape_b = PersistenceLandscape(PersistenceBarcodes([MyPair(0,4)],1))
-    singular_landscape_b = [MyPair(0,4)] |> PersistenceBarcodes |> PersistenceLandscape
-    # singular_landscape_c = PersistenceLandscape(PersistenceBarcodes([MyPair(0,2)],1))
-    singular_landscape_c = [MyPair(0,2)] |> PersistenceBarcodes |> PersistenceLandscape
-    # singular_landscape_d = PersistenceLandscape(PersistenceBarcodes([MyPair(2,4)],1))
-    singular_landscape_d = [MyPair(2,4)] |> PersistenceBarcodes |> PersistenceLandscape
-    # singular_landscape_e = PersistenceLandscape(PersistenceBarcodes([MyPair(0,4), MyPair(5,7)],1))
-    singular_landscape_e = [MyPair(0,4), MyPair(5,7)] |> PersistenceBarcodes |> PersistenceLandscape
+    pl0, pl1, pl2, pl3, pl4 = map(
+        x -> x |> PersistenceBarcodes |> PersistenceLandscape,
+        [
+            [MyPair(1, 3)],
+            [MyPair(0, 4)],
+            [MyPair(0, 2)],
+            [MyPair(2, 4)],
+            [MyPair(0,4), MyPair(5,7)] ,
+        ],
+    )
 
     function get_traingle_area(landscape)
         # this function is only applicable to singular landscapes for testing
@@ -310,31 +322,31 @@ end
         return (base_len*h)/2
     end
 
-    @test computeIntegralOfLandscape(singular_landscape_a, 0) == get_traingle_area(singular_landscape_a)
-    @test computeIntegralOfLandscape(singular_landscape_a, 1) == get_traingle_area(singular_landscape_a) /2
-    @test computeIntegralOfLandscape(singular_landscape_a, 1) == computeIntegralOfLandscape(singular_landscape_a)
+    @test computeIntegralOfLandscape(pl0, 0) == get_traingle_area(pl0)
+    @test computeIntegralOfLandscape(pl0, 1) == get_traingle_area(pl0) /2
+    @test computeIntegralOfLandscape(pl0, 1) == computeIntegralOfLandscape(pl0)
 
-    @test_broken computeIntegralOfLandscape(singular_landscape_b, 0) == get_traingle_area(singular_landscape_b)
-    # @test computeIntegralOfLandscape(singular_landscape_b, 0) == get_traingle_area(singular_landscape_b)
-    @test computeIntegralOfLandscape(singular_landscape_b, 1) == get_traingle_area(singular_landscape_b) /2
+    @test_broken computeIntegralOfLandscape(pl1, 0) == get_traingle_area(pl1)
+    # @test computeIntegralOfLandscape(pl1, 0) == get_traingle_area(pl1)
+    @test computeIntegralOfLandscape(pl1, 1) == get_traingle_area(pl1) /2
 
-    @test computeIntegralOfLandscape(singular_landscape_c, 0) == get_traingle_area(singular_landscape_c)
-    # @test computeIntegralOfLandscape(singular_landscape_c, 0) == get_traingle_area(singular_landscape_c)
-    @test computeIntegralOfLandscape(singular_landscape_c, 1) == get_traingle_area(singular_landscape_c) /2
+    @test computeIntegralOfLandscape(pl2, 0) == get_traingle_area(pl2)
+    # @test computeIntegralOfLandscape(pl2, 0) == get_traingle_area(pl2)
+    @test computeIntegralOfLandscape(pl2, 1) == get_traingle_area(pl2) /2
 
-    @test computeIntegralOfLandscape(singular_landscape_d, 0) == get_traingle_area(singular_landscape_d)
-    # @test computeIntegralOfLandscape(singular_landscape_d, 0) == get_traingle_area(singular_landscape_d)
-    @test computeIntegralOfLandscape(singular_landscape_d, 1) == get_traingle_area(singular_landscape_d) /2
+    @test computeIntegralOfLandscape(pl3, 0) == get_traingle_area(pl3)
+    # @test computeIntegralOfLandscape(pl3, 0) == get_traingle_area(pl3)
+    @test computeIntegralOfLandscape(pl3, 1) == get_traingle_area(pl3) /2
 
     # same area, different position tests
-    @test computeIntegralOfLandscape(singular_landscape_c, 0) == computeIntegralOfLandscape(singular_landscape_d, 0)
-    @test computeIntegralOfLandscape(singular_landscape_c, 1) == computeIntegralOfLandscape(singular_landscape_d, 1)
-    @test computeIntegralOfLandscape(singular_landscape_c, 2) == computeIntegralOfLandscape(singular_landscape_d, 2)
+    @test computeIntegralOfLandscape(pl2, 0) == computeIntegralOfLandscape(pl3, 0)
+    @test computeIntegralOfLandscape(pl2, 1) == computeIntegralOfLandscape(pl3, 1)
+    @test computeIntegralOfLandscape(pl2, 2) == computeIntegralOfLandscape(pl3, 2)
 
     # Test for double peak landscape
-    @test_broken computeIntegralOfLandscape(singular_landscape_e, 0) == 5
-    @test_broken computeIntegralOfLandscape(singular_landscape_e, 1) == 3
-    @test computeIntegralOfLandscape(singular_landscape_e, 2) == computeIntegralOfLandscape(singular_landscape_e, 2)
+    @test_broken computeIntegralOfLandscape(pl4, 0) == 5
+    @test_broken computeIntegralOfLandscape(pl4, 1) == 3
+    @test computeIntegralOfLandscape(pl4, 2) == computeIntegralOfLandscape(pl4, 2)
 
     # Tests for layered landscapes
     two_layer_landscape_a = PersistenceLandscape(PersistenceBarcodes([MyPair(0,4), MyPair(0,2)],1))
@@ -354,29 +366,29 @@ end
 
 ## ==-===-
 @testset "substraction test" begin
-    singular_landscape_a = PersistenceLandscape(PersistenceBarcodes([MyPair(1,3)],1))
-    singular_landscape_b = PersistenceLandscape(PersistenceBarcodes([MyPair(0,4)],1))
-    singular_landscape_c = PersistenceLandscape(PersistenceBarcodes([MyPair(0,2)],1))
-    singular_landscape_d = PersistenceLandscape(PersistenceBarcodes([MyPair(2,4)],1))
+    pl0 = PersistenceLandscape(PersistenceBarcodes([MyPair(1,3)],1))
+    pl1 = PersistenceLandscape(PersistenceBarcodes([MyPair(0,4)],1))
+    pl2 = PersistenceLandscape(PersistenceBarcodes([MyPair(0,2)],1))
+    pl3 = PersistenceLandscape(PersistenceBarcodes([MyPair(2,4)],1))
 
     # zero landscapes tests
-    diff_result = singular_landscape_a - singular_landscape_a
+    diff_result = pl0 - pl0
     for land_point in diff_result.land[1]
         @test land_point.second == 0
     end
 
-    diff_result = singular_landscape_b - singular_landscape_b
+    diff_result = pl1 - pl1
     for land_point in diff_result.land[1]
         @test land_point.second == 0
     end
 
-    diff_result = singular_landscape_c - singular_landscape_c
+    diff_result = pl2 - pl2
     for land_point in diff_result.land[1]
         @test land_point.second == 0
     end
 
     # Other tests
-    diff_result = singular_landscape_b - singular_landscape_c
+    diff_result = pl1 - pl2
     @test diff_result.land[1][1].second == 0
     @test diff_result.land[1][2].second == 0
     @test diff_result.land[1][3].second == 2
@@ -453,15 +465,20 @@ end
 
 ## ===-
 @testset "computeDiscanceOfLandscapes test" begin
-    singular_landscape_a = PersistenceLandscape(PersistenceBarcodes([MyPair(1,3)],1))
-    singular_landscape_b = PersistenceLandscape(PersistenceBarcodes([MyPair(0,4)],1))
-    singular_landscape_c = PersistenceLandscape(PersistenceBarcodes([MyPair(0,2)],1))
-    singular_landscape_d = PersistenceLandscape(PersistenceBarcodes([MyPair(2,4)],1))
+    pl0, pl1, pl2, pl3 = map(
+        x -> x |> PersistenceBarcodes |> PersistenceLandscape,
+        [
+            [MyPair(1, 3)],
+            [MyPair(0, 4)],
+            [MyPair(0, 2)],
+            [MyPair(2, 4)],
+        ],
+    )
 
-    @test computeDiscanceOfLandscapes(singular_landscape_a, singular_landscape_a, 1) == 0
-    @test computeDiscanceOfLandscapes(singular_landscape_b, singular_landscape_c, 1) == 1
-    @test computeDiscanceOfLandscapes(singular_landscape_c, singular_landscape_d, 1) > 0
+    @test computeDiscanceOfLandscapes(pl0, pl0, 1) == 0
+    @test computeDiscanceOfLandscapes(pl1, pl2, 1) == 1
+    @test computeDiscanceOfLandscapes(pl2, pl3, 1) > 0
 
-    @test computeDiscanceOfLandscapes(singular_landscape_a, singular_landscape_a, 1) == 0
-    @test computeDiscanceOfLandscapes(singular_landscape_b, singular_landscape_c, 1) > 0
+    @test computeDiscanceOfLandscapes(pl0, pl0, 1) == 0
+    @test computeDiscanceOfLandscapes(pl1, pl2, 1) > 0
 end
