@@ -1,4 +1,4 @@
-using Eirene
+# using Eirene
 using Plots
 
 
@@ -269,21 +269,21 @@ end
     max_B_dim = 3
     key = all_keys[3]
     # for key in all_keys
-        total_points = size(ord_matrices[key], 1)
-
-        C_ord_mat[key] = eirene(ord_matrices[key],
-                                maxdim=max_B_dim,
-                                model="vr",
-                                pointlabels=vertices_labels[1:total_points])
-
-        plotbarcode_pjs(C_ord_mat[key])
-        selected_dim = 1
-        barcodes = barcode(C_ord_mat[key], dim=selected_dim )
-        bar = [MyPair(barcodes[k,1], barcodes[k,2]) for k in 1:size(barcodes,1)]
-        pair_barcodes  = PersistenceBarcodes(bar, selected_dim)
-
-        pl1 = PersistenceLandscape(pair_barcodes)
-        plot_persistence_landscape(pl1)
+        # total_points = size(ord_matrices[key], 1)
+        #
+        # C_ord_mat[key] = eirene(ord_matrices[key],
+        #                         maxdim=max_B_dim,
+        #                         model="vr",
+        #                         pointlabels=vertices_labels[1:total_points])
+        #
+        # plotbarcode_pjs(C_ord_mat[key])
+        # selected_dim = 1
+        # barcodes = barcode(C_ord_mat[key], dim=selected_dim )
+        # bar = [MyPair(barcodes[k,1], barcodes[k,2]) for k in 1:size(barcodes,1)]
+        # pair_barcodes  = PersistenceBarcodes(bar, selected_dim)
+        #
+        # pl1 = PersistenceLandscape(pair_barcodes)
+        # plot_persistence_landscape(pl1)
     # end # for
 end
 

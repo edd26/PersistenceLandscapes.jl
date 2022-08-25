@@ -25,7 +25,7 @@
 # using DrWatson
 using UnPack
 using Plots
-using Eirene
+# using Eirene
 
 import Base.:<, Base.:>, Base.==, Base.isless
 
