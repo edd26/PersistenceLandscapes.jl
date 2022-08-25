@@ -1178,59 +1178,61 @@ function check(i::UInt, v::Vector{MyPair})
 end
 
 """
-Compute the integral of the landscape for p=0.
+Compute the integral of the landscape for p=1.
 """
-function computeIntegralOfLandscape(land::PersistenceLandscape; local_dbg=false)
+function computeIntegralOfLandscape(in_land::PersistenceLandscape)
     # TODO this should be expressed as the same funciton called with param p=0 (or whichever is equivalent)
-    result = 0
-    for i = 1:size(land) # for every layer
-        for nr = 2:size(land.land[i], 1)-1 # for every point in layer
-            # it suffices to compute every planar integral and then sum them ap for each lambda_n
-            val1 = land.land[i][nr].first - land.land[i][nr-1].first
-            val2 = land.land[i][nr].second + land.land[i][nr-1].second
-            result += 0.5 * val1 * val2
-        end
-    end
-    return result
+    # it suffices to compute every planar integral and then sum them ap for each lambda_n
+    return 0.5 * [
+        [
+            (latter.first - former.first) * (latter.second + former.second) for
+            (former, latter) in zip(layer[1:(end - 1)], layer[2:end])
+        ] |> sum for layer in in_land.land
+    ] |> sum
+
+    # Same but more readable version:
+    # for layer = in_land.land
+    #     for (former, latter) = zip(layer[1:end-1], layer[2:end])
+    #         # it suffices to compute every planar integral and then sum them ap for each lambda_n
+    #         val1 = (latter.first - former.first)
+    #         val2 = (latter.second + former.second)
+    #         result += 0.5 * val1 * val2
+    #     end
+    # end
 end
 
 """
 Compute the integral of the landscape for p.
 
 In this interval, the landscape has a form f(x) = ax+b. We want to compute
-integral of (ax+b)^p = 1/a * (ax+b)^(p+1)/(p+1)
+integral of (ax+b)^p, which is [(ax+b)^(p+1)]/(ap+a)
 """
-function computeIntegralOfLandscape(land::PersistenceLandscape, p::Real; local_dbg=false)
+function computeIntegralOfLandscape(in_land::PersistenceLandscape, p::Real; local_dbg=false)
     result = 0
-    for i = 1:size(land)
-        # total_points_in_layer = size(land.land[i],1)-1 # -1 because of the (0,0) point
-        # for nr = 2:total_points_in_layer
-        for nr = 2:size(land.land[i], 1)-1
-            local_dbg && println("nr : $(nr)")
-            # In this interval, the landscape has a form f(x) = ax+b. We want to compute integral of (ax+b)^p = 1/a * (ax+b)^p+1end/(p+1)
-            coef = computeParametersOfALine(land.land[i][nr], land.land[i][nr-1])
+    for land_layer = in_land.land
+        for (former_point, latter_point) = zip(land_layer[1:end-1], land_layer[2:end])
+
+            # In this interval, the landscape has a form f(x) = ax+b. We want to compute integral of (ax+b)^p, which is [(ax+b)^(p+1)]/(ap+a)
+            coef = computeParametersOfALine(latter_point, former_point)
             a = coef.first
             b = coef.second
-            local_dbg && println("current: ($(land.land[i][nr].first),$(land.land[i][nr].second)) ,\n previous: ($(land.land[i][nr-1].first) $(land.land[i][nr-1].second))")
 
-            if land.land[i][nr].first == land.land[i][nr-1].first
-                continue
-            end
+            # Points have same 1st coordinate, so their integral is equal to 0
+            latter_point.first == former_point.first && continue
+
+            # Not in original code: if landscapes are spaced, don't count the space in between them
+            0 == latter_point.second == former_point.second && continue
 
             if a != 0
-                val1 = a * land.land[i][nr].first + b
-                val2 = a * land.land[i][nr-1].first + b
+                val1 = a * latter_point.first + b
+                val2 = a * former_point.first + b
                 denominator = a * (p + 1)
                 result += ((val1^(p + 1)) - (val2^(p + 1))) / denominator
             else
-                val1 = land.land[i][nr].first - land.land[i][nr-1].first
-                val2 = land.land[i][nr].second
+                # here, a==0, so it is constant, then integral is fragment_length* (constant^power)
+                val1 = latter_point.first - former_point.first
+                val2 = latter_point.second
                 result += val1 * (val2^p)
-            end
-
-            if local_dbg
-                println("a : $(a), b : $(b)")
-                println("result : $(result)")
             end
         end
     end
