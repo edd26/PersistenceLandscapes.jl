@@ -2,6 +2,23 @@
 # using Plots
 
 ## ===-
+generate_testing_lanscapes() =
+    map(
+        x -> x |> PersistenceBarcodes |> PersistenceLandscape,
+        [
+            [MyPair(1, 3)],
+            [MyPair(0, 4)],
+            [MyPair(0, 2)],
+            [MyPair(2, 4)],
+            [MyPair(0, 4), MyPair(5, 7)],
+            [MyPair(0, 2), MyPair(2, 4)],
+            [MyPair(1, 3), MyPair(0, 4)],
+            [MyPair(0, 2), MyPair(0, 4)],
+            [MyPair(2, 6), MyPair(2, 4), MyPair(4, 6)],
+            [MyPair(0, 6), MyPair(1, 7), MyPair(4, 8), MyPair(3, 5)],
+        ],
+    )
+## ===-
 @testset "constructors tests" begin
     ##
     bars1 = [MyPair(0, 3), MyPair(0, 6), MyPair(0, 10)]
@@ -88,21 +105,8 @@ end
 
 ## ===-
 @testset "PersistenceLandscape operations" begin
-    pl0, pl1, pl2, pl3, pl4, pl5, pl6, pl7, pl8, pl9 = map(
-        x -> x |> PersistenceBarcodes |> PersistenceLandscape,
-        [
-            [MyPair(1, 3)],
-            [MyPair(0, 4)],
-            [MyPair(0, 2)],
-            [MyPair(2, 4)],
-            [MyPair(0, 4), MyPair(5, 7)],
-            [MyPair(0, 2), MyPair(2, 4)],
-            [MyPair(1, 3), MyPair(0, 4)],
-            [MyPair(0, 2), MyPair(0, 4)],
-            [MyPair(2, 6), MyPair(2, 4), MyPair(4, 6)],
-            [MyPair(0, 6), MyPair(1, 7), MyPair(4, 8), MyPair(3, 5)],
-        ],
-    )
+    pl0, pl1, pl2, pl3, pl4, pl5, pl6, pl7, pl8, pl9 = generate_testing_lanscapes()
+
     @testset "equality" begin
         @test typeof(pl0 + pl0) == PersistenceLandscape
         @test typeof(pl0 - pl0) == PersistenceLandscape
@@ -426,16 +430,8 @@ end
 ## ===-
 @testset "intergal of landscapes test" begin
     ##
-    pl0, pl1, pl2, pl3, pl4 = map(
-        x -> x |> PersistenceBarcodes |> PersistenceLandscape,
-        [
-            [MyPair(1, 3)],
-            [MyPair(0, 4)],
-            [MyPair(0, 2)],
-            [MyPair(2, 4)],
-            [MyPair(0, 4), MyPair(5, 7)],
-        ],
-    )
+    pl0, pl1, pl2, pl3, pl4, pl5, pl6, pl7, pl8, pl9 = generate_testing_lanscapes()
+
     ##
 
     function get_traingle_area(landscape)
@@ -492,8 +488,7 @@ end
 
 ## ===-
 @testset "abs_land test" begin
-    pl7
-    pl6
+    pl0, pl1, pl2, pl3, pl4, pl5, pl6, pl7, pl8, pl9 = generate_testing_lanscapes()
 
     diff_result = abs_pl(pl6 - pl6)
     for k = 1:2
@@ -528,16 +523,7 @@ end
 
 ## ===-
 @testset "computeDiscanceOfLandscapes test" begin
-    pl0, pl1, pl2, pl3, pl4 = map(
-        x -> x |> PersistenceBarcodes |> PersistenceLandscape,
-        [
-            [MyPair(1, 3)],
-            [MyPair(0, 4)],
-            [MyPair(0, 2)],
-            [MyPair(2, 4)],
-            [MyPair(0, 4), MyPair(5, 7)],
-        ],
-    )
+    pl0, pl1, pl2, pl3, pl4, pl5, pl6, pl7, pl8, pl9 = generate_testing_lanscapes()
 
     @test computeDiscanceOfLandscapes(pl0, pl0, 1) == 0
     @test computeDiscanceOfLandscapes(pl1, pl2, 1) == 1
