@@ -57,7 +57,7 @@ function get_landscape_form_vectors(
 end
 
 function create_PersistenceLandscape(p::PersistenceBarcodes; useGridInComputations = false)
-    @debug "PersistenceLandscape(PersistenceBarcodes& p )"
+    # @debug "PersistenceLandscape(PersistenceBarcodes& p )"
 
     land = Vector{Vector{MyPair}}()
     if useGridInComputations
@@ -109,14 +109,15 @@ function appendEndOfSection!(lambda_n, lambda_death, cp_birth)
     #            )
 end
 
-function getLambdaFromCharacteristicPoints(lambda_n, characteristicPoints)
+function getLambdaFromCharacteristicPoints(characteristicPoints)
+    lambda_n = beginNewLambda(characteristicPoints[1])
     i = 2
     newCharacteristicPoints = MyPair[]
     total_characteristic_points = size(characteristicPoints, 1)
     while (i <= total_characteristic_points)
-        @debug "running for i: $(i) and size of char points $(size(characteristicPoints, 1)+1)"
+        # @debug "running for i: $(i) and size of char points $(size(characteristicPoints, 1)+1)"
         p = 1
-        last_lambda_n = size(lambda_n, 1)
+        # last_lambda_n = size(lambda_n, 1)
 
         cp_birth = birth(characteristicPoints[i])
         cp_death = death(characteristicPoints[i])
@@ -130,11 +131,11 @@ function getLambdaFromCharacteristicPoints(lambda_n, characteristicPoints)
                 point = MyPair(p_start, p_stop)
                 push!(lambda_n, point)
 
-                @debug "2 Adding to lambda_n : ($(point))"
-                @debug "comparePoints(point,characteristicPoints[i+p]) : $(comparePoints(point,characteristicPoints[i+p]))"
-                @debug "characteristicPoints[i+p] : $(characteristicPoints[i+p])"
-                @debug "point : $(point)"
-                @debug "4 Adding to newCharacteristicPoints : ($(point))"
+                # @debug "2 Adding to lambda_n : ($(point))"
+                # @debug "comparePoints(point,characteristicPoints[i+p]) : $(comparePoints(point,characteristicPoints[i+p]))"
+                # @debug "characteristicPoints[i+p] : $(characteristicPoints[i+p])"
+                # @debug "point : $(point)"
+                # @debug "4 Adding to newCharacteristicPoints : ($(point))"
 
                 # push those poitns which have almost equal birth and that have death larger than point
                 if (i + p < total_characteristic_points)
@@ -160,14 +161,15 @@ function getLambdaFromCharacteristicPoints(lambda_n, characteristicPoints)
                 appendEndOfSection!(lambda_n, lambda_death, cp_birth)
             end
             push!(lambda_n, characteristicPoints[i])
-            @debug "6 Adding to lambda_n : ($(characteristicPoints[i]))"
+            # @debug "6 Adding to lambda_n : ($(characteristicPoints[i]))"
         else
             push!(newCharacteristicPoints, characteristicPoints[i])
-            @debug "7 Adding to newCharacteristicPoints : ($(characteristicPoints[i]))"
+            # @debug "7 Adding to newCharacteristicPoints : ($(characteristicPoints[i]))"
         end
         i = i + p
     end
 
+    appendLastPoint!(lambda_n)
     return lambda_n, newCharacteristicPoints
 end
 
@@ -192,15 +194,14 @@ especially, when inf intervals are disabled.
 """
 function getNthLambda(characteristicPoints; allow_inf_intervals::Bool = false)
 
-    lambda_n = beginNewLambda(characteristicPoints[1])
     lambda_n, newCharacteristicPoints =
-        getLambdaFromCharacteristicPoints(lambda_n, characteristicPoints)
-    appendLastPoint!(lambda_n)
+        getLambdaFromCharacteristicPoints(characteristicPoints)
 
     if allow_inf_intervals
         lambda_n = appendInfIntervals(labmda_n)
     end
-    lambda_n = lambda_n |> unique
+
+    lambda_n = lambda_n |> unique # This function slows down computation signifficantly
     return lambda_n, newCharacteristicPoints
 end
 
@@ -223,7 +224,7 @@ end
 function constructLandscapeWithGrids(p::PersistenceBarcodes; allow_inf_intervals = false)
 
     land = Vector{Vector{MyPair}}()
-    @debug "Constructing persistence landscape based on a grid"# getchar())
+    # # @debug "Constructing persistence landscape based on a grid"# getchar())
 
     # in this case useGridInComputations is true, therefore we will build a landscape on a grid.
     externgridDiameter
@@ -251,21 +252,21 @@ function constructLandscapeWithGrids(p::PersistenceBarcodes; allow_inf_intervals
         p = (x, v)
         push!(aa, make_MyPair(x, 0))
         push!(criticalValuesOnPointsOfGrid[i], p)
-        @debug "x : $(x)"
+        # @debug "x : $(x)"
         x += 0.5 * gridDiameter
     end
 
     if allow_inf_intervals
         push!(aa, make_MyPair(Inf, 0))
     end
-    @debug "Grid has been created. Now, begin to add intervals"
+    # @debug "Grid has been created. Now, begin to add intervals"
     # for every peristent interval
     for ervalNo = 0:size(p, 1)
         beginn =
             ()(2 * (p.barcodes[intervalNo].first - minMax_val.first) / (gridDiameter)) + 1
-        @debug "We are considering interval : [$(p.barcodes[intervalNo].first),$(p.barcodes[intervalNo].second) $(beginn) in the grid",
+        # @debug "We are considering interval : [$(p.barcodes[intervalNo].first),$(p.barcodes[intervalNo].second) $(beginn) in the grid",
         while (criticalValuesOnPointsOfGrid[beginn].first < p.barcodes[intervalNo].second)
-            @debug "Adding a value : ($(criticalValuesOnPointsOfGrid[beginn].first) $(min( abs(criticalValuesOnPointsOfGrid[beginn].first-p.barcodes[intervalNo].first) ,abs(criticalValuesOnPointsOfGrid[beginn].first-p.barcodes[intervalNo].second) ))) ",
+            # @debug "Adding a value : ($(criticalValuesOnPointsOfGrid[beginn].first) $(min( abs(criticalValuesOnPointsOfGrid[beginn].first-p.barcodes[intervalNo].first) ,abs(criticalValuesOnPointsOfGrid[beginn].first-p.barcodes[intervalNo].second) ))) ",
             criticalValuesOnPointsOfGrid[beginn].second.push_back(
                 min(
                     abs(
@@ -295,17 +296,17 @@ function constructLandscapeWithGrids(p::PersistenceBarcodes; allow_inf_intervals
         end
     end
     if false
-        @debug "After sorting"
+        # @debug "After sorting"
         for i = 0:size(criticalValuesOnPointsOfGrid, 1)
-            @debug "x : $(criticalValuesOnPointsOfGrid[i].first): "
+            # @debug "x : $(criticalValuesOnPointsOfGrid[i].first): "
             for j = 0:size(criticalValuesOnPointsOfGrid[i].second, 1)
-                @debug "$(criticalValuesOnPointsOfGrid[i].second[j])"
+                # @debug "$(criticalValuesOnPointsOfGrid[i].second[j])"
             end
         end
     end
     push!(land, aa)
     for lambda = 0:maxNonzeroLambda
-        @debug "Constructing lambda_$(lambda)"
+        # @debug "Constructing lambda_$(lambda)"
         nextLambbda = MyPair[]
 
         push!(nextLambbda, make_MyPair(INT_MIN, 0))
@@ -314,16 +315,16 @@ function constructLandscapeWithGrids(p::PersistenceBarcodes; allow_inf_intervals
         wasPrevoiusStepZero = true
         nr = 1
         while nr < size(land.land[size(land, 1) - 1]) - 1
-            @debug "nr : $(nr)"
+            # @debug "nr : $(nr)"
             address = ()(
                 2 * (land.land[size(land, 1) - 1][nr].first - minMax_val.first) /
                 (gridDiameter),
             )
-            @debug "We are considering the element x : $(land.land[ size(land,1)-1 ][nr].first). Its position in the structure is : $(address)",
+            # @debug "We are considering the element x : $(land.land[ size(land,1)-1 ][nr].first). Its position in the structure is : $(address)",
             if criticalValuesOnPointsOfGrid[address].second.size() <= lambda
                 if (!wasPrevoiusStepZero)
                     wasPrevoiusStepZero = true
-                    @debug "AAAdding : ($(criticalValuesOnPointsOfGrid[address].first) $(0)) to lambda_$(lambda)",
+                    # @debug "AAAdding : ($(criticalValuesOnPointsOfGrid[address].first) $(0)) to lambda_$(lambda)",
                     push!(
                         nextLambbda,
                         make_MyPair(criticalValuesOnPointsOfGrid[address].first, 0),
@@ -331,14 +332,14 @@ function constructLandscapeWithGrids(p::PersistenceBarcodes; allow_inf_intervals
                 end
             else
                 if wasPrevoiusStepZero
-                    @debug "Adding : ($(criticalValuesOnPointsOfGrid[address-1].first) $(0)) to lambda_$(lambda)",
+                    # @debug "Adding : ($(criticalValuesOnPointsOfGrid[address-1].first) $(0)) to lambda_$(lambda)",
                     push!(
                         nextLambbda,
                         make_MyPair(criticalValuesOnPointsOfGrid[address - 1].first, 0),
                     )
                     wasPrevoiusStepZero = false
                 end
-                @debug "AAdding : ($(criticalValuesOnPointsOfGrid[address].first) $(criticalValuesOnPointsOfGrid[address].second[lambda])) to lambda_$(lambda)",
+                # @debug "AAdding : ($(criticalValuesOnPointsOfGrid[address].first) $(criticalValuesOnPointsOfGrid[address].second[lambda])) to lambda_$(lambda)",
                 push!(
                     nextLambbda,
                     make_MyPair(
@@ -350,7 +351,7 @@ function constructLandscapeWithGrids(p::PersistenceBarcodes; allow_inf_intervals
             nr += 1
         end
 
-        @debug "Done with : lambda_$(lambda)"
+        # @debug "Done with : lambda_$(lambda)"
 
         if lambda == 0
             # removing the first, fake, landscape
@@ -369,7 +370,7 @@ function create_PersistenceLandscape(
     allow_inf_intervals::Bool = false,
 )
     land_vecto = copy(land.land)
-    @debug "Using constructor : PersistenceLandscape $(filename)"
+    # @debug "Using constructor : PersistenceLandscape $(filename)"
 
     if !isfile(filename)
         println("The file : $(filename) do not exist. The program will now terminate")
@@ -401,9 +402,9 @@ function create_PersistenceLandscape(
 
 
                 push!(landscapeAtThisLevel, make_MyPair(beginning, ending))
-                @debug "Reading a pont : $(beginning), $(ending)"
+                # @debug "Reading a pont : $(beginning), $(ending)"
                 if false
-                    @debug "IGNORE LINE"
+                    # @debug "IGNORE LINE"
                     if !isThisAFirsLine
                         if allow_inf_intervals
                             push!(landscapeAtThisLevel, make_MyPair(Inf, 0))
@@ -452,7 +453,7 @@ function computeLandscapeOnDiscreteSetOfPoints(
     miMa = minMax(b)
     bmin = miMa.first
     bmax = miMa.second
-    @debug "bmin: $(bmin) $(bmax)"
+    # @debug "bmin: $(bmin) $(bmax)"
     result = Vector{Vector{MyPair}}()
     x = bmin
     i = 0
@@ -463,7 +464,7 @@ function computeLandscapeOnDiscreteSetOfPoints(
         i += 1
     end
 
-    @debug "Vector initally filled in"
+    # @debug "Vector initally filled in"
 
     for i = 0:size(b.barcodes, 1)
         # adding barcode b.barcodes[i] to out mesh:
@@ -502,7 +503,7 @@ function computeLandscapeOnDiscreteSetOfPoints(
         end
         i += 1
     end
-    @debug "Now we fill in the suitable vecors in this landscape"
+    # @debug "Now we fill in the suitable vecors in this landscape"
     land = Vector{Vector{MyPair}}()
     for dim = 0:indexOfLastNonzeroLandscape
         land[dim].push_back(make_MyPair(-Inf, 0))
