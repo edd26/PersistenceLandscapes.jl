@@ -18,7 +18,7 @@ generate_testing_lanscapes() =
         ],
     )
 # include("test/tests_configuration.jl")
-# include("tests_configuration.jl")
+include("tests_configuration.jl")
 
 ## ===-
 @testset "Test construction of PersistenceBarcode" begin
