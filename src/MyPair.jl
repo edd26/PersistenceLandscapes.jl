@@ -1,3 +1,6 @@
+#=
+Module with MyPair, which is a parir of floating point numbers.
+=#
 import Base.:<, Base.:>, Base.==, Base.isless
 
 # tested

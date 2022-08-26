@@ -1,3 +1,6 @@
+#=
+Module with all functions that compute distances of landscapes
+=#
 function computeMaximalDistanceNonSymmetric2(pl1::PersistenceLandscape, pl2::PersistenceLandscape; dbg=false)
     dbg && println(" computeMaximalDistanceNonSymmetric")
     @warn "name of function modified due to conflicting names"

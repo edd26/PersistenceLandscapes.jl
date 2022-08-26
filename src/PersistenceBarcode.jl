@@ -1,22 +1,6 @@
-
-#    Copyright 2013-2014 University of Pennsylvania
-#    Created by Pawel Dlotko
-#
-#    This file is part of Persistence Landscape Toolbox (PLT).
-#
-#    PLT is free software:you can redistribute it and/or modify
-#    it under the terms of the GNU Lesser General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
-#
-#    PLT is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU Lesser General Public License for more details.
-#
-#    You should have received a copy of the GNU Lesser General Public License
-#    along with PLT.  If not, see <http:# www.gnu.org/licenses/>.
-
+#=
+Module with PersistentBarcode structure and all related functions
+=#
 # include("Configure.jl")
 import Base.size, Base.isempty, Base.copy, Base.sort
 # import Base.abs
@@ -359,7 +343,7 @@ This works as follows:
 - split the range into 'numberOfBins' bins
 - get unit barcode length, that is (latest death - earliest birth)/numberOfBins
 - for each barcode from 'pers_barcode':
-    - get index of the bin where is the barcode born 
+    - get index of the bin where is the barcode born
     - get index of the bin where the barcode dies
     - create a new barcode with birth equal to (unit length) * (birth index) and
         death equal to (unit length) * (death index)

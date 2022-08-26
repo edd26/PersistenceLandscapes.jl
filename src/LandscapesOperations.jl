@@ -1,3 +1,6 @@
+#=
+Module with functions that operate on PersistenceLandscapes
+=#
 function comparePairsForMerging(first::MyPair, second::MyPair)
     return (first.first < second.first)
 end

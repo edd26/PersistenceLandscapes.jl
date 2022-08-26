@@ -1,21 +1,6 @@
-#=     Copyright 2013-2014 University of Pennsylvania
-#     Copyright 2020-2022 University of Hertfordshire
-#     C version created by Pawel Dlotko; Julia version created by Emil Dmitruk
-#
-#     This file is part of Persistence Landscape Toolbox (PLT).
-#
-#     PLT is free software: you can redistribute it and/or modify
-#     it under the terms of the GNU Lesser General Public License as published by
-#     the Free Software Foundation, either version 3 of the License, or
-#     (at your option) any later version.
-#
-#     PLT is distributed in the hope that it will be useful,
-#     but WITHOUT ANY WARRANTY; without even the implied warranty of
-#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#     GNU Lesser General Public License for more details.
-#
-#     You should have received a copy of the GNU Lesser General Public License
-#     along with PLT.  If not, see <http:# www.gnu.org/licenses/>.
+#=
+Module with all functions that are not required in Julia, but were defined
+in the original C code
 =#
 # TODO Add MyPair module
 

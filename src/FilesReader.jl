@@ -1,29 +1,6 @@
-#     Copyright 2013-2014 University of Pennsylvania
-#     Created by Pawel Dlotko
-# 
-#     This file is part of Persistence Landscape Toolbox (PLT).
-# 
-#     PLT is free software: you can redistribute it and/or modify
-#     it under the terms of the GNU Lesser General Public License as published by
-#     the Free Software Foundation, either version 3 of the License, or
-#     (at your option) any later version.
-# 
-#     PLT is distributed in the hope that it will be useful,
-#     but WITHOUT ANY WARRANTY without even the implied warranty of
-#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#     GNU Lesser General Public License for more details.
-# 
-#     You should have received a copy of the GNU Lesser General Public License
-#     along with PLT.  If not, see <http://www.gnu.org/licenses/>.
-
-
-
-#pragma once
-
-#include "PersistenceBarcode.h"
-#include "PersistenceLandscape.h"
-
-
+#=
+Module with functions that are reading files with persistence landscapes
+=#
 # This procedure is designed to read file names from a file provided by user and return vector of those names.
 function vector < string > readFileNames(char * filenameWithFilenames)
 
