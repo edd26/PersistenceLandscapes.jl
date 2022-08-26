@@ -358,3 +358,133 @@ end
 
 # File operations <<<
 # ===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-
+# Debug functions >>>
+# functions used in PersistenceLandscape( PersistenceBarcodes& p ) constructor:
+# comparePointsDBG::Bool = false
+# TODO remove if all debug is removed, as it us used in debug finctions only
+function comparePoints(f::MyPair, s::MyPair; local_debug::Bool=false)
+    differenceBirth = birth(f) - birth(s)
+
+    if differenceBirth < 0
+        differenceBirth *= -1
+    end
+
+    differenceDeath = death(f) - death(s)
+    if differenceDeath < 0
+        differenceDeath *= -1
+    end
+
+    if (differenceBirth < epsi) && (differenceDeath < epsi)
+        local_debug && println("CP1")
+        return false
+    end
+    if differenceBirth < epsi
+        # consider birth points the same. If we are here, we know that death points are NOT the same
+        if death(f) < death(s)
+            local_debug && println("CP2")
+            return true
+        end
+        local_debug && println("CP3")
+
+        return false
+    end
+    if differenceDeath < epsi
+        # we consider death points the same and since we are here, the birth points are not the same!
+        if birth(f) < birth(s)
+            local_debug && println("CP4")
+
+            return false
+        end
+        local_debug && println("CP5")
+
+        return true
+    end
+    if birth(f) > birth(s)
+        local_debug && println("CP6")
+
+        return false
+    end
+    if birth(f) < birth(s)
+        local_debug && println("CP7")
+
+        return true
+    end
+    # if this is true, we assume that death(f)<=death(s) -- othervise I have had a lot of roundoff problems here!
+    if death(f) <= death(s)
+        local_debug && println("CP8")
+
+        return false
+    end
+    local_debug && println("CP9")
+
+    return true
+end
+
+# this function assumes birth-death coords
+function comparePoints2(f::MyPair, s::MyPair)
+    if f.first < s.first
+        return true
+    else
+        if f.first > s.first
+            return false
+        else
+            # f.first == s.first
+            if f.second > s.second
+                return true
+            else
+                return false
+            end
+        end
+    end
+end
+# Debug functions <<<
+# ===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-
+
+# ===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-
+# Unused functions >>>
+# functions used to add and subtract landscapes
+function add(x::Float64, y::Float64)
+    return x + y
+end
+
+function sub(x::Float64, y::Float64)
+    return x - y
+end
+
+function lDimBegin(land::PersistenceLandscape, dim::UInt)
+    if dim > size(land, 1)
+        throw(DomainError("Calling lDimIterator in a dimension higher that dimension of landscape"))
+    end
+    return land[dim][1]
+end
+
+function lDimEnd(land::PersistenceLandscape, dim::UInt)
+    if dim > size(land, 1)
+        throw(DomainError("Calling lDimIterator in a dimension higher that dimension of landscape"))
+    end
+    return land[dim][size(land[dim], 1)]
+end
+
+# This function is realised by constructors, most probably not needed once consstructors are fixed.
+function check_for_infs(landscape::PersistenceLandscape)
+    landscape_set = Array{Array{MyPair,1},1}()
+    negative_inf = MyPair(-Inf, 0)
+    positive_inf = MyPair(Inf, 0)
+
+    for land in landscape.land
+        new_landscape = land
+        if !(negative_inf in new_landscape)
+            new_landscape = vcat(negative_inf, new_landscape)
+        end
+
+        if !(positive_inf in new_landscape)
+            new_landscape = vcat(new_landscape, positive_inf)
+        end
+        push!(landscape_set, new_landscape)
+    end
+
+    return PersistenceLandscape(landscape_set, landscape.dimension)
+end
+
+# Unused functions <<<
+# ===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-
