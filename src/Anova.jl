@@ -17,7 +17,7 @@
 #    along with PLT.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# include("PersistenceLandscape.jl")
+# include("LandscapesConstruction.jl")
 # include("VectorSpaceOfPersistenceLandscapes.jl")
 
 DescriptorOfTopology = Union{PersistenceLandscape, PersistenceBarcodes} # a temporary solution, as this is a function (most probably)
@@ -63,10 +63,10 @@ function computeBasicStatistics(ano::Anova; dbg = false)
     #http://cba.ualr.edu/smartstat/topics/anova/example.pdf
     #here we compute the values of a characteristic functions of the topological invariants. This is the first and the last point in which the topological invariants are used in this program.
     characteristicOfAllPopulations = VectorVector{Float64end}()
-    for   populationNo = 0:size(ano.populationOfTopologicalInvariants,1) 
+    for   populationNo = 0:size(ano.populationOfTopologicalInvariants,1)
         #computing averages
         valuesOfCharacteristicForThisPopulation::Float64
-        for   insidePopulation = 0:size(ano.populationOfTopologicalInvariants[populationNo],1) 
+        for   insidePopulation = 0:size(ano.populationOfTopologicalInvariants[populationNo],1)
             valueForThisElementOfPopulation = characteristic(ano.populationOfTopologicalInvariants[populationNo][insidePopulation]);
             valuesOfCharacteristicForThisPopulation.push_back( valueForThisElementOfPopulation );
         end
@@ -74,7 +74,7 @@ function computeBasicStatistics(ano::Anova; dbg = false)
     end
     #no persistnece landscapes are used beyond this point
 
-    dbg && println("We are in the procedure computeBasicStatistics, starting computing basic statistics") 
+    dbg && println("We are in the procedure computeBasicStatistics, starting computing basic statistics")
 
     ano.overalMean = 0;
     ano.totalNumberOfTopologicalInvariants = 0;
@@ -82,7 +82,7 @@ function computeBasicStatistics(ano::Anova; dbg = false)
         dbg && println("populationNo : $(populationNo)")
         #computing averages
         averageOfThisPopulation = 0;
-        for insidePopulation = 0:size(characteristicOfAllPopulations[populationNo],1) 
+        for insidePopulation = 0:size(characteristicOfAllPopulations[populationNo],1)
             averageOfThisPopulation += characteristicOfAllPopulations[populationNo][insidePopulation];
             ano.overalMean += characteristicOfAllPopulations[populationNo][insidePopulation];
         end
@@ -93,7 +93,7 @@ function computeBasicStatistics(ano::Anova; dbg = false)
 
         #computing standard deviation:
         standardDeviation = 0;
-        for   insidePopulation = 0:size(characteristicOfAllPopulations[populationNo],1) 
+        for   insidePopulation = 0:size(characteristicOfAllPopulations[populationNo],1)
             standardDeviation += ( ( characteristicOfAllPopulations[populationNo][insidePopulation] - averageOfThisPopulation ) ^ 2 );
         end
         standardDeviation /= characteristicOfAllPopulations[populationNo].size();
@@ -105,8 +105,8 @@ function computeBasicStatistics(ano::Anova; dbg = false)
     ano.overalMean /= ano.totalNumberOfTopologicalInvariants;
 
     ano.SSTotal = 0;
-    for   populationNo = 0:size(characteristicOfAllPopulations,1) 
-        for   insidePopulation = 0:size(characteristicOfAllPopulations[populationNo],1) 
+    for   populationNo = 0:size(characteristicOfAllPopulations,1)
+        for   insidePopulation = 0:size(characteristicOfAllPopulations[populationNo],1)
             ano.SSTotal += ((characteristicOfAllPopulations[populationNo][insidePopulation] - ano.overalMean)^2);
         end
     end
@@ -114,7 +114,7 @@ function computeBasicStatistics(ano::Anova; dbg = false)
 
     ano.SST = 0;
     ano.SSE = 0;
-    for   populationNo = 0:size(averagesOfPopulations,1) 
+    for   populationNo = 0:size(averagesOfPopulations,1)
         ano.SST += (ano.averagesOfPopulations[populationNo] - ano.overalMean)^2 * ano.deegreesOfFreedomOfPopulation[populationNo];
 
         ano.SSE += ( ano.deegreesOfFreedomOfPopulation[populationNo] )*((ano.standardDeviationOfPopulations[populationNo])^2);
@@ -144,15 +144,15 @@ function printStatistics(ano::Anova)
     println("MSE : $(ano.MSE)")
 
     println("averagesOfPopulations : ")
-    for   i = 0:size(averagesOfPopulations,1) 
+    for   i = 0:size(averagesOfPopulations,1)
         println(averagesOfPopulations[i])
     end
     println("standardDeviationOfPopulations : ")
-    for   i = 0:size(standardDeviationOfPopulations,1) 
+    for   i = 0:size(standardDeviationOfPopulations,1)
         println(standardDeviationOfPopulations[i])
     end
     println("deegreesOfFreedomOfPopulation : ")
-    for   i = 0:size(deegreesOfFreedomOfPopulation,1) 
+    for   i = 0:size(deegreesOfFreedomOfPopulation,1)
         println(deegreesOfFreedomOfPopulation[i])
     end
 end

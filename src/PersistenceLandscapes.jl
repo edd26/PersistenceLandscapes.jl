@@ -52,7 +52,7 @@ module PersistenceLandscapes
     include("Configure.jl")
 
     include("PersistenceBarcode.jl")
-    include("PersistenceLandscape.jl")
+    include("LandscapesConstruction.jl")
 
     include("LandscapesOperations.jl")
     include("LandscapesDistances.jl")
