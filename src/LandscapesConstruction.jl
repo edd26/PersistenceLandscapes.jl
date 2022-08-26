@@ -71,7 +71,6 @@ function create_PersistenceLandscape(p::PersistenceBarcodes; useGridInComputatio
     return land
 end
 
-##
 function getCharacterisitcPoints(bars)
     characteristicPoints = MyPair[]
     # for i = 1:size(bars, 1)
@@ -84,26 +83,48 @@ function getCharacterisitcPoints(bars)
     end
     return characteristicPoints
 end
-##
 
+function subSelectCharacteristicPoints(point, subset_characteristicPoints, birth_oper, death_oper)
+    birth_condition = birth_oper.(birth(point), birth.(subset_characteristicPoints))
+    death_condition = death_oper.(death(point), death.(subset_characteristicPoints))
+    if any(i -> i, birth_condition .&& death_condition)
+        selected_points = subset_characteristicPoints[birth_condition .&& death_condition]
+    else
+        selected_points = Vector{MyPair}[]
+    end
+    return selected_points
+end
+function getPointsBeforeCharacteristic(point, subset_characteristicPoints)
+    subSelectCharacteristicPoints(point, subset_characteristicPoints, almostEqual, <=)
+end
+
+function getPointsAfterCharacteristic(point, subset_characteristicPoints)
+    subSelectCharacteristicPoints(point, subset_characteristicPoints, <=, >= )
+end
+
+function appendEndOfSection!(lambda_n, lambda_death, cp_birth)
+    push!(lambda_n, MyPair(lambda_death , 0))
+    push!(lambda_n, MyPair(cp_birth, 0))
+    # return vcat(lambda_n,
+    #             [MyPair(lambda_death , 0),
+    #              MyPair(cp_birth, 0)]
+    #            )
+end
 
 function getLambdaFromCharacteristicPoints(lambda_n, characteristicPoints)
     i = 2
     newCharacteristicPoints = MyPair[]
     total_characteristic_points = size(characteristicPoints, 1)
-    while (i <= total_characteristic_points )
+    while (i <= total_characteristic_points)
         @debug "running for i: $(i) and size of char points $(size(characteristicPoints, 1)+1)"
         p = 1
         last_lambda_n = size(lambda_n, 1)
 
-        ##
         cp_birth = birth(characteristicPoints[i])
         cp_death = death(characteristicPoints[i])
         lambda_birth = birth(lambda_n[end])
         lambda_death = death(lambda_n[end])
-        ##
         if (cp_birth >= lambda_birth) && (cp_death > lambda_death)
-
             if cp_birth < lambda_death
                 p_start = (cp_birth + lambda_death) / 2
                 p_stop = (lambda_death - cp_birth) / 2
@@ -115,45 +136,30 @@ function getLambdaFromCharacteristicPoints(lambda_n, characteristicPoints)
                 @debug "comparePoints(point,characteristicPoints[i+p]) : $(comparePoints(point,characteristicPoints[i+p]))"
                 @debug "characteristicPoints[i+p] : $(characteristicPoints[i+p])"
                 @debug "point : $(point)"
+                @debug "4 Adding to newCharacteristicPoints : ($(point))"
 
-
-                while (
-
-                    (i + p < total_characteristic_points ) &&
-                    (almostEqual(birth(point), birth(characteristicPoints[i + p])))
-                    &&
-                    (death(point) <= death(characteristicPoints[i + p]))
-                )
-                    selected_point = characteristicPoints[i + p]
-                    push!(newCharacteristicPoints, selected_point)
-                    @debug "3.5 Adding to newCharacteristicPoints : ($(selected_point))"
-                    p += 1
+                # push those poitns which have almost equal birth and that have death larger than point
+                if (i + p < total_characteristic_points)
+                    selected_points = getPointsBeforeCharacteristic(
+                        point,
+                        characteristicPoints[(i + p):end],
+                    )
+                    newCharacteristicPoints = vcat(newCharacteristicPoints, selected_points)
+                    p += length(selected_points)
                 end
+
                 push!(newCharacteristicPoints, point)
 
-                @debug "4 Adding to newCharacteristicPoints : ($(point))"
-                # appendPoints2()
-                while (
-                    (i + p < total_characteristic_points) &&
-                    (birth(point) <= birth(characteristicPoints[i + p])) &&
-                    (death(point) >= death(characteristicPoints[i + p]))
-                )
-                    push!(newCharacteristicPoints, characteristicPoints[i + p])
-                    @debug "characteristicPoints[i+p] : $(characteristicPoints[i+p])"
-                    @debug "point : $(point)"
-                    @debug "comparePoints(point,characteristicPoints[i+p]) : $(comparePoints(point,characteristicPoints[i+p]))"
-                    @debug "characteristicPoints[i+p] birth and death : $(birth(characteristicPoints[i+p])) $(death(characteristicPoints[i+p]))"
-                    @debug "point birth and death : $(birth(point)) $(death(point))"
-                    @debug "3 Adding to newCharacteristicPoints : ($(characteristicPoints[i+p]))"
-                    p += 1
+                if (i + p < total_characteristic_points)
+                    selected_points = getPointsAfterCharacteristic(
+                        point,
+                        characteristicPoints[(i + p):end],
+                    )
+                    newCharacteristicPoints = vcat(newCharacteristicPoints, selected_points)
+                    p += length(selected_points)
                 end
             else
-                pair1 = make_MyPair(death(lambda_n[size(lambda_n, 1)]), 0)
-                pair2 = make_MyPair(cp_birth, 0)
-                push!(lambda_n, pair1)
-                push!(lambda_n, pair2)
-                @debug "5 Adding to lambda_n:size(($(pair1)))"
-                @debug "5 Adding to lambda_n : ($(pair2))"
+                appendEndOfSection!(lambda_n, lambda_death, cp_birth)
             end
             push!(lambda_n, characteristicPoints[i])
             @debug "6 Adding to lambda_n : ($(characteristicPoints[i]))"
@@ -167,7 +173,6 @@ function getLambdaFromCharacteristicPoints(lambda_n, characteristicPoints)
     return lambda_n, newCharacteristicPoints
 end
 
-##
 function beginNewLambda(first_point)
     return [MyPair(first_point |> birth, 0), first_point]
 end
@@ -180,7 +185,6 @@ end
 function appendInfIntervals(labmda::Vector{MyPair})
     return [MyPair(-Inf, 0), lambda_n, MyPair(Inf, 0)]
 end
-##
 
 
 """
