@@ -379,14 +379,6 @@ function almostEqual(a::Float64, b::Float64)
     return false
 end
 
-function birth(a::MyPair)
-    return a.first - a.second
-end
-
-function death(a::MyPair)
-    return a.first + a.second
-end
-
 # class vectorSpaceOfPersistenceLandscapes
 
 # function used in computeValueAtAGivenPoint

@@ -1,11 +1,21 @@
 
-@testset "MyPair testing" begin
+@testset "MyPair construction testing" begin
     @test_throws MethodError MyPair("1", 2)
 
     @test my_pair.first == 1
     @test my_pair.second == 2
     @test typeof(my_pair.first) <: Float64
     @test typeof(my_pair.second) <: Float64
+end
+
+@testset "MyPair birth and death testing" begin
+    a_pair1(1,1)
+    a_pair2(1,2)
+
+    @test birth(a_pair1) == 1-1
+    @test birth(a_pair2) == 2-1
+    @test death(a_pair1) == 1+1
+    @test death(a_pair2) == 2+1
 end
 
 ## ===-

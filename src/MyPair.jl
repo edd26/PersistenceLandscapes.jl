@@ -47,3 +47,14 @@ end
 function make_MyPair(val1, val2)
     return MyPair(val1, val2)
 end
+
+function birth(a::MyPair)
+    return a.first - a.second
+end
+
+function death(a::MyPair)
+    return a.first + a.second
+end
+
+
+
