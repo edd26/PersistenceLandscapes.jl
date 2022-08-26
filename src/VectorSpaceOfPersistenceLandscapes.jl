@@ -124,7 +124,8 @@ end
 
 function average(
     v_space_pland::VectorSpaceOfPersistenceLandscapes;
-    dbg = false,
+    dbg::Bool = false,
+    useGridInComputations::Bool=false
 )::PersistenceLandscape
     # size(v_space_pland.vectOfLand,1) == 0 && return PersistenceLandscape()
     size(v_space_pland.vectOfLand, 1) == 0 && return []
@@ -261,7 +262,7 @@ end
 
 function standardDeviation(
     v_space_pland::VectorSpaceOfPersistenceLandscapes;
-    whichDistance::String = "regular",
+    whichDistance::String = "regular"
 )
     av = average(v_space_pland)
     distanceToAverage = 0

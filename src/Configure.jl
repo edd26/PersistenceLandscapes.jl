@@ -2,6 +2,8 @@
 Main configutaion file in C version of the code
 =#
 #global variables and their default values.
+
+module Configure
 using UnPack
 using Plots
 
@@ -148,3 +150,4 @@ double gridDiameter = 0.01
 A small number, used for a debugging purposes. Ignore when not in the debugging mode.
 double epsi = 0.000005
 =#
+end

@@ -39,7 +39,8 @@ struct PersistenceLandscape
 end
 
 function get_landscape_form_vectors(
-    landscapePointsWithoutInfinities::Vector{Vector{MyPair}},
+    landscapePointsWithoutInfinities::Vector{Vector{MyPair}};
+    allow_inf_intervals = false,
 )
     land = Vector{Vector{MyPair}}()
     for level = 1:size(landscapePointsWithoutInfinities, 1)
