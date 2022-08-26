@@ -381,15 +381,6 @@ end
 
 # class vectorSpaceOfPersistenceLandscapes
 
-# function used in computeValueAtAGivenPoint
-function functionValue(p1::MyPair, p2::MyPair, x::Float64)
-    # we assume here, that x \in [ p1.first, p2.first ] and p1 and p2 are points between which we will put the line segment
-    a = (p2.second - p1.second) / (p2.first - p1.first)
-    b = p1.second - a * p1.first
-    # println("Line crossing points : ($(p1.first << ",$(p1.second)) oraz (" << p2.first) $(p2.second)) :")")
-    # println("a : $(a) $(b) , x : $(x)")
-    return (a * x + b)
-end
 
 # class PersistenceLandscape
 # functionzone:
@@ -985,38 +976,8 @@ function reduceAlignedPoints(land::PersistenceLandscape, tollerance; local_debug
     end
 end
 
-# Untested
-function findZeroOfALineSegmentBetweenThoseTwoPoints(p1::MyPair, p2::MyPair)
-    # TODO Investigate: This function returns Nan if both of the y values in p1 and p2 are 0
-    if p1.first == p2.first
-        return p1.first
-    end
-    if p1.second * p2.second > 0
-        error("In function findZeroOfALineSegmentBetweenThoseTwoPoints the agguments are: ($(p1.first)),$(p1.second)) and ($(p2.first), $(p2.second)). There is no zero in line between those two points. Program terminated.")
-    end
-
-    # we assume here, that x \in [ p1.first, p2.first ] and p1 and p2 are points between which we will put the line segment
-    a = (p2.second - p1.second) / (p2.first - p1.first)
-    b = p1.second - a * p1.first
-    # println("Line crossing points : ($(p1.first << ",$(p1.second)) oraz (" << p2.first) $(p2.second)) :")")
-    # println("a : $(a) $(b) , x : $(x)")
-    return -b / a
-end
 
 # Operations on landscapes <<<
-# ===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-
-
-
-# ===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-
-# Other functions  >>>
-
-function computeParametersOfALine(p1::MyPair, p2::MyPair)
-    a = (p2.second - p1.second) / (p2.first - p1.first)
-    b = p1.second - a * p1.first
-    return MyPair(a, b)
-end
-
-# Other functions <<<
 # ===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-
 
 

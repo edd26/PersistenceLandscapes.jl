@@ -1,4 +1,3 @@
-
 @testset "MyPair construction testing" begin
     @test_throws MethodError MyPair("1", 2)
 
@@ -9,8 +8,8 @@
 end
 
 @testset "MyPair birth and death testing" begin
-    a_pair1(1,1)
-    a_pair2(1,2)
+    a_pair1 = MyPair(1,1)
+    a_pair2 = MyPair(2,1)
 
     @test birth(a_pair1) == 1-1
     @test birth(a_pair2) == 2-1
@@ -18,7 +17,38 @@ end
     @test death(a_pair2) == 2+1
 end
 
-## ===-
+@testset "functionValue testing" begin
+    line1_point1 = MyPair(0,1)
+    line1_point2 = MyPair(1,2)
+    @test functionValue(line1_point1, line1_point2, 0.) == 1
+    @test functionValue(line1_point1, line1_point2, 1.) == 2
+
+
+    line2_point1 = MyPair(0,0)
+    line2_point2 = MyPair(4,8)
+    @test functionValue(line2_point1, line2_point2, 0.) == 0
+    @test functionValue(line2_point1, line2_point2, 4.) == 8
+    @test functionValue(line2_point1, line2_point2, 2.) == 4
+
+    # Error throw tests
+    @test_throws ArgumentError functionValue(line1_point1, line1_point1, 1.)
+    @test_throws ArgumentError functionValue(MyPair(0,2), MyPair(0,3), 1.)
+end
+
+@testset "findZeroOfALineSegmentBetweenThoseTwoPoints testing" begin
+    line1_point1 = MyPair(1,2)
+    line1_point2 = MyPair(-2,-1)
+    @test findZeroOfALineSegmentBetweenThoseTwoPoints(line1_point1, line1_point2) == -1
+    @test findZeroOfALineSegmentBetweenThoseTwoPoints(line1_point1, line1_point2) ==
+        findZeroOfALineSegmentBetweenThoseTwoPoints(line1_point2, line1_point1)
+
+    line2_point1 = MyPair(-4,-8)
+    line2_point2 = MyPair(4,8)
+    @test findZeroOfALineSegmentBetweenThoseTwoPoints(line2_point1, line2_point2) == 0
+    @test findZeroOfALineSegmentBetweenThoseTwoPoints(line2_point1, line2_point2) ==
+        findZeroOfALineSegmentBetweenThoseTwoPoints(line2_point2, line2_point1)
+end
+
 @testset "compareMyPairs tests" begin
     f1 = MyPair(1, 2)
     f2 = MyPair(2, 2)

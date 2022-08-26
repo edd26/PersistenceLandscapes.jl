@@ -20,7 +20,14 @@
 module PersistenceLandscapes
 
     # PersistenceBarcodes exports
+    # MyPair exports
     export MyPair,
+           birth,
+        death,
+        functionValue,
+        findZeroOfALineSegmentBetweenThoseTwoPoints
+
+    export
             PersistenceBarcodes,
             size,
             isempty,
@@ -50,7 +57,7 @@ module PersistenceLandscapes
 
     # TODO add file writing functions here
 
-    # PersistenceLandscape exports
+    # LandscapesConstruction and LandscapesOperations exports
     export almostEqual,
            PersistenceLandscape,
            create_PersistenceLandscape,
@@ -58,7 +65,7 @@ module PersistenceLandscapes
            get_peaks_and_positions,
            computeDiscanceOfLandscapes,
            abs_pl,
-            computeIntegralOfLandscape
+        computeIntegralOfLandscape
 
     # VectorSpaceOfPersistenceLandscapes exports
     export VectorSpaceOfPersistenceLandscapes,
