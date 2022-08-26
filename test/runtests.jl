@@ -21,6 +21,11 @@ generate_testing_lanscapes() =
 include("tests_configuration.jl")
 
 ## ===-
+@testset "Test construction of MyPair" begin
+    include("myPair_test.jl")
+end
+
+## ===-
 @testset "Test construction of PersistenceBarcode" begin
     include("persistenceBarcode_tests.jl")
 end

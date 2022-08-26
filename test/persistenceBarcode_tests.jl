@@ -2,14 +2,7 @@
 
 
 ## ===-
-@testset "Constructor tests" begin
-    @test_throws MethodError MyPair("1", 2)
-
-    @test my_pair.first == 1
-    @test my_pair.second == 2
-    @test typeof(my_pair.first) <: Float64
-    @test typeof(my_pair.second) <: Float64
-
+@testset "PersistenceBarcodes constructor tests" begin
     # TODO add test for the section below
     # @testset "PersistenceBarcodes from PersistenceBarcodes test" begin
     # end
@@ -48,7 +41,7 @@ end
     @test typeof(my_persi_barcode.dimensionOfBarcode) <: UInt
 
 
-    copied_barcode = copy(my_persi_barcode) 
+    copied_barcode = copy(my_persi_barcode)
     @test copied_barcode.barcodes == my_persi_barcode.barcodes
     @test copied_barcode.dimensionOfBarcode == my_persi_barcode.dimensionOfBarcode
 
@@ -58,7 +51,7 @@ end
 end
 
 ## ===-
-@testset "basic PersistenceBarcode info tests" begin
+@testset "PersistenceBarcode properties tests" begin
     @test size(my_persi_barcode) == 1
     @test dim(my_persi_barcode) == 2
 end
@@ -76,9 +69,6 @@ end
     @test mb.barcodes == [my_pair3, my_pair4]
 end
 
-
-
-
 ## ===-
 @testset "putToBins tests" begin
     modified_pers_barcode1 = putToBins(my_persi_barcode, 1)
@@ -93,41 +83,6 @@ end
     # Test if the values are changed correctly
 end
 
-
-
-## ===-
-@testset "compareMyPairs tests" begin
-    f1 = MyPair(1, 2)
-    f2 = MyPair(2, 2)
-    f3 = MyPair(3, 2)
-
-    s1 = MyPair(1, 1)
-    s2 = MyPair(1, 2)
-    s3 = MyPair(1, 3)
-    s4 = MyPair(4, 1)
-    s5 = MyPair(4, 2)
-
-    @test !compareMyPairs(f1, s1) # return false because all s1 less
-    @test !compareMyPairs(f1, s2) # return false because equal
-    @test compareMyPairs(f1, s3) #return positive because s3.second
-
-    @test !compareMyPairs(f2, s1) # return false because all s1 less
-    @test !compareMyPairs(f3, s1) # return false because all s1 less
-
-    @test !compareMyPairs(f2, s2) # return false because all s1 less
-    @test !compareMyPairs(f3, s2) # return false because all s1 less
-
-    @test !compareMyPairs(f2, s3) # return false due to 2nd if
-    @test !compareMyPairs(f3, s3) # return false due to 2nd if
-
-    @test compareMyPairs(f1, s4) # first condition positive
-    @test compareMyPairs(f2, s4) # first condition positive
-    @test compareMyPairs(f3, s4) # first condition positive
-
-    @test compareMyPairs(f1, s5) # first condition positive
-    @test compareMyPairs(f2, s5) # first condition positive
-    @test compareMyPairs(f3, s5) # first condition positive
-end
 
 ## ===-
 @testset "sort tests" begin
@@ -145,7 +100,7 @@ end
 
 ## ===-
 @testset "compare tests" begin
-    # mismatched size 
+    # mismatched size
     @test !compare(my_persi_barcode, my_persi_barcode2)
 
     # elementwise comparison

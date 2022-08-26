@@ -51,6 +51,7 @@ module PersistenceLandscapes
     # export main
     include("Configure.jl")
 
+    include("MyPair.jl")
     include("PersistenceBarcode.jl")
     include("LandscapesConstruction.jl")
 
