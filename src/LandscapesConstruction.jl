@@ -61,8 +61,8 @@ end
 function create_PersistenceLandscape(p::PersistenceBarcodes; useGridInComputations = false)
     @debug "PersistenceLandscape(PersistenceBarcodes& p )"
 
-    # land = Vector{Vector{MyPair}}()
-    if useGridInComputations # TODO THIS IS GLOBAL VARIABLE THAT SHOULD NOT BE USED
+    land = Vector{Vector{MyPair}}()
+    if useGridInComputations
         land = constructLandscapeWithGrids(p)
     else
         land = noGridsLandscapesConstructor(p)
@@ -71,136 +71,148 @@ function create_PersistenceLandscape(p::PersistenceBarcodes; useGridInComputatio
     return land
 end
 
-function noGridsLandscapesConstructor(
-    p::PersistenceBarcodes;
-    allow_inf_intervals::Bool = false,
-)
-
-    land = Vector{Vector{MyPair}}()
-    @debug "PL version"
-    # this is a general algorithm to construct persistence landscapes.
-    sorted_bars = sort(p.barcodes)
-    bars = sorted_bars
-
-    # bars.insert( bars.begin() , p.barcodes.begin() , p.barcodes.end() )
-    # sort( bars.begin() , bars.end() , comparePoints2 )
-
-    @debug "Bars :"
-    for i = 0:size(bars, 1)
-        @debug "$(bars[i])"
-    end
-
+##
+function getCharacterisitcPoints(bars)
     characteristicPoints = MyPair[]
-    for i = 1:size(bars, 1)
-        p_beg = (bars[i].first + bars[i].second) / 2
-        p_end = (bars[i].second - bars[i].first) / 2
+    # for i = 1:size(bars, 1)
+    for bar in bars
+        p_beg = (bar.first + bar.second) / 2
+        p_end = (bar.second - bar.first) / 2
         new_pair = MyPair(p_beg, p_end)
 
         push!(characteristicPoints, new_pair)
     end
+    return characteristicPoints
+end
+##
 
-    persistenceLandscape = MyPair[]
-    while (!isempty(characteristicPoints))
-        # for (index, points_pair) in enumerate(characteristicPoints)
-        for i = 1:size(characteristicPoints, 1)
-            @debug "($(characteristicPoints[i]))"
-        end
-        lambda_n = MyPair[]
-        if allow_inf_intervals
-            push!(lambda_n, make_MyPair(-Inf, 0))
-        end
 
-        # TODO this has to be here for creation of PL not to crash on firt iteration
-        push!(lambda_n, make_MyPair(birth(characteristicPoints[1]), 0))
-        push!(lambda_n, characteristicPoints[1])
+function getLambdaFromCharacteristicPoints(lambda_n, characteristicPoints)
+    i = 2
+    newCharacteristicPoints = MyPair[]
+    total_characteristic_points = size(characteristicPoints, 1)
+    while (i <= total_characteristic_points )
+        @debug "running for i: $(i) and size of char points $(size(characteristicPoints, 1)+1)"
+        p = 1
+        last_lambda_n = size(lambda_n, 1)
 
-        @debug "1 Adding to lambda_n : ($(make_MyPair( INT_MIN , 0 ))) , ($(std::make_MyPair(birth(characteristicPoints[1]),0)) $(characteristicPoints[1])))"
+        ##
+        cp_birth = birth(characteristicPoints[i])
+        cp_death = death(characteristicPoints[i])
+        lambda_birth = birth(lambda_n[end])
+        lambda_death = death(lambda_n[end])
+        ##
+        if (cp_birth >= lambda_birth) && (cp_death > lambda_death)
 
-        i = 2
-        @debug "New char points"
-        newCharacteristicPoints = MyPair[]
-        while (i <= size(characteristicPoints, 1))
-            @debug "running for i: $(i) and size of char points $(size(characteristicPoints, 1)+1)"
-            p = 1
-            last_lambda_n = size(lambda_n, 1)
-            if (birth(characteristicPoints[i]) >= birth(lambda_n[last_lambda_n])) &&
-               (death(characteristicPoints[i]) > death(lambda_n[last_lambda_n]))
+            if cp_birth < lambda_death
+                p_start = (cp_birth + lambda_death) / 2
+                p_stop = (lambda_death - cp_birth) / 2
 
-                if birth(characteristicPoints[i]) < death(lambda_n[last_lambda_n])
-                    p_start =
-                        (birth(characteristicPoints[i]) + death(lambda_n[last_lambda_n])) /
-                        2
-                    p_stop =
-                        (death(lambda_n[last_lambda_n]) - birth(characteristicPoints[i])) /
-                        2
+                point = MyPair(p_start, p_stop)
+                push!(lambda_n, point)
 
-                    point = MyPair(p_start, p_stop)
-                    push!(lambda_n, point)
+                @debug "2 Adding to lambda_n : ($(point))"
+                @debug "comparePoints(point,characteristicPoints[i+p]) : $(comparePoints(point,characteristicPoints[i+p]))"
+                @debug "characteristicPoints[i+p] : $(characteristicPoints[i+p])"
+                @debug "point : $(point)"
 
-                    @debug "2 Adding to lambda_n : ($(point))"
-                    @debug "comparePoints(point,characteristicPoints[i+p]) : $(comparePoints(point,characteristicPoints[i+p]))"
+
+                while (
+
+                    (i + p < total_characteristic_points ) &&
+                    (almostEqual(birth(point), birth(characteristicPoints[i + p])))
+                    &&
+                    (death(point) <= death(characteristicPoints[i + p]))
+                )
+                    selected_point = characteristicPoints[i + p]
+                    push!(newCharacteristicPoints, selected_point)
+                    @debug "3.5 Adding to newCharacteristicPoints : ($(selected_point))"
+                    p += 1
+                end
+                push!(newCharacteristicPoints, point)
+
+                @debug "4 Adding to newCharacteristicPoints : ($(point))"
+                # appendPoints2()
+                while (
+                    (i + p < total_characteristic_points) &&
+                    (birth(point) <= birth(characteristicPoints[i + p])) &&
+                    (death(point) >= death(characteristicPoints[i + p]))
+                )
+                    push!(newCharacteristicPoints, characteristicPoints[i + p])
                     @debug "characteristicPoints[i+p] : $(characteristicPoints[i+p])"
                     @debug "point : $(point)"
-
-                    while (
-                        (i + p < size(characteristicPoints, 1)) &&
-                        (almostEqual(birth(point), birth(characteristicPoints[i + p]))) &&
-                        (death(point) <= death(characteristicPoints[i + p]))
-                    )
-                        push!(newCharacteristicPoints, characteristicPoints[i + p])
-                        @debug "3.5 Adding to newCharacteristicPoints : ($(characteristicPoints[i+p]))"
-                        p += 1
-                    end
-                    push!(newCharacteristicPoints, point)
-
-                    @debug "4 Adding to newCharacteristicPoints : ($(point))"
-                    while (
-                        (i + p < size(characteristicPoints, 1)) &&
-                        (birth(point) <= birth(characteristicPoints[i + p])) &&
-                        (death(point) >= death(characteristicPoints[i + p]))
-                    )
-                        push!(newCharacteristicPoints, characteristicPoints[i + p])
-                        @debug "characteristicPoints[i+p] : $(characteristicPoints[i+p])"
-                        @debug "point : $(point)"
-                        @debug "comparePoints(point,characteristicPoints[i+p]) : $(comparePoints(point,characteristicPoints[i+p]))"
-                        @debug "characteristicPoints[i+p] birth and death : $(birth(characteristicPoints[i+p])) $(death(characteristicPoints[i+p]))"
-                        @debug "point birth and death : $(birth(point)) $(death(point))"
-                        @debug "3 Adding to newCharacteristicPoints : ($(characteristicPoints[i+p]))"
-                        p += 1
-                    end
-                else
-                    pair1 = make_MyPair(death(lambda_n[size(lambda_n, 1)]), 0)
-                    pair2 = make_MyPair(birth(characteristicPoints[i]), 0)
-                    push!(lambda_n, pair1)
-                    push!(lambda_n, pair2)
-                    @debug "5 Adding to lambda_n:size(($(pair1)))"
-                    @debug "5 Adding to lambda_n : ($(pair2))"
+                    @debug "comparePoints(point,characteristicPoints[i+p]) : $(comparePoints(point,characteristicPoints[i+p]))"
+                    @debug "characteristicPoints[i+p] birth and death : $(birth(characteristicPoints[i+p])) $(death(characteristicPoints[i+p]))"
+                    @debug "point birth and death : $(birth(point)) $(death(point))"
+                    @debug "3 Adding to newCharacteristicPoints : ($(characteristicPoints[i+p]))"
+                    p += 1
                 end
-                push!(lambda_n, characteristicPoints[i])
-                @debug "6 Adding to lambda_n : ($(characteristicPoints[i]))"
             else
-                push!(newCharacteristicPoints, characteristicPoints[i])
-                @debug "7 Adding to newCharacteristicPoints : ($(characteristicPoints[i]))"
+                pair1 = make_MyPair(death(lambda_n[size(lambda_n, 1)]), 0)
+                pair2 = make_MyPair(cp_birth, 0)
+                push!(lambda_n, pair1)
+                push!(lambda_n, pair2)
+                @debug "5 Adding to lambda_n:size(($(pair1)))"
+                @debug "5 Adding to lambda_n : ($(pair2))"
             end
-            i = i + p
+            push!(lambda_n, characteristicPoints[i])
+            @debug "6 Adding to lambda_n : ($(characteristicPoints[i]))"
+        else
+            push!(newCharacteristicPoints, characteristicPoints[i])
+            @debug "7 Adding to newCharacteristicPoints : ($(characteristicPoints[i]))"
         end
-        # This is necessary for this structure of code to work, especially, when inf intervals are disabled
-        push!(lambda_n, make_MyPair(death(lambda_n[size(lambda_n, 1)]), 0))
-        if allow_inf_intervals
-            push!(lambda_n, make_MyPair(Inf, 0))
-        end
-        # CHANGE
-        characteristicPoints = newCharacteristicPoints
+        i = i + p
+    end
 
-        # is this supposed to erase unique elements, or leave only unique elements?
-        # # This leaves only unique element in a
-        # a = unique(lambda_n.begin(), lambda_n.end())
-        # # Erase removes elements given in the brackets
-        # lambda_n.erase(a, lambda_n.end())
+    return lambda_n, newCharacteristicPoints
+end
 
-        # leave only the non-unique elements (???)
-        # lambda_n = filter(unique(lambda_n.begin(), lambda_n.end()), lambda_n.end())
-        lambda_n = unique(lambda_n)
+##
+function beginNewLambda(first_point)
+    return [MyPair(first_point |> birth, 0), first_point]
+end
+
+function appendLastPoint!(lambda_n)
+    last_death = lambda_n[end] |> death
+    push!(lambda_n, MyPair(last_death, 0))
+end
+
+function appendInfIntervals(labmda::Vector{MyPair})
+    return [MyPair(-Inf, 0), lambda_n, MyPair(Inf, 0)]
+end
+##
+
+
+"""
+
+Appending last point is necessary for this structure of code to work,
+especially, when inf intervals are disabled.
+"""
+function getNthLambda(characteristicPoints; allow_inf_intervals::Bool = false)
+
+    lambda_n = beginNewLambda(characteristicPoints[1])
+    lambda_n, newCharacteristicPoints =
+        getLambdaFromCharacteristicPoints(lambda_n, characteristicPoints)
+    appendLastPoint!(lambda_n)
+
+    if allow_inf_intervals
+        lambda_n = appendInfIntervals(labmda_n)
+    end
+    lambda_n = lambda_n |> unique
+    return lambda_n, newCharacteristicPoints
+end
+
+"""
+Generate layers of landscape from barcodes.
+
+This is a general algorithm to construct persistence landscapes.
+"""
+function noGridsLandscapesConstructor(p::PersistenceBarcodes;)
+    characteristicPoints = p.barcodes |> sort |> getCharacterisitcPoints
+
+    land = Vector{Vector{MyPair}}()
+    while (!isempty(characteristicPoints))
+        lambda_n, characteristicPoints = getNthLambda(characteristicPoints)
         push!(land, lambda_n)
     end
     return land
