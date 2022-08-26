@@ -3,8 +3,6 @@ Main module that contains constructors of PersistenceLandsacpe structure.
 
 ATM also contains basic operations on lnadscapes: +, -, *, /, ==
 =#
-using Plots
-
 import Base.:+, Base.:-, Base.:*, Base.:/, Base.==
 
 struct PersistenceLandscape
