@@ -1,20 +1,4 @@
 # ===-
-generate_testing_lanscapes() =
-    map(
-        x -> x |> PersistenceBarcodes |> PersistenceLandscape,
-        [
-            [MyPair(1, 3)],
-            [MyPair(0, 4)],
-            [MyPair(0, 2)],
-            [MyPair(2, 4)],
-            [MyPair(0, 4), MyPair(5, 7)],
-            [MyPair(0, 2), MyPair(2, 4)],
-            [MyPair(1, 3), MyPair(0, 4)],
-            [MyPair(0, 2), MyPair(0, 4)],
-            [MyPair(2, 6), MyPair(2, 4), MyPair(4, 6)],
-            [MyPair(0, 6), MyPair(1, 7), MyPair(4, 8), MyPair(3, 5)],
-        ],
-    )
 ## ===-
 @testset "constructors tests" begin
     #
