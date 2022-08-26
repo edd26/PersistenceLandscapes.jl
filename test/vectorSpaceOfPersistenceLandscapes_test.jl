@@ -114,10 +114,10 @@ end
     # Non zero std value
     landscpae_collection =
         VectorSpaceOfPersistenceLandscapes([singular_landscape_a, singular_landscape_c])
-    @test standardDeviation(landscpae_collection) == 0.0
+    @test standardDeviation(landscpae_collection) == 0.75
 
     landscpae_collection =
         VectorSpaceOfPersistenceLandscapes([singular_landscape_c, singular_landscape_d])
-    @test standardDeviation(landscpae_collection) == 0.0
+    @test standardDeviation(landscpae_collection) == 1.0
 
 end
