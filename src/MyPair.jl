@@ -66,7 +66,9 @@ function that crosses both points at the position `x`.
 """
 function functionValue(p1::MyPair, p2::MyPair, x::Float64)
     if p2.first == p1.first && p2.second == p1.second
-        ArgumentError("Points can not be equal (can not deifne function with 2 points that are equal).") |> throw
+        ArgumentError(
+            "Points can not be equal (can not deifne function with 2 points that are equal).",
+        ) |> throw
     elseif p2.first == p1.first
         ArgumentError("Ponints should have different x values.") |> throw
     end
@@ -83,7 +85,9 @@ function findZeroOfALineSegmentBetweenThoseTwoPoints(p1::MyPair, p2::MyPair)
         return p1.first
     end
     if p1.second * p2.second > 0
-        error("In function findZeroOfALineSegmentBetweenThoseTwoPoints the agguments are: ($(p1.first)),$(p1.second)) and ($(p2.first), $(p2.second)). There is no zero in line between those two points. Program terminated.")
+        error(
+            "In function findZeroOfALineSegmentBetweenThoseTwoPoints the agguments are: ($(p1.first)),$(p1.second)) and ($(p2.first), $(p2.second)). There is no zero in line between those two points. Program terminated.",
+        )
     end
 
     # we assume here, that x \in [ p1.first, p2.first ] and p1 and p2 are points between which we will put the line segment

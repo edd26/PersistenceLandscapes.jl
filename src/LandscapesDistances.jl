@@ -1,7 +1,11 @@
 #=
 Module with all functions that compute distances of landscapes
 =#
-function computeMaximalDistanceNonSymmetric2(pl1::PersistenceLandscape, pl2::PersistenceLandscape; dbg=false)
+function computeMaximalDistanceNonSymmetric2(
+    pl1::PersistenceLandscape,
+    pl2::PersistenceLandscape;
+    dbg = false,
+)
     dbg && println(" computeMaximalDistanceNonSymmetric")
     @warn "name of function modified due to conflicting names"
 
@@ -23,17 +27,18 @@ function computeMaximalDistanceNonSymmetric2(pl1::PersistenceLandscape, pl2::Per
         end
 
         p2Count = 1
-        for i = 1:size(l1.land[level], 1)-1  # w tym przypadku nie rozwarzam punktow w nieskocznosci
+        for i = 1:(size(l1.land[level], 1) - 1)  # w tym przypadku nie rozwarzam punktow w nieskocznosci
             while true
                 if (pl1.land[level][i].first >= pl2.land[level][p2Count].first) &&
-                   (pl1.land[level][i].first <= pl2.land[level][p2Count+1].first)
+                   (pl1.land[level][i].first <= pl2.land[level][p2Count + 1].first)
                     break
                 end
                 p2Count += 1
             end
-            point_approximation = functionValue(pl2.land[level][p2Count],
-                pl2.land[level][p2Count+1],
-                pl1.land[level][i].first
+            point_approximation = functionValue(
+                pl2.land[level][p2Count],
+                pl2.land[level][p2Count + 1],
+                pl1.land[level][i].first,
             )
             val = abs(point_approximation - pl1.land[level][i].second)
 
@@ -42,9 +47,13 @@ function computeMaximalDistanceNonSymmetric2(pl1::PersistenceLandscape, pl2::Per
             end
 
             if (dbg)
-                println("pl1.land[level][i].first [$(pl2.land[level][p2Count].first),$(pl2.land[level][p2Count+1].first)])")
+                println(
+                    "pl1.land[level][i].first [$(pl2.land[level][p2Count].first),$(pl2.land[level][p2Count+1].first)])",
+                )
                 println("pl1[level][i].second : $(pl1.land[level][i].second)")
-                println("functionValue( pl2[level][p2Count] , pl2[level][p2Count+1] , pl1[level][i].first ) : $(functionValue( pl2.land[level][p2Count] , pl2.land[level][p2Count+1] , pl1.land[level][i].first ))")
+                println(
+                    "functionValue( pl2[level][p2Count] , pl2[level][p2Count+1] , pl1[level][i].first ) : $(functionValue( pl2.land[level][p2Count] , pl2.land[level][p2Count+1] , pl1.land[level][i].first ))",
+                )
                 println("val : $(val)")
                 # cin.ignore()
             end
@@ -70,28 +79,31 @@ end
 # function computeMaximalDistanceNonSymmetric( pl1::PersistenceLandscape, pl2::PersistenceLandscape , nrOfLand::UInt , x::Float64, y1::Float64, y2::Float64)::PersistenceLandscape
 # Edit2: This function was modified, because it was modyfying arguments and returning new results; To make it
 # working again for landscapes distances, an intermidiate function had to be added.
-function computeMaximalDistanceNonSymmetric(pl1::PersistenceLandscape, pl2::PersistenceLandscape)# , nrOfLand::UInt , x::Float64, y1::Float64, y2::Float64)
+function computeMaximalDistanceNonSymmetric(
+    pl1::PersistenceLandscape,
+    pl2::PersistenceLandscape,
+)# , nrOfLand::UInt , x::Float64, y1::Float64, y2::Float64)
     # this distance is not symmetric. It compute ONLY distance between inflection points of pl1 and pl2.
     maxDist = 0
     minimalNumberOfLevels = min(size(pl1.land, 1), pl2.land.size())[1]
     for level = 1:minimalNumberOfLevels
         p2Count = 0
-        for i = 1:size(l1.land[level], 1)-1  # w tym przypadku nie rozwarzam punktow w nieskocznosci
+        for i = 1:(size(l1.land[level], 1) - 1)  # w tym przypadku nie rozwarzam punktow w nieskocznosci
             while (true)
                 if (
-                    (pl1.land[level][i].first >= pl2.land[level][p2Count].first)
-                    &&
-                    (pl1.land[level][i].first <= pl2.land[level][p2Count+1].first)
+                    (pl1.land[level][i].first >= pl2.land[level][p2Count].first) &&
+                    (pl1.land[level][i].first <= pl2.land[level][p2Count + 1].first)
                 )
                     break
                 end
                 p2Count += 1
             end
             val = abs(
-                functionValue(pl2.land[level][p2Count],
-                    pl2.land[level][p2Count+1],
-                    pl1.land[level][i].first
-                ) - pl1.land[level][i].second
+                functionValue(
+                    pl2.land[level][p2Count],
+                    pl2.land[level][p2Count + 1],
+                    pl1.land[level][i].first,
+                ) - pl1.land[level][i].second,
             )
             # println("functionValue( pl2.land[level][p2Count] , pl2.land[level][p2Count+1] , pl1.land[level][i].first ) : $(functionValue( pl2.land[level][p2Count] , pl2.land[level][p2Count+1] , pl1.land[level][i].first ))")
             # println("pl1.land[level][i].second : $(pl1.land[level][i].second)")
@@ -102,7 +114,11 @@ function computeMaximalDistanceNonSymmetric(pl1::PersistenceLandscape, pl2::Pers
                 nrOfLand = level
                 x = pl1.land[level][i].first
                 y1 = pl1.land[level][i].second
-                y2 = functionValue(pl2.land[level][p2Count], pl2.land[level][p2Count+1], pl1.land[level][i].first)
+                y2 = functionValue(
+                    pl2.land[level][p2Count],
+                    pl2.land[level][p2Count + 1],
+                    pl1.land[level][i].first,
+                )
             end
         end
     end
@@ -124,10 +140,12 @@ end
 
 function computeMaxNormDiscanceOfLandscapes(first, second)#, nrOfLand , x::Float64, y1::Float64, y2::Float64)::PersistenceLandscape
 
-    dFirst, nrOfLandFirst, xFirst, y1First, y2First = computeMaximalDistanceNonSymmetric(first, second)
+    dFirst, nrOfLandFirst, xFirst, y1First, y2First =
+        computeMaximalDistanceNonSymmetric(first, second)
     #,nrOfLandFirst,xFirst, y1First, y2First)
 
-    dSecond, nrOfLandSecond, xSecond, y1Second, y2Second = computeMaximalDistanceNonSymmetric(second, first)
+    dSecond, nrOfLandSecond, xSecond, y1Second, y2Second =
+        computeMaximalDistanceNonSymmetric(second, first)
     #,nrOfLandSecond,xSecond, y1Second, y2Second)
 
     if dFirst > dSecond
@@ -147,7 +165,11 @@ function computeMaxNormDiscanceOfLandscapes(first, second)#, nrOfLand , x::Float
     return max(dFirst, dSecond)[1], nrOfLand, x, y1, y2
 end
 
-function computeDiscanceOfLandscapes(first::PersistenceLandscape, second::PersistenceLandscape, p::Real)
+function computeDiscanceOfLandscapes(
+    first::PersistenceLandscape,
+    second::PersistenceLandscape,
+    p::Real,
+)
     # This is what we want to compute: (\int_- \inftyend^+\inftyend| first-second |^p)^(1/p). We will do it one step at a time:
     # first-second :
     lan = subtractTwoLandscapes(first, second)
@@ -166,7 +188,10 @@ function computeDiscanceOfLandscapes(first::PersistenceLandscape, second::Persis
     return result^(1 / p)
 end
 
-function computeMaxNormDiscanceOfLandscapes(first::PersistenceLandscape, second::PersistenceLandscape)::PersistenceLandscape
+function computeMaxNormDiscanceOfLandscapes(
+    first::PersistenceLandscape,
+    second::PersistenceLandscape,
+)::PersistenceLandscape
     # this is being solved now: @warn "This function may not work, as max is not defined for PersistenceLandscape structure"
 
     distance1 = computeMaximalDistanceNonSymmetric(first, second)

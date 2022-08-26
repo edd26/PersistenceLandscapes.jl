@@ -7,8 +7,7 @@ function vector < string > readFileNames(char * filenameWithFilenames)
     dbg = false
 
     vector < string > result
-    ifstream in
-    in.open(filenameWithFilenames)
+    ifstream in in.open(filenameWithFilenames)
     line = ""
     while (!in.eof())
         getline(in, line)
@@ -26,20 +25,20 @@ function vector < string > readFileNames(char * filenameWithFilenames)
     end
     in.close()
 
-    / *
-    println("Read the following files from the file : $(filenameWithFilenames)")
+    / * println("Read the following files from the file : $(filenameWithFilenames)")
     for i = 0:size(result, 1)
         cerr << result[i] << endl
     end
     cerr << endl
-    * /
-    return result
+    * / return result
 end# readFileNames
 
 
 # This procedure reads all the files named in the vector<string>. It can read both barcode files and landscape files. But in the case of landsape files, we assume that the extension is
 # '.lan'.
-function vector < PersistenceLandscape > createLandscapesFromTheFiles(vector < string > filenames)
+function vector <
+         PersistenceLandscape >
+         createLandscapesFromTheFiles(vector < string > filenames)
 
     dbg = true
 
@@ -53,7 +52,12 @@ function vector < PersistenceLandscape > createLandscapesFromTheFiles(vector < s
         if (filenames[fileNo].size() > 4)
             # check if last four characters in the name of the file is '.lan'.
             l = filenames[fileNo].size()
-            if ((filenames[fileNo][l-1] == 'n') && (filenames[fileNo][l-2] == 'a') && (filenames[fileNo][l-3] == 'l') && (filenames[fileNo][l-4] == '.'))
+            if (
+                (filenames[fileNo][l - 1] == 'n') &&
+                (filenames[fileNo][l - 2] == 'a') &&
+                (filenames[fileNo][l - 3] == 'l') &&
+                (filenames[fileNo][l - 4] == '.')
+            )
                 isThisBarcodeFile = false
             end
         end
@@ -78,7 +82,9 @@ end# createLandscapesFromTheFiles
 
 
 # This procedure reads all the files named in the vector<string>. They all asume to store barcode
-function vector < PersistenceBarcodes > createBarcodesFromTheFiles(vector < string > filenames)
+function vector <
+         PersistenceBarcodes >
+         createBarcodesFromTheFiles(vector < string > filenames)
 
     dbg = true
 

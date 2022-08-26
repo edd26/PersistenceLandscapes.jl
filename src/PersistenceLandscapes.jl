@@ -19,74 +19,67 @@
 =#
 module PersistenceLandscapes
 
-    # PersistenceBarcodes exports
-    # MyPair exports
-    export MyPair,
-           birth,
-        death,
-        functionValue,
-        findZeroOfALineSegmentBetweenThoseTwoPoints
+# PersistenceBarcodes exports
+# MyPair exports
+export MyPair, birth, death, functionValue, findZeroOfALineSegmentBetweenThoseTwoPoints
 
-    export
-            PersistenceBarcodes,
-            size,
-            isempty,
-            copy,
-            dim,
-            compareAccordingToLength,
-            removeBarcodesThatBeginsBeforeGivenNumber,
-            putToBins,
-            compareMyPairs,
-            sort,
-            compare,
-            minn,
-            computeAverageOfMidpointOfBarcodes,
-            setAverageMidpointToZero,
-            setAveragedLengthToOne,
-            averageBarcodes,
-            setRangeToMinusOneOne,
-            setRange,
-            computeAverageOfMidpointOfBarcodesWeightedByLength,
-            compareForHistograms,
-            removeShortBarcodes,
-            restrictBarcodesToGivenInterval,
-            minMax,
-            computeLandscapeIntegralFromBarcodes,
-            produceBettiNumbersOnAGridFromMinToMaxRangeWithAStepBeingParameterOfThisFunction,
-            check_for_infs
+export PersistenceBarcodes,
+    size,
+    isempty,
+    copy,
+    dim,
+    compareAccordingToLength,
+    removeBarcodesThatBeginsBeforeGivenNumber,
+    putToBins,
+    compareMyPairs,
+    sort,
+    compare,
+    minn,
+    computeAverageOfMidpointOfBarcodes,
+    setAverageMidpointToZero,
+    setAveragedLengthToOne,
+    averageBarcodes,
+    setRangeToMinusOneOne,
+    setRange,
+    computeAverageOfMidpointOfBarcodesWeightedByLength,
+    compareForHistograms,
+    removeShortBarcodes,
+    restrictBarcodesToGivenInterval,
+    minMax,
+    computeLandscapeIntegralFromBarcodes,
+    produceBettiNumbersOnAGridFromMinToMaxRangeWithAStepBeingParameterOfThisFunction,
+    check_for_infs
 
-    # TODO add file writing functions here
+# TODO add file writing functions here
 
-    # LandscapesConstruction and LandscapesOperations exports
-    export almostEqual,
-           PersistenceLandscape,
-           create_PersistenceLandscape,
-           plot_persistence_landscape,
-           get_peaks_and_positions,
-           computeDiscanceOfLandscapes,
-           abs_pl,
-        computeIntegralOfLandscape
+# LandscapesConstruction and LandscapesOperations exports
+export almostEqual,
+    PersistenceLandscape,
+    create_PersistenceLandscape,
+    plot_persistence_landscape,
+    get_peaks_and_positions,
+    computeDiscanceOfLandscapes,
+    abs_pl,
+    computeIntegralOfLandscape
 
-    # VectorSpaceOfPersistenceLandscapes exports
-    export VectorSpaceOfPersistenceLandscapes,
-           average,
-           standardDeviation
+# VectorSpaceOfPersistenceLandscapes exports
+export VectorSpaceOfPersistenceLandscapes, average, standardDeviation
 
-    # export configure
+# export configure
 
-    # export main
-    include("Configure.jl")
+# export main
+include("Configure.jl")
 
-    include("MyPair.jl")
-    include("PersistenceBarcode.jl")
-    include("LandscapesConstruction.jl")
+include("MyPair.jl")
+include("PersistenceBarcode.jl")
+include("LandscapesConstruction.jl")
 
-    include("LandscapesOperations.jl")
-    include("LandscapesDistances.jl")
-    include("LandscapesPlotting.jl")
+include("LandscapesOperations.jl")
+include("LandscapesDistances.jl")
+include("LandscapesPlotting.jl")
 
-    include("VectorSpaceOfPersistenceLandscapes.jl")
-    include("Anova.jl")
-    # include("Main.jl")
+include("VectorSpaceOfPersistenceLandscapes.jl")
+include("Anova.jl")
+# include("Main.jl")
 
 end
