@@ -8,22 +8,40 @@
     # end
     @testset "from vector of MyPairs, without dimension" begin
 
-        @test PersistenceBarcodes([my_pair1, my_pair2, my_pair3 ]).barcodes == [my_pair1, my_pair2, my_pair3 ]
-        @test PersistenceBarcodes([my_pair1, my_pair2, my_pair3, MyPair(12, Inf)]).barcodes == [my_pair1, my_pair2, my_pair3 ]
+        @test PersistenceBarcodes([my_pair1, my_pair2, my_pair3]).barcodes ==
+              [my_pair1, my_pair2, my_pair3]
+        @test PersistenceBarcodes([
+            my_pair1,
+            my_pair2,
+            my_pair3,
+            MyPair(12, Inf),
+        ]).barcodes == [my_pair1, my_pair2, my_pair3]
 
-        @test PersistenceBarcodes([my_pair1, my_pair2, my_pair3 ]).dimensionOfBarcode ==  0
-        @test PersistenceBarcodes([my_pair1, my_pair2, my_pair3, MyPair(12, Inf)]).dimensionOfBarcode == 0
+        @test PersistenceBarcodes([my_pair1, my_pair2, my_pair3]).dimensionOfBarcode == 0
+        @test PersistenceBarcodes([
+            my_pair1,
+            my_pair2,
+            my_pair3,
+            MyPair(12, Inf),
+        ]).dimensionOfBarcode == 0
     end
 
     @testset "from vector of MyPairs, with dimension" begin
-        new_pers_barcodes = PersistenceBarcodes([my_pair1, my_pair2, my_pair3 ], 1)
-        new_pers_barcodes2 = PersistenceBarcodes([MyPair(1, 2), MyPair(2,1)], 1)
+        new_pers_barcodes = PersistenceBarcodes([my_pair1, my_pair2, my_pair3], 1)
+        new_pers_barcodes2 = PersistenceBarcodes([MyPair(1, 2), MyPair(2, 1)], 1)
 
-        @test PersistenceBarcodes([my_pair1, my_pair2, my_pair3 ], 1).barcodes == [my_pair1, my_pair2, my_pair3 ]
-        @test PersistenceBarcodes([my_pair1, my_pair2, my_pair3 ], 1).dimensionOfBarcode ==  1
+        @test PersistenceBarcodes([my_pair1, my_pair2, my_pair3], 1).barcodes ==
+              [my_pair1, my_pair2, my_pair3]
+        @test PersistenceBarcodes([my_pair1, my_pair2, my_pair3], 1).dimensionOfBarcode == 1
 
-        @test PersistenceBarcodes([my_pair1, my_pair2, my_pair3, MyPair(12, Inf)], 1).barcodes == [my_pair1, my_pair2, my_pair3 ]
-        @test PersistenceBarcodes([my_pair1, my_pair2, my_pair3, MyPair(12, Inf)], 1).dimensionOfBarcode == 1
+        @test PersistenceBarcodes(
+            [my_pair1, my_pair2, my_pair3, MyPair(12, Inf)],
+            1,
+        ).barcodes == [my_pair1, my_pair2, my_pair3]
+        @test PersistenceBarcodes(
+            [my_pair1, my_pair2, my_pair3, MyPair(12, Inf)],
+            1,
+        ).dimensionOfBarcode == 1
     end
 end
 
@@ -32,7 +50,7 @@ end
 
     @test_throws MethodError PersistenceBarcodes("1", 2)
 
-    @test typeof(my_persi_barcode.barcodes) <: Array{MyPair, 1}
+    @test typeof(my_persi_barcode.barcodes) <: Array{MyPair,1}
     @test typeof(my_persi_barcode.dimensionOfBarcode) <: UInt
 
     @test my_persi_barcode.barcodes == [my_pair]
@@ -65,7 +83,7 @@ end
 ## ===-
 @testset "removeBarcodesThatBeginsBeforeGivenNumber tests" begin
     mb = removeBarcodesThatBeginsBeforeGivenNumber(my_persi_barcode2, 3)
-    @test size(mb)== 2
+    @test size(mb) == 2
     @test mb.barcodes == [my_pair3, my_pair4]
 end
 
@@ -74,11 +92,11 @@ end
     modified_pers_barcode1 = putToBins(my_persi_barcode, 1)
     modified_pers_barcode2 = putToBins(my_persi_barcode2, 2)
 
-    @test size(modified_pers_barcode1.barcodes,1 ) == size(my_persi_barcode.barcodes,1 )
+    @test size(modified_pers_barcode1.barcodes, 1) == size(my_persi_barcode.barcodes, 1)
     # @test size(modified_pers_barcode2.barcodes,1 ) == size(my_persi_barcode2.barcodes,1 )
 
-    @test modified_pers_barcode1.dimensionOfBarcode  == my_persi_barcode.dimensionOfBarcode
-    @test modified_pers_barcode2.dimensionOfBarcode  == my_persi_barcode2.dimensionOfBarcode
+    @test modified_pers_barcode1.dimensionOfBarcode == my_persi_barcode.dimensionOfBarcode
+    @test modified_pers_barcode2.dimensionOfBarcode == my_persi_barcode2.dimensionOfBarcode
 
     # Test if the values are changed correctly
 end
@@ -90,12 +108,10 @@ end
     @test sort(my_persi_barcode).dimensionOfBarcode == my_persi_barcode.dimensionOfBarcode
 
     sorted_my_persi_barcode2 = sort(my_persi_barcode2)
-    @test sorted_my_persi_barcode2.dimensionOfBarcode == my_persi_barcode2.dimensionOfBarcode
-    @test sorted_my_persi_barcode2.barcodes == [my_pair,
-                                                    my_pair1,
-                                                    my_pair2,
-                                                    my_pair3,
-                                                    my_pair4]
+    @test sorted_my_persi_barcode2.dimensionOfBarcode ==
+          my_persi_barcode2.dimensionOfBarcode
+    @test sorted_my_persi_barcode2.barcodes ==
+          [my_pair, my_pair1, my_pair2, my_pair3, my_pair4]
 end
 
 ## ===-
@@ -109,11 +125,10 @@ end
 
     @test !compare(my_persi_barcode2, my_persi_barcode3)
 
-    @test_throws MethodError compare(my_persi_barcode2, [my_pair,
-                                        my_pair1,
-                                        my_pair2,
-                                        my_pair3,
-                                        my_pair4])
+    @test_throws MethodError compare(
+        my_persi_barcode2,
+        [my_pair, my_pair1, my_pair2, my_pair3, my_pair4],
+    )
 end
 
 
@@ -143,7 +158,7 @@ end
     moved_midpoint3 = setAverageMidpointToZero(my_persi_barcode3)
 
     @test moved_midpoint1.barcodes[1] == MyPair(0.5, 1.5)
-    @test size(moved_midpoint1.barcodes,1) == 1
+    @test size(moved_midpoint1.barcodes, 1) == 1
     @test moved_midpoint1.dimensionOfBarcode == my_persi_barcode.dimensionOfBarcode
 
     @test moved_midpoint2.barcodes != my_persi_barcode2.barcodes
@@ -163,7 +178,7 @@ end
     moved_midpoint3 = setAveragedLengthToOne(my_persi_barcode3)
 
     @test moved_midpoint1.barcodes[1] == MyPair(1.0, 2.0)
-    @test size(moved_midpoint1.barcodes,1) == 1
+    @test size(moved_midpoint1.barcodes, 1) == 1
     @test moved_midpoint1.dimensionOfBarcode == my_persi_barcode.dimensionOfBarcode
 
     @test moved_midpoint2.barcodes != my_persi_barcode2.barcodes
@@ -185,10 +200,10 @@ end
     @test avg_barcodes1.barcodes[1] == MyPair(0.5, 1.5)
     @test avg_barcodes1.dimensionOfBarcode == my_persi_barcode.dimensionOfBarcode
 
-    @test size(avg_barcodes2.barcodes,1) == size(my_persi_barcode2.barcodes,1)
+    @test size(avg_barcodes2.barcodes, 1) == size(my_persi_barcode2.barcodes, 1)
     @test avg_barcodes2.dimensionOfBarcode == my_persi_barcode2.dimensionOfBarcode
 
-    @test size(avg_barcodes3.barcodes,1) == size(my_persi_barcode3.barcodes,1)
+    @test size(avg_barcodes3.barcodes, 1) == size(my_persi_barcode3.barcodes, 1)
     @test avg_barcodes3.dimensionOfBarcode == my_persi_barcode3.dimensionOfBarcode
 
 end
@@ -202,10 +217,10 @@ end
     @test one_to_one_ranged1.barcodes[1] == MyPair(0.0, 1.0)
     @test one_to_one_ranged1.dimensionOfBarcode == my_persi_barcode.dimensionOfBarcode
 
-    @test size(one_to_one_ranged2.barcodes,1) == size(my_persi_barcode2.barcodes,1)
+    @test size(one_to_one_ranged2.barcodes, 1) == size(my_persi_barcode2.barcodes, 1)
     @test one_to_one_ranged2.dimensionOfBarcode == my_persi_barcode2.dimensionOfBarcode
 
-    @test size(one_to_one_ranged3.barcodes,1) == size(my_persi_barcode3.barcodes,1)
+    @test size(one_to_one_ranged3.barcodes, 1) == size(my_persi_barcode3.barcodes, 1)
     @test one_to_one_ranged3.dimensionOfBarcode == my_persi_barcode3.dimensionOfBarcode
 
     @test findmin([x.first for x in one_to_one_ranged1.barcodes])[1] >= -1
@@ -235,12 +250,12 @@ end
     @test findmin([x.first for x in new_ranged_pbarcodes1.barcodes])[1] == new_start
     @test findmax([x.second for x in new_ranged_pbarcodes1.barcodes])[1] == new_end
 
-    @test size(new_ranged_pbarcodes2.barcodes,1) == size(my_persi_barcode2.barcodes,1)
+    @test size(new_ranged_pbarcodes2.barcodes, 1) == size(my_persi_barcode2.barcodes, 1)
     @test new_ranged_pbarcodes2.dimensionOfBarcode == my_persi_barcode.dimensionOfBarcode
     @test findmin([x.first for x in new_ranged_pbarcodes2.barcodes])[1] == new_start
     @test findmax([x.second for x in new_ranged_pbarcodes2.barcodes])[1] == new_end
 
-    @test size(new_ranged_pbarcodes3.barcodes,1) == size(my_persi_barcode3.barcodes,1)
+    @test size(new_ranged_pbarcodes3.barcodes, 1) == size(my_persi_barcode3.barcodes, 1)
     @test new_ranged_pbarcodes3.dimensionOfBarcode == my_persi_barcode.dimensionOfBarcode
     @test findmin([x.first for x in new_ranged_pbarcodes3.barcodes])[1] == new_start
     @test findmax([x.second for x in new_ranged_pbarcodes3.barcodes])[1] == new_end
@@ -249,9 +264,12 @@ end
 
 ## ===-
 @testset "computeAverageOfMidpointOfBarcodesWeightedByLength tests" begin
-    lengthwise_comparison1 = computeAverageOfMidpointOfBarcodesWeightedByLength(my_persi_barcode)
-    lengthwise_comparison2 = computeAverageOfMidpointOfBarcodesWeightedByLength(my_persi_barcode2)
-    lengthwise_comparison3 = computeAverageOfMidpointOfBarcodesWeightedByLength(my_persi_barcode3)
+    lengthwise_comparison1 =
+        computeAverageOfMidpointOfBarcodesWeightedByLength(my_persi_barcode)
+    lengthwise_comparison2 =
+        computeAverageOfMidpointOfBarcodesWeightedByLength(my_persi_barcode2)
+    lengthwise_comparison3 =
+        computeAverageOfMidpointOfBarcodesWeightedByLength(my_persi_barcode3)
 
     @test lengthwise_comparison1 == 0.5
     @test lengthwise_comparison2 <= 1.28
@@ -283,9 +301,9 @@ end
 ## ===-
 @testset "removeShortBarcodes tests" begin
     minimal_diameter = 1
-    short_barcodes_removed1 = removeShortBarcodes(my_persi_barcode,  minimal_diameter )
-    short_barcodes_removed2 = removeShortBarcodes(my_persi_barcode2,  minimal_diameter )
-    short_barcodes_removed3 = removeShortBarcodes(my_persi_barcode3,  minimal_diameter )
+    short_barcodes_removed1 = removeShortBarcodes(my_persi_barcode, minimal_diameter)
+    short_barcodes_removed2 = removeShortBarcodes(my_persi_barcode2, minimal_diameter)
+    short_barcodes_removed3 = removeShortBarcodes(my_persi_barcode3, minimal_diameter)
 
     @test isempty(short_barcodes_removed1.barcodes)
 
@@ -298,14 +316,14 @@ end
     @test size(short_barcodes_removed2.barcodes, 1) == 2
 
 
-    @test removeShortBarcodes(my_persi_barcode,  0.5).barcodes == my_persi_barcode.barcodes
-    @test removeShortBarcodes(my_persi_barcode2,  0.5).barcodes == my_persi_barcode2.barcodes
-    @test removeShortBarcodes(my_persi_barcode3,  0.5).barcodes == my_persi_barcode3.barcodes
+    @test removeShortBarcodes(my_persi_barcode, 0.5).barcodes == my_persi_barcode.barcodes
+    @test removeShortBarcodes(my_persi_barcode2, 0.5).barcodes == my_persi_barcode2.barcodes
+    @test removeShortBarcodes(my_persi_barcode3, 0.5).barcodes == my_persi_barcode3.barcodes
 
 
-    @test isempty(removeShortBarcodes(my_persi_barcode,  12).barcodes)
-    @test isempty(removeShortBarcodes(my_persi_barcode2,  12).barcodes)
-    @test isempty(removeShortBarcodes(my_persi_barcode3,  12).barcodes)
+    @test isempty(removeShortBarcodes(my_persi_barcode, 12).barcodes)
+    @test isempty(removeShortBarcodes(my_persi_barcode2, 12).barcodes)
+    @test isempty(removeShortBarcodes(my_persi_barcode3, 12).barcodes)
 end
 
 
@@ -313,31 +331,40 @@ end
 @testset "restrictBarcodesToGivenInterval tests" begin
     interval1 = MyPair(0, 12)
 
-    @test restrictBarcodesToGivenInterval(my_persi_barcode,  interval1).barcodes == my_persi_barcode.barcodes
-    @test restrictBarcodesToGivenInterval(my_persi_barcode2,  interval1).barcodes == my_persi_barcode2.barcodes
-    @test restrictBarcodesToGivenInterval(my_persi_barcode3,  interval1).barcodes == my_persi_barcode3.barcodes
+    @test restrictBarcodesToGivenInterval(my_persi_barcode, interval1).barcodes ==
+          my_persi_barcode.barcodes
+    @test restrictBarcodesToGivenInterval(my_persi_barcode2, interval1).barcodes ==
+          my_persi_barcode2.barcodes
+    @test restrictBarcodesToGivenInterval(my_persi_barcode3, interval1).barcodes ==
+          my_persi_barcode3.barcodes
 
 
     interval2 = MyPair(0, 1)
-    @test isempty(restrictBarcodesToGivenInterval(my_persi_barcode,  interval2).barcodes)
-    @test isempty(restrictBarcodesToGivenInterval(my_persi_barcode2,  interval2).barcodes)
-    @test isempty(restrictBarcodesToGivenInterval(my_persi_barcode3,  interval2).barcodes)
+    @test isempty(restrictBarcodesToGivenInterval(my_persi_barcode, interval2).barcodes)
+    @test isempty(restrictBarcodesToGivenInterval(my_persi_barcode2, interval2).barcodes)
+    @test isempty(restrictBarcodesToGivenInterval(my_persi_barcode3, interval2).barcodes)
 
 
     interval3 = MyPair(6, 12)
-    @test isempty(restrictBarcodesToGivenInterval(my_persi_barcode,  interval3).barcodes)
-    @test size(restrictBarcodesToGivenInterval(my_persi_barcode2,  interval3).barcodes,1) == 2
-    @test size(restrictBarcodesToGivenInterval(my_persi_barcode3,  interval3).barcodes,1) == 3
+    @test isempty(restrictBarcodesToGivenInterval(my_persi_barcode, interval3).barcodes)
+    @test size(restrictBarcodesToGivenInterval(my_persi_barcode2, interval3).barcodes, 1) ==
+          2
+    @test size(restrictBarcodesToGivenInterval(my_persi_barcode3, interval3).barcodes, 1) ==
+          3
 
     interval4 = MyPair(3, 12)
-    @test isempty(restrictBarcodesToGivenInterval(my_persi_barcode,  interval4).barcodes)
-    @test size(restrictBarcodesToGivenInterval(my_persi_barcode2,  interval4).barcodes,1) == 2
-    @test size(restrictBarcodesToGivenInterval(my_persi_barcode3,  interval4).barcodes,1) == 3
+    @test isempty(restrictBarcodesToGivenInterval(my_persi_barcode, interval4).barcodes)
+    @test size(restrictBarcodesToGivenInterval(my_persi_barcode2, interval4).barcodes, 1) ==
+          2
+    @test size(restrictBarcodesToGivenInterval(my_persi_barcode3, interval4).barcodes, 1) ==
+          3
 
     interval5 = MyPair(3, 4)
-    @test isempty(restrictBarcodesToGivenInterval(my_persi_barcode,  interval5).barcodes)
-    @test size(restrictBarcodesToGivenInterval(my_persi_barcode2,  interval5).barcodes,1) == 1
-    @test size(restrictBarcodesToGivenInterval(my_persi_barcode3,  interval5).barcodes,1) == 2
+    @test isempty(restrictBarcodesToGivenInterval(my_persi_barcode, interval5).barcodes)
+    @test size(restrictBarcodesToGivenInterval(my_persi_barcode2, interval5).barcodes, 1) ==
+          1
+    @test size(restrictBarcodesToGivenInterval(my_persi_barcode3, interval5).barcodes, 1) ==
+          2
 
 end
 
@@ -362,7 +389,12 @@ end
 # This function does not give correct results but it is untested from original code hwo it should work
 ## ===-
 @testset "produceBettiNumbersOnAGridFromMinToMaxRangeWithAStepBeingParameterOfThisFunction tests" begin
-    produceBettiNumbersOnAGridFromMinToMaxRangeWithAStepBeingParameterOfThisFunction(my_persi_barcode, UInt(250), 0.0, 12.0)
+    produceBettiNumbersOnAGridFromMinToMaxRangeWithAStepBeingParameterOfThisFunction(
+        my_persi_barcode,
+        UInt(250),
+        0.0,
+        12.0,
+    )
 end
 
 # @testset "putToBins tests" begin

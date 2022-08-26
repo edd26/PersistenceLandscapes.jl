@@ -445,13 +445,13 @@ end
 
     # ===-
     # Test strucure of non-negative landscape
-    @test abs_pl(pl1+pl9) == pl1+pl9
-    @test abs_pl(pl6+pl9) == pl6+pl9
+    @test abs_pl(pl1 + pl9) == pl1 + pl9
+    @test abs_pl(pl6 + pl9) == pl6 + pl9
 
     # ===-
     # Test abs of diff of non-overlapping landscapes
-    @test pl2-pl3 |> abs_pl == pl2+pl3
-    @test pl8-pl2 |> abs_pl == pl8+pl2
+    @test pl2 - pl3 |> abs_pl == pl2 + pl3
+    @test pl8 - pl2 |> abs_pl == pl8 + pl2
     # ===-
     # Test abs of diff of overlapping landscapes
     @test pl7 - pl6 |> abs_pl == pl6 - pl7 |> abs_pl
@@ -460,11 +460,13 @@ end
     # ===-
     # Test abs structure
     @test pl7 - pl6 |> abs_pl ==
-          [[ MyPair(0, 0), MyPair(1, 0), MyPair(2, 0), MyPair(4, 0)],
+          [
+        [MyPair(0, 0), MyPair(1, 0), MyPair(2, 0), MyPair(4, 0)],
         [MyPair(0, 0), MyPair(1, 1), MyPair(1.5, 0), MyPair(2, 1), MyPair(3, 0)],
     ] |> PersistenceLandscape
     @test pl6 - pl7 |> abs_pl ==
-          [[ MyPair(0, 0), MyPair(1, 0), MyPair(2, 0), MyPair(4, 0)],
+          [
+        [MyPair(0, 0), MyPair(1, 0), MyPair(2, 0), MyPair(4, 0)],
         [MyPair(0, 0), MyPair(1, 1), MyPair(1.5, 0), MyPair(2, 1), MyPair(3, 0)],
     ] |> PersistenceLandscape
 
