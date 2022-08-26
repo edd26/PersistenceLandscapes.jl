@@ -3,9 +3,6 @@ Main module that contains constructors of PersistenceLandsacpe structure.
 
 ATM also contains basic operations on lnadscapes: +, -, *, /, ==
 =#
-# TODO Add MyPair module
-
-
 using Plots
 
 import Base.:+, Base.:-, Base.:*, Base.:/, Base.==

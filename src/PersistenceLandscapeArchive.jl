@@ -4,9 +4,6 @@ in the original C code
 =#
 # TODO Add MyPair module
 
-#include "Configure.h"
-# include("PersistenceBarcode.jl")
-
 using Plots
 using Eirene
 

@@ -4,10 +4,7 @@ fro a vector of landscapes
 
 =#
 
-# include("LandscapesConstruction.jl")
-
 import Base.size
-
 
 # ===-===-
 struct VectorSpaceOfPersistenceLandscapes

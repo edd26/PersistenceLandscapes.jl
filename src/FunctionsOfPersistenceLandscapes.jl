@@ -1,12 +1,3 @@
-# include("LandscapesConstruction.jl")
-
-#functions of landscape:
-#integral
-#maximum
-#moments
-#number of nonzero landscapes
-
-
 function computeIntegral(l::PersistenceLandscape)
 
     return computeIntegralOfLandscape(l,);

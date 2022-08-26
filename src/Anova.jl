@@ -1,9 +1,6 @@
 #=
 Module with structure to do ANOVA test on the landsdcapes
 =#
-# include("LandscapesConstruction.jl")
-# include("VectorSpaceOfPersistenceLandscapes.jl")
-
 DescriptorOfTopology = Union{PersistenceLandscape, PersistenceBarcodes} # a temporary solution, as this is a function (most probably)
 
 mutable struct Anova

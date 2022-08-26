@@ -1,26 +1,9 @@
 #=
 Module with PersistentBarcode structure and all related functions
 =#
-# include("Configure.jl")
+
 import Base.size, Base.isempty, Base.copy, Base.sort
-# import Base.abs
 
-
-# code taken from http:# ranger.uta.edu/~weems/NOTES5311/hungarian.c
-#include "HungarianC.h"
-
-# tested
-# struct MyPair
-#     first::Float64
-#     second::Float64
-# end
-#
-# # tested
-# function make_MyPair(val1, val2)
-#     return MyPair(val1, val2)
-# end
-
-# tested
 """
 Structure to hold information about persistence barcodes:
 - barcodes- vector where elements are barcodes. Each barcodes is a pair of
