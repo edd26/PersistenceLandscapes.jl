@@ -50,10 +50,14 @@ module PersistenceLandscapes
 
     # export main
     include("Configure.jl")
+
     include("PersistenceBarcode.jl")
     include("PersistenceLandscape.jl")
-    include("LandscapesPlotting.jl")
+
     include("LandscapesOperations.jl")
+    include("LandscapesDistances.jl")
+    include("LandscapesPlotting.jl")
+
     include("VectorSpaceOfPersistenceLandscapes.jl")
     include("Anova.jl")
     # include("Main.jl")
