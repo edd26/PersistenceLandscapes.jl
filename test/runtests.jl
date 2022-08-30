@@ -46,7 +46,6 @@ generate_testing_pairs() = [
     [MyPair(0, 3), MyPair(0, 6), MyPair(0, 3)],
 ]
 ##
-# include("test/tests_configuration.jl")
 include("tests_configuration.jl")
 
 ## ===-
