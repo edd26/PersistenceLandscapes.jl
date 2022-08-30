@@ -1,6 +1,7 @@
 #=
 Module with PersistentBarcode structure and all related functions
 =#
+# TODO remove all functions that operate on MyPair only, as they should be placed in MyPair module
 
 import Base.size, Base.isempty, Base.copy, Base.sort
 
@@ -172,6 +173,7 @@ Compare two structures MyPair with the following logic:
 - return true if 's' died before 'f' (this applies when both are born at the same time)
 - return false if none of above applies
 """
+# TODO add function depreciation; use isless instead
 function compareMyPairs(f::MyPair, s::MyPair)::Bool
 
     if f.first < s.first
@@ -384,7 +386,8 @@ Sort barcodes is descending order of birth (if the same, then longer lived are b
 """
 function Base.sort(pers_barcode::PersistenceBarcodes; rev::Bool = false)
     # sorted = sort([1:mat_size;], by=i->(sorted_values[i],matrix_indices[i]))
-    sorted = sort(pers_barcode.barcodes, lt = compareMyPairs)
+    # sorted = sort(pers_barcode.barcodes, lt = compareMyPairs)
+    sorted = sort(pers_barcode.barcodes, lt = isless)
 
     if rev
         sorted = [sorted[k] for k = size(sorted, 1):-1:1]
@@ -394,7 +397,7 @@ function Base.sort(pers_barcode::PersistenceBarcodes; rev::Bool = false)
 end
 
 function Base.sort(bars::Vector{MyPair})
-    return sort(bars, lt = compareMyPairs)
+    return sort(bars, lt = isless)
 end
 
 # tested
