@@ -123,7 +123,7 @@ function computeIntegralOfLandscape(
             latter_point.first == former_point.first && continue
 
             # Not in original code: if landscapes are spaced, don't count the space in between them
-            0 == latter_point.second == former_point.second && continue
+            # 0 == latter_point.second == former_point.second && continue
 
             if a != 0
                 val1 = a * latter_point.first + b
