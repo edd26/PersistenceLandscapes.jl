@@ -63,29 +63,26 @@ end
     include("results_comparison_test.jl")
 end
 
-# ## ===-
-# @testset "Test contruction of PersistenceLandscapes" begin
-#     include("persistenceLandscape_test.jl")
-#     #     include("landscapesConstruction_test.jl")
-# end
-#
-# ## ===-
-# @testset "Test operations on PersistenceLandscapes" begin
-#     include("landscapesOperations_test.jl")
-# end
-#
-# ## ===-
-# @testset "Test distances of PersistenceLandscapes" begin
-#     include("landscapesDistances_test.jl")
-# end
-# ## ===-
-# @testset "Test contruction of VectorSpaceOfPersistenceLandscapes" begin
-#     include("vectorSpaceOfPersistenceLandscapes_test.jl")
-# end
-#
-# @testset "Test average landscapes" begin
-#     include("computeAverage_test.jl")
-# end
+## ===-
+@testset "Test contruction of PersistenceLandscapes" begin
+    include("persistenceLandscape_test.jl")
+    #     include("landscapesConstruction_test.jl")
+end
+
+## ===-
+@testset "Test operations on PersistenceLandscapes" begin
+    include("landscapesOperations_test.jl")
+end
+
+## ===-
+@testset "Test distances of PersistenceLandscapes" begin
+    include("landscapesDistances_test.jl")
+end
+
+## ===-
+@testset "Test contruction of VectorSpaceOfPersistenceLandscapes" begin
+    include("vectorSpaceOfPersistenceLandscapes_test.jl")
+end
 
 ## ===-
 # @testset "Test PersistenceLandscapes plotting" begin
@@ -93,18 +90,7 @@ end
 # end
 
 ## ===-
-# @testset "Configure tests" begin
-#     include("configure_test.jl")
-# end
-
-## ===-
 # @testset "Anova tests" begin
 #     include("anova_test.jl")
 # end
-
-## ===-
-# @testset "Main tests" begin
-#     include("main_test.jl")
-# end
-
 
