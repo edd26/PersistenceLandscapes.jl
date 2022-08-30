@@ -342,4 +342,39 @@ end
 
 end
 
-#
+##
+
+@testset "Compare landscaspes distances with original code results" begin
+    pl0, pl1, pl2, pl3, pl4, pl5, pl6, pl7, pl8, pl9 = generate_testing_lanscapes()
+    pairs1, pairs2, pairs3, pairs4, pairs5 = generate_testing_pairs() .|> PersistenceBarcodes .|> PersistenceLandscape
+
+    @testset "distance of 2 x same structure" begin
+        @test computeDiscanceOfLandscapes(pairs1, pairs1, 1) == 0
+        @test computeDiscanceOfLandscapes(pairs1, pairs1, 2) == 0
+        @test computeDiscanceOfLandscapes(pairs1, pairs1, 0) == Inf
+    end
+
+    @testset "distance of non-overlapping structures" begin
+        @test computeDiscanceOfLandscapes(pl2, pl3, 1) == 2
+        @test isapprox(computeDiscanceOfLandscapes(pl2, pl3, 2), 1.547;atol=1.0e-0)
+        @test computeDiscanceOfLandscapes(pl2, pl3, 0) == Inf
+    end
+
+    @testset "distance of overlapping structures" begin
+        @test computeDiscanceOfLandscapes(pl0, pl1, 1) == 3
+        @test isapprox(computeDiscanceOfLandscapes(pl0, pl1, 2), 1.63299;atol=1.0e-5)
+        @test computeDiscanceOfLandscapes(pl0, pl1, 0) == Inf
+    end
+
+    @testset "distance of 2-layered structure" begin
+        @test computeDiscanceOfLandscapes(pl6, pl7, 1) == 1
+        @test computeDiscanceOfLandscapes(pl6, pl7, 2) == 1
+        @test computeDiscanceOfLandscapes(pl6, pl7, 0) == Inf
+    end
+
+    @testset "distance of complex structure" begin
+        @test computeDiscanceOfLandscapes(pl2, pl9, 1) == 22
+        @test isapprox(computeDiscanceOfLandscapes(pl2, pl9, 2), 6.37704;atol=1.0e-5)
+        @test computeDiscanceOfLandscapes(pl2, pl9, 0) == Inf
+    end
+end
