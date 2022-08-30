@@ -110,6 +110,33 @@ function appendEndOfSection!(lambda_n, lambda_death, cp_birth)
 end
 
 function getLambdaFromCharacteristicPoints(characteristicPoints)
+end
+
+function beginNewLambda(first_point)
+
+    return [#MyPair(min_birth, 0),
+            MyPair(first_point |> birth, 0),
+            first_point]
+end
+
+function appendLastPoint!(lambda_n)
+    last_death = lambda_n[end] |> death
+    push!(lambda_n, MyPair(last_death, 0))
+end
+
+function appendInfIntervals(labmda::Vector{MyPair})
+    return [MyPair(-Inf, 0), lambda_n, MyPair(Inf, 0)]
+end
+
+
+"""
+
+Appending last point is necessary for this structure of code to work,
+especially, when inf intervals are disabled.
+"""
+function getNthLambda(characteristicPoints; allow_inf_intervals::Bool = false)
+
+    # ===-===-
     lambda_n = beginNewLambda(characteristicPoints[1])
     i = 2
     newCharacteristicPoints = MyPair[]
@@ -131,11 +158,6 @@ function getLambdaFromCharacteristicPoints(characteristicPoints)
                 point = MyPair(p_start, p_stop)
                 push!(lambda_n, point)
 
-                # @debug "2 Adding to lambda_n : ($(point))"
-                # @debug "comparePoints(point,characteristicPoints[i+p]) : $(comparePoints(point,characteristicPoints[i+p]))"
-                # @debug "characteristicPoints[i+p] : $(characteristicPoints[i+p])"
-                # @debug "point : $(point)"
-                # @debug "4 Adding to newCharacteristicPoints : ($(point))"
 
                 # push those poitns which have almost equal birth and that have death larger than point
                 if (i + p < total_characteristic_points)
@@ -170,32 +192,6 @@ function getLambdaFromCharacteristicPoints(characteristicPoints)
     end
 
     appendLastPoint!(lambda_n)
-    return lambda_n, newCharacteristicPoints
-end
-
-function beginNewLambda(first_point)
-    return [MyPair(first_point |> birth, 0), first_point]
-end
-
-function appendLastPoint!(lambda_n)
-    last_death = lambda_n[end] |> death
-    push!(lambda_n, MyPair(last_death, 0))
-end
-
-function appendInfIntervals(labmda::Vector{MyPair})
-    return [MyPair(-Inf, 0), lambda_n, MyPair(Inf, 0)]
-end
-
-
-"""
-
-Appending last point is necessary for this structure of code to work,
-especially, when inf intervals are disabled.
-"""
-function getNthLambda(characteristicPoints; allow_inf_intervals::Bool = false)
-
-    lambda_n, newCharacteristicPoints =
-        getLambdaFromCharacteristicPoints(characteristicPoints)
 
     if allow_inf_intervals
         lambda_n = appendInfIntervals(labmda_n)
@@ -205,13 +201,42 @@ function getNthLambda(characteristicPoints; allow_inf_intervals::Bool = false)
     return lambda_n, newCharacteristicPoints
 end
 
+
+
+## ===-===-
+
+function comparePoints2( f::MyPair, s::MyPair )
+    if ( f.first < s.first )
+        return true
+    else
+    # {//f.first >= s.first
+        if ( f.first > s.first )
+            return false
+        else
+        # {//f.first == s.first
+        if ( f.second > s.second )
+                return true;
+            else
+                return false;
+            end # 3rd if
+        end # 2nd if
+    end #1st if
+end # function
+
+### ==-===-
 """
 Generate layers of landscape from barcodes.
 
 This is a general algorithm to construct persistence landscapes.
 """
 function noGridsLandscapesConstructor(p::PersistenceBarcodes;)
-    characteristicPoints = p.barcodes |> sort |> getCharacterisitcPoints
+    # min_birth = min([k.first for k in p.barcodes |> sort]...)
+
+
+    # Apply sorting so that: first is increasing with index; if equal, then larger second are first
+    characteristicPoints = p.barcodes |>
+                           sort |>
+                            getCharacterisitcPoints
 
     land = Vector{Vector{MyPair}}()
     while (!isempty(characteristicPoints))

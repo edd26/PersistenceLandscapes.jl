@@ -70,6 +70,7 @@ function ==(lhs::PersistenceLandscape, rhs::PersistenceLandscape; operatorEqualD
     end
     return true
 end
+
 function Base.size(land::PersistenceLandscape)
     return size(land.land, 1)
 end
