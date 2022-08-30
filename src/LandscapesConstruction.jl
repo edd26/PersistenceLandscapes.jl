@@ -8,7 +8,7 @@ import Base.:+, Base.:-, Base.:*, Base.:/, Base.==
 struct PersistenceLandscape
     land::Vector{Vector{MyPair}} # for empty one use a = Vector{Vector{MyPair}}()
     # land is a sorted list L_k of the points (x, lambda_k(x))
-    dimension::UInt
+    dimension::Int
 
     # ===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-
     # Constructors >>>
