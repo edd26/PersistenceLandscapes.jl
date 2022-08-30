@@ -9,13 +9,13 @@
     @testset "from vector of MyPairs, without dimension" begin
 
         @test PersistenceBarcodes([my_pair1, my_pair2, my_pair3]).barcodes ==
-              [my_pair1, my_pair2, my_pair3]
+              [my_pair2, my_pair1, my_pair3]
         @test PersistenceBarcodes([
             my_pair1,
             my_pair2,
             my_pair3,
             MyPair(12, Inf),
-        ]).barcodes == [my_pair1, my_pair2, my_pair3]
+        ]).barcodes == [my_pair2, my_pair1, my_pair3]
 
         @test PersistenceBarcodes([my_pair1, my_pair2, my_pair3]).dimensionOfBarcode == 0
         @test PersistenceBarcodes([
@@ -31,13 +31,13 @@
         new_pers_barcodes2 = PersistenceBarcodes([MyPair(1, 2), MyPair(2, 1)], 1)
 
         @test PersistenceBarcodes([my_pair1, my_pair2, my_pair3], 1).barcodes ==
-              [my_pair1, my_pair2, my_pair3]
+              [my_pair2, my_pair1, my_pair3]
         @test PersistenceBarcodes([my_pair1, my_pair2, my_pair3], 1).dimensionOfBarcode == 1
 
         @test PersistenceBarcodes(
             [my_pair1, my_pair2, my_pair3, MyPair(12, Inf)],
             1,
-        ).barcodes == [my_pair1, my_pair2, my_pair3]
+        ).barcodes == [my_pair2, my_pair1, my_pair3]
         @test PersistenceBarcodes(
             [my_pair1, my_pair2, my_pair3, MyPair(12, Inf)],
             1,
@@ -111,7 +111,7 @@ end
     @test sorted_my_persi_barcode2.dimensionOfBarcode ==
           my_persi_barcode2.dimensionOfBarcode
     @test sorted_my_persi_barcode2.barcodes ==
-          [my_pair, my_pair1, my_pair2, my_pair3, my_pair4]
+          [my_pair2, my_pair, my_pair1, my_pair3, my_pair4]
 end
 
 ## ===-
