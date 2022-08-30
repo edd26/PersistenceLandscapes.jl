@@ -574,7 +574,7 @@ end
     end
 
     @testset "distance of 2-layered structure" begin
-        @test computeDiscanceOfLandscapes(pl6, pl7, 1) == 1
+        @test computeDiscanceOfLandscapes(pl6, pl7, 1) == 1.5
         @test computeDiscanceOfLandscapes(pl6, pl7, 2) == 1
         @test computeDiscanceOfLandscapes(pl6, pl7, 0) == Inf
     end
