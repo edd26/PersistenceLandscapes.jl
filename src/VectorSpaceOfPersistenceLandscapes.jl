@@ -1,5 +1,5 @@
 #=
-This script contains a structure that is used to craete average lansdcape
+This script contains a structure that is used to create average lansdcape
 fro a vector of landscapes
 
 =#
@@ -227,7 +227,8 @@ function average(
                     l = operationOnPairOfLandscapes(
                         nextLevelMerge[i],
                         nextLevelMerge[i + 1],
-                        two_element_average,
+                        # two_element_average,
+                        + ,
                     )
                 else
                     l = nextLevelMerge[i]

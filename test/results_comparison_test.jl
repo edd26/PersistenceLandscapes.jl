@@ -26,7 +26,7 @@
         @test pairs1.land[3][3] == MyPair(3, 0)
     end
 
-    ## ===-===-
+    # ===-===-
     @testset "paris2 comparison " begin
         @test pairs2.land |> length == 1 # there 2 files generated with c version of the code
         # Lambda 0
@@ -40,7 +40,7 @@
         @test pairs2.land[1][7] == MyPair(9, 0)
     end
 
-    ## ===-===-
+    # ===-===-
     @testset "paris2 comparison " begin
         @test pairs2.land |> length == 1 # there 2 files generated with c version of the code
         # Lambda 0
@@ -54,7 +54,7 @@
         @test pairs2.land[1][7] == MyPair(9, 0)
     end
 
-    ## ===-===-
+    # ===-===-
     @testset "paris3 comparison " begin
         # While the results are the same (C++ and julia), they are not correct!!!!
         @test_broken pairs3.land |> length == 3 # there 2 files generated with c version of the code
@@ -81,7 +81,7 @@
         @test pairs3.land[3][3] == MyPair(8, 0)
     end
 
-    ## ===-===-
+    # ===-===-
     @testset "paris4 comparison " begin
         # While the results are the same (C++ and julia), they are not correct!!!!
         @test_broken pairs4.land |> length == 7 # there 2 files generated with c version of the code
@@ -154,7 +154,7 @@
             @test pairs4.land[8][5] ==MyPair(10, 0)
         end
     end
-    ##
+    #
     # ===-===-
     @testset "paris5 comparison " begin
         # While the results are the same (C++ and julia), they are not correct!!!!
@@ -229,7 +229,117 @@
 end
 
 
+#
 @testset "Compare landscaspes averaging with original code results" begin
-    # computeAve
+    pl0, pl1, pl2, pl3, pl4, pl5, pl6, pl7, pl8, pl9 = generate_testing_lanscapes()
+    pairs1, pairs2, pairs3, pairs4, pairs5 = generate_testing_pairs() .|> PersistenceBarcodes .|> PersistenceLandscape
+
+    @testset "average of 2 x same structure" begin
+    avg_land1 = [pairs1, pairs1] |> VectorSpaceOfPersistenceLandscapes |> average
+        @test avg_land1.land |> length == 3
+        @test avg_land1.land[1] |> length == 3
+        @test avg_land1.land[1][1] == MyPair(0, 0)
+        @test avg_land1.land[1][2] == MyPair(5, 10) # this is the same as C++, but might be wrong
+        @test avg_land1.land[1][3] == MyPair(10, 0)
+
+        @test avg_land1.land[2] |> length == 3
+        @test avg_land1.land[2][1] == MyPair(0, 0)
+        @test avg_land1.land[2][2] == MyPair(3, 6)
+        @test avg_land1.land[2][3] == MyPair(6, 0)
+
+        @test avg_land1.land[3] |> length == 3
+        @test avg_land1.land[3][1] == MyPair(0, 0)
+        @test avg_land1.land[3][2] == MyPair(1.5, 3)
+        @test avg_land1.land[3][3] == MyPair(3, 0)
+    end
+
+    @testset "average of non-overlapping structures" begin
+        avg_land2 = [pl2, pl3] |> VectorSpaceOfPersistenceLandscapes |> average
+        @test avg_land2.land |> length == 1
+        @test avg_land2.land[1] |> length == 5
+        @test avg_land2.land[1][1] == MyPair(0, 0)
+        @test avg_land2.land[1][2] == MyPair(1, 1)
+        @test avg_land2.land[1][3] == MyPair(2, 0)
+        @test avg_land2.land[1][4] == MyPair(3, 1)
+        @test avg_land2.land[1][5] == MyPair(4, 0)
+    end
+
+    @testset "average of overlapping structures" begin
+        avg_land3 = [pl0, pl1] |> VectorSpaceOfPersistenceLandscapes |> average
+        @test avg_land3.land |> length == 1
+        @test avg_land3.land[1] |> length == 5
+        @test avg_land3.land[1][1] == MyPair(0, 0)
+        @test avg_land3.land[1][2] == MyPair(1, 1)
+        @test avg_land3.land[1][3] == MyPair(2, 3)
+        @test avg_land3.land[1][4] == MyPair(3, 1)
+        @test avg_land3.land[1][5] == MyPair(4, 0)
+    end
+
+    @testset "average of 2-layered structure" begin
+        avg_land4 = [pl6, pl7] |> VectorSpaceOfPersistenceLandscapes |> average
+        @test avg_land4.land |> length == 2
+        # lambda 0
+        @test avg_land4.land[1] |> length == 3
+        @test avg_land4.land[1][1] == MyPair(0, 0)
+        @test avg_land4.land[1][2] == MyPair(2, 4)
+        @test avg_land4.land[1][3] == MyPair(4, 0)
+        # lambda 1
+        @test avg_land4.land[2] |> length == 4
+        @test avg_land4.land[2][1] == MyPair(0, 0)
+        @test avg_land4.land[2][2] == MyPair(1, 1)
+        @test avg_land4.land[2][3] == MyPair(2, 1)
+        @test avg_land4.land[2][4] == MyPair(3, 0)
+    end
+
+    @testset "average of complex structure" begin
+        avg_land5 = [pl2, pl9] |> VectorSpaceOfPersistenceLandscapes |> average
+        @test avg_land5.land |> length == 4
+        # lambda 0
+        @test avg_land5.land[1] |> length == 9
+        @test avg_land5.land[1][1] == MyPair(0, 0)
+        @test avg_land5.land[1][2] == MyPair(1, 2)
+        @test avg_land5.land[1][3] == MyPair(2, 2)
+        @test avg_land5.land[1][4] == MyPair(3, 3)
+        @test avg_land5.land[1][5] == MyPair(3.5, 2.5)
+        @test avg_land5.land[1][6] == MyPair(4, 3)
+        @test avg_land5.land[1][7] == MyPair(5.5, 1.5)
+        @test avg_land5.land[1][8] == MyPair(6,2)
+        @test avg_land5.land[1][9] == MyPair(8, 0)
+        # lambda 1
+        @test avg_land5.land[2] |> length == 5
+        @test avg_land5.land[2][1] == MyPair(1, 0)
+        @test avg_land5.land[2][2] == MyPair(3.5, 2.5)
+        @test avg_land5.land[2][3] == MyPair(5, 1)
+        @test avg_land5.land[2][4] == MyPair(5.5, 1.5)
+        @test avg_land5.land[2][5] == MyPair(7, 0)
+        # lambda 2
+        @test avg_land5.land[3] |> length == 5
+        @test avg_land5.land[3][1] == MyPair(3, 0)
+        @test avg_land5.land[3][2] == MyPair(4, 1)
+        @test avg_land5.land[3][3] == MyPair(4.5, 0.5)
+        @test avg_land5.land[3][4] == MyPair(5, 1)
+        @test avg_land5.land[3][5] == MyPair(6, 0)
+        # lambda 3
+        @test avg_land5.land[4] |> length == 3
+        @test avg_land5.land[4][1] == MyPair(4, 0)
+        @test avg_land5.land[4][2] == MyPair(4.5, 0.5)
+        @test avg_land5.land[4][3] == MyPair(5, 0)
+    end
+
+    @testset "average of more than 2 structures" begin
+        avg_land6 = [pl1, pl3, pl4] |> VectorSpaceOfPersistenceLandscapes |> average
+        @test avg_land6.land |> length == 1
+        # lambda 0
+        @test avg_land6.land[1] |> length == 7
+        @test avg_land6.land[1][1] == MyPair(0, 0)
+        @test avg_land6.land[1][2] == MyPair(2, 4)
+        @test avg_land6.land[1][3] == MyPair(3, 3)
+        @test avg_land6.land[1][4] == MyPair(4, 0)
+        @test avg_land6.land[1][5] == MyPair(5, 0)
+        @test avg_land6.land[1][6] == MyPair(6, 1)
+        @test avg_land6.land[1][7] == MyPair(7, 0)
+    end
 
 end
+
+#
