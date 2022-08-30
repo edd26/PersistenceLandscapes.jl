@@ -1,5 +1,235 @@
-
-@testset "Compare results with original code" begin
+@testset "Compare landscaspes structures with original code results" begin
     # Average landscape computed for a single barcode
+    # Original code was run on the barcodes that are used to construct pl8 and pl9
+    # Following results are comparing both strucutres
+
+    pl0, pl1, pl2, pl3, pl4, pl5, pl6, pl7, pl8, pl9 = generate_testing_lanscapes()
+    pairs1, pairs2, pairs3, pairs4, pairs5 = generate_testing_pairs() .|> PersistenceBarcodes .|> PersistenceLandscape
+
+    # ===-===-
+    @testset "paris1 comparison " begin
+        @test pairs1.land |> length == 3 # there 2 files generated with c version of the code
+        # Lambda 0
+        @test pairs1.land[1] |> length == 3
+        @test pairs1.land[1][1] == MyPair(0, 0)
+        @test pairs1.land[1][2] == MyPair(5, 5)
+        @test pairs1.land[1][3] == MyPair(10, 0)
+        # Lambda 1
+        @test pairs1.land[2] |> length == 3
+        @test pairs1.land[2][1] == MyPair(0, 0)
+        @test pairs1.land[2][2] == MyPair(3, 3)
+        @test pairs1.land[2][3] == MyPair(6, 0)
+        # Lambda 2
+        @test pairs1.land[3] |> length == 3
+        @test pairs1.land[3][1] == MyPair(0, 0)
+        @test pairs1.land[3][2] == MyPair(1.5, 1.5)
+        @test pairs1.land[3][3] == MyPair(3, 0)
+    end
+
+    ## ===-===-
+    @testset "paris2 comparison " begin
+        @test pairs2.land |> length == 1 # there 2 files generated with c version of the code
+        # Lambda 0
+        @test pairs2.land[1] |> length == 7
+        @test pairs2.land[1][1] == MyPair(0, 0)
+        @test pairs2.land[1][2] == MyPair(1.5, 1.5)
+        @test pairs2.land[1][3] == MyPair(3, 0)
+        @test pairs2.land[1][4] == MyPair(4.5, 1.5)
+        @test pairs2.land[1][5] == MyPair(6, 0)
+        @test pairs2.land[1][6] == MyPair(7.5, 1.5)
+        @test pairs2.land[1][7] == MyPair(9, 0)
+    end
+
+    ## ===-===-
+    @testset "paris2 comparison " begin
+        @test pairs2.land |> length == 1 # there 2 files generated with c version of the code
+        # Lambda 0
+        @test pairs2.land[1] |> length == 7
+        @test pairs2.land[1][1] == MyPair(0, 0)
+        @test pairs2.land[1][2] == MyPair(1.5, 1.5)
+        @test pairs2.land[1][3] == MyPair(3, 0)
+        @test pairs2.land[1][4] == MyPair(4.5, 1.5)
+        @test pairs2.land[1][5] == MyPair(6, 0)
+        @test pairs2.land[1][6] == MyPair(7.5, 1.5)
+        @test pairs2.land[1][7] == MyPair(9, 0)
+    end
+
+    ## ===-===-
+    @testset "paris3 comparison " begin
+        # While the results are the same (C++ and julia), they are not correct!!!!
+        @test_broken pairs3.land |> length == 3 # there 2 files generated with c version of the code
+        # Lambda 0
+        @test pairs3.land[1] |> length == 7
+        @test pairs3.land[1][1] == MyPair(0, 0)
+        @test pairs3.land[1][2] == MyPair(4, 4)
+        @test pairs3.land[1][3] == MyPair(5.5, 2.5)
+        @test pairs3.land[1][4] == MyPair(7, 4)
+        @test pairs3.land[1][5] == MyPair(8.5, 2.5)
+        @test pairs3.land[1][6] == MyPair(10, 4)
+        @test pairs3.land[1][7] == MyPair(14, 0)
+        # Lambda 1
+        @test pairs3.land[2] |> length == 5
+        @test pairs3.land[2][1] == MyPair(3, 0)
+        @test pairs3.land[2][2] == MyPair(5.5, 2.5)
+        @test pairs3.land[2][3] == MyPair(7, 1)
+        @test pairs3.land[2][4] == MyPair(8.5, 2.5)
+        @test pairs3.land[2][5] == MyPair(11, 0)
+        # Lambda 2
+        @test pairs3.land[3] |> length == 3
+        @test_broken pairs3.land[3][1] == MyPair(6, 0)
+        @test_broken pairs3.land[3][2] == MyPair(7, 1)
+        @test pairs3.land[3][3] == MyPair(8, 0)
+    end
+
+    ## ===-===-
+    @testset "paris4 comparison " begin
+        # While the results are the same (C++ and julia), they are not correct!!!!
+        @test_broken pairs4.land |> length == 7 # there 2 files generated with c version of the code
+        # Lambda 0
+        @test pairs4.land[1] |> length == 3
+        @test pairs4.land[1][1] == MyPair(2, 0)
+        @test pairs4.land[1][2] == MyPair(8, 6)
+        @test pairs4.land[1][3] == MyPair(14, 0)
+        # Lambda 1
+        @test pairs4.land[2] |> length == 5
+        @test pairs4.land[2][1] == MyPair(2, 0)
+        @test pairs4.land[2][2] == MyPair(7, 5)
+        @test pairs4.land[2][3] == MyPair(8, 4)
+        @test pairs4.land[2][4] == MyPair(9, 5)
+        @test pairs4.land[2][5] == MyPair(14, 0)
+        # Lambda 2
+        @test pairs4.land[3] |> length == 7
+        @test pairs4.land[3][1] == MyPair(2, 0)
+        @test pairs4.land[3][2] == MyPair(6, 4)
+        @test pairs4.land[3][3] == MyPair(7, 3)
+        @test pairs4.land[3][4] == MyPair(8, 4)
+        @test_broken pairs4.land[3][5] == MyPair(9, 3)
+        @test_broken pairs4.land[3][6] == MyPair(10, 4)
+        @test pairs4.land[3][7] == MyPair(14, 0)
+        # Lambda 3
+        @test_broken pairs4.land[4] |> length == 7
+        if pairs4.land[4] |> length == 7
+            # this prevents from error indexing error when test on len fails
+            @test pairs4.land[4][1] ==MyPair(2, 0)
+            @test pairs4.land[4][2] ==MyPair(4, 2)
+            @test pairs4.land[4][3] ==MyPair(5, 1)
+            @test pairs4.land[4][4] ==MyPair(8, 4)
+            @test pairs4.land[4][5] ==MyPair(11, 1)
+            @test pairs4.land[4][6] ==MyPair(12, 2)
+            @test pairs4.land[4][7] ==MyPair(14, 0)
+        end
+        # Lambda 4
+        @test pairs4.land[5] |> length == 5
+        @test pairs4.land[5][1] == MyPair(4, 0)
+        @test pairs4.land[5][2] == MyPair(7, 3)
+        @test_broken pairs4.land[5][3] == MyPair(8, 2)
+        @test_broken pairs4.land[5][4] == MyPair(9, 3)
+        @test pairs4.land[5][5] == MyPair(12, 0)
+        # Lambda 5
+        @test pairs4.land[6] |> length == 7
+        @test pairs4.land[6][1] == MyPair(4, 0)
+        @test pairs4.land[6][2] == MyPair(6, 2)
+        @test pairs4.land[6][3] == MyPair(7, 1)
+        @test pairs4.land[6][4] == MyPair(8, 2)
+        @test pairs4.land[6][5] == MyPair(9, 1)
+        @test pairs4.land[6][6] == MyPair(10, 2)
+        @test pairs4.land[6][7] == MyPair(12, 0)
+        # Lambda 6
+        @test_broken pairs4.land[7] |> length == 7
+        @test pairs4.land[7][1] == MyPair(4, 0)
+        @test pairs4.land[7][2] == MyPair(5, 1)
+        @test pairs4.land[7][3] == MyPair(6, 0)
+        @test_broken pairs4.land[7][4] == MyPair(8, 2)
+        @test_broken pairs4.land[7][5] == MyPair(10, 2)
+        @test_broken pairs4.land[7][6] == MyPair(11, 1)
+        @test_broken pairs4.land[7][7] == MyPair(12, 0)
+        # Lambda 7
+        @test_broken pairs4.land[8] |> length == 5
+        if pairs4.land[8] |> length == 5
+            # this prevents from error indexing error when test on len fails
+            @test pairs4.land[8][1] ==MyPair(6, 0)
+            @test pairs4.land[8][2] ==MyPair(7, 1)
+            @test pairs4.land[8][3] ==MyPair(8, 0)
+            @test pairs4.land[8][4] ==MyPair(9, 1)
+            @test pairs4.land[8][5] ==MyPair(10, 0)
+        end
+    end
+    ##
+    # ===-===-
+    @testset "paris5 comparison " begin
+        # While the results are the same (C++ and julia), they are not correct!!!!
+        @test_broken pairs5.land |> length == 2 # two barcodes are repeated, and there should be 2  landsapes, not 3
+        # Lambda 0
+        @test pairs5.land[1] |> length == 3
+        @test pairs5.land[1][1] == MyPair(0, 0)
+        @test pairs5.land[1][2] == MyPair(3, 3)
+        @test pairs5.land[1][3] == MyPair(6, 0)
+        # Lambda 1
+        @test pairs5.land[2] |> length == 3
+        @test pairs5.land[2][1] == MyPair(0, 0)
+        @test pairs5.land[2][2] == MyPair(1.5, 1.5)
+        @test pairs5.land[2][3] == MyPair(3, 0)
+    end
+
+    # ===-===-
+    # Pl8
+    @testset "PL8 comparison " begin
+
+       #  [MyPair(2, 6), MyPair(2, 4), MyPair(4, 6)],
+        @test pl8.land |> length == 2 # there 2 files generated with c version of the code
+
+        # Lambda 0
+        @test pl8.land[1] |> length == 3
+        @test pl8.land[1][1] == MyPair(2, 0)
+        @test pl8.land[1][2] == MyPair(4, 2)
+        @test pl8.land[1][3] == MyPair(6, 0)
+        # Lambda 1
+        @test pl8.land[2] |> length == 5
+        @test pl8.land[2][1] == MyPair(2, 0)
+        @test pl8.land[2][2] == MyPair(3, 1)
+        @test pl8.land[2][3] == MyPair(4, 0)
+        @test pl8.land[2][4] == MyPair(5, 1)
+        @test pl8.land[2][5] == MyPair(6, 0)
+    end
+
+    # ===-===-
+    # Pl9
+    @testset "PL9 comparison " begin
+        @test pl9.land |> length == 4 # there 4 files generated with c version of the code
+
+        # Lambda 0
+        @test pl9.land[1] |> length == 7
+        @test pl9.land[1][1] == MyPair(0, 0)
+        @test pl9.land[1][2] == MyPair(3, 3)
+        @test pl9.land[1][3] == MyPair(3.5, 2.5)
+        @test pl9.land[1][4] == MyPair(4, 3)
+        @test pl9.land[1][5] == MyPair(5.5, 1.5)
+        @test pl9.land[1][6] == MyPair(6, 2)
+        @test pl9.land[1][7] == MyPair(8, 0)
+        # Lambda 1
+        @test pl9.land[2] |> length == 5
+        @test pl9.land[2][1] == MyPair(1, 0)
+        @test pl9.land[2][2] == MyPair(3.5, 2.5)
+        @test pl9.land[2][3] == MyPair(5, 1)
+        @test pl9.land[2][4] == MyPair(5.5, 1.5)
+        @test pl9.land[2][5] == MyPair(7, 0)
+        # Lambda 2
+        @test pl9.land[3] |> length == 5
+        @test pl9.land[3][1] == MyPair(3, 0)
+        @test pl9.land[3][2] == MyPair(4, 1)
+        @test pl9.land[3][3] == MyPair(4.5, 0.5)
+        @test pl9.land[3][4] == MyPair(5, 1)
+        @test pl9.land[3][5] == MyPair(6, 0)
+        # Lambda 3
+        @test pl9.land[4] |> length == 3
+        @test pl9.land[4][1] == MyPair(4, 0)
+        @test pl9.land[4][2] == MyPair(4.5, 0.5)
+        @test pl9.land[4][3] == MyPair(5, 0)
+    end
+end
+
+
+@testset "Compare landscaspes averaging with original code results" begin
+    # computeAve
 
 end
