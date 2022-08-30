@@ -71,7 +71,7 @@ end
     include("vectorSpaceOfPersistenceLandscapes_test.jl")
 end
 
-## ===-
-@testset "Compare results with results from C++ version of PLT" begin
-    include("results_comparison_test.jl")
+@testset "Test average landscapes" begin
+    include("computeAverage_test.jl")
 end
+
