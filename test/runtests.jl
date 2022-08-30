@@ -60,9 +60,14 @@ end
 end
 
 ## ===-
+@testset "Compare results with results from C++ version of PLT" begin
+    include("results_comparison_test.jl")
+end
+
+## ===-
 @testset "Test contruction of PersistenceLandscapes" begin
     include("persistenceLandscape_test.jl")
-#     include("landscapesConstruction_test.jl")
+    #     include("landscapesConstruction_test.jl")
 end
 
 ## ===-
@@ -76,9 +81,9 @@ end
 end
 
 ## ===-
-@testset "Test PersistenceLandscapes plotting" begin
-    include("landscapesPlotting_test.jl")
-end
+# @testset "Test PersistenceLandscapes plotting" begin
+#     include("landscapesPlotting_test.jl")
+# end
 
 ## ===-
 # @testset "Configure tests" begin
