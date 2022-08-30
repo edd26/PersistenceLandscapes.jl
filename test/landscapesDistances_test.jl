@@ -4,7 +4,7 @@
     @testset "computeDiscanceOfLandscapes test" begin
         pl0, pl1, pl2, pl3, pl4, pl5, pl6, pl7, pl8, pl9 = generate_testing_lanscapes()
 
-        @test computeDiscanceOfLandscapes(pl0, pl0, 0) == 0
+        @test computeDiscanceOfLandscapes(pl0, pl0, 0) == Inf
         @test computeDiscanceOfLandscapes(pl1, pl2, 0) == Inf
         @test computeDiscanceOfLandscapes(pl2, pl3, 0) == Inf
 
