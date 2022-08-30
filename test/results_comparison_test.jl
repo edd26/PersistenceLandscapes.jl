@@ -444,6 +444,111 @@ end
         @test pl29_diff.land[4][3] == MyPair(5, 0)
     end
 end
+
+##
+@testset "Compare landscaspes absolute value with original code results" begin
+    pl0, pl1, pl2, pl3, pl4, pl5, pl6, pl7, pl8, pl9 = generate_testing_lanscapes()
+    pairs1, pairs2, pairs3, pairs4, pairs5 = generate_testing_pairs() .|> PersistenceBarcodes .|> PersistenceLandscape
+
+    @testset "distance of 2 x same structure" begin
+        p1_abs = abs_pl(pairs1- pairs1)
+        @test p1_abs.land |> length == 3 # there 2 files generated with c version of the code
+        # Lambda 0
+        @test p1_abs.land[1] |> length == 3
+        @test p1_abs.land[1][1] == MyPair(0, 0)
+        @test p1_abs.land[1][2] == MyPair(5, 0)
+        @test p1_abs.land[1][3] == MyPair(10, 0)
+        # Lambda 1
+        @test p1_abs.land[2] |> length == 3
+        @test p1_abs.land[2][1] == MyPair(0, 0)
+        @test p1_abs.land[2][2] == MyPair(3, 0)
+        @test p1_abs.land[2][3] == MyPair(6, 0)
+        # Lambda 2
+        @test p1_abs.land[3] |> length == 3
+        @test p1_abs.land[3][1] == MyPair(0, 0)
+        @test p1_abs.land[3][2] == MyPair(1.5, 0)
+        @test p1_abs.land[3][3] == MyPair(3, 0)
+    end
+
+    @testset "distance of non-overlapping structures" begin
+        pl23_abs = abs_pl(pl2-pl3)
+        @test pl23_abs.land |> length == 1 # there 2 files generated with c version of the code
+        # Lambda 0
+        @test pl23_abs.land[1] |> length == 5
+        @test pl23_abs.land[1][1] == MyPair(0, 0)
+        @test pl23_abs.land[1][2] == MyPair(1, 1)
+        @test pl23_abs.land[1][3] == MyPair(2, 0)
+        @test pl23_abs.land[1][4] == MyPair(3, 1)
+        @test pl23_abs.land[1][5] == MyPair(4, 0)
+    end
+
+    @testset "distance of overlapping structures" begin
+        pl01_abs = abs_pl(pl0-pl1)
+        @test pl01_abs.land |> length == 1 # there 2 files generated with c version of the code
+        # Lambda 0
+        @test pl01_abs.land[1] |> length == 5
+        @test pl01_abs.land[1][1] == MyPair(0, 0)
+        @test pl01_abs.land[1][2] == MyPair(1, 1)
+        @test pl01_abs.land[1][3] == MyPair(2, 1)
+        @test pl01_abs.land[1][4] == MyPair(3, 1)
+        @test pl01_abs.land[1][5] == MyPair(4, 0)
+    end
+
+    ##
+    @testset "distance of 2-layered structure" begin
+        pl67_abs = abs_pl(pl6-pl7)
+        @test pl67_abs.land |> length == 2 # there 2 files generated with c version of the code
+        # Lambda 0
+        @test pl67_abs.land[1] |> length == 3
+        @test pl67_abs.land[1][1] == MyPair(0, 0)
+        @test pl67_abs.land[1][2] == MyPair(2, 0)
+        @test pl67_abs.land[1][3] == MyPair(4, 0)
+        # Lambda 1
+        @test pl67_abs.land[2] |> length == 5
+        @test pl67_abs.land[2][1] == MyPair(0, 0)
+        @test pl67_abs.land[2][2] == MyPair(1, 1)
+        @test pl67_abs.land[2][3] == MyPair(1.5, 0)
+        @test pl67_abs.land[2][4] == MyPair(2, 1)
+    end
+    ##
+
+    @testset "distance of complex structure" begin
+        pl29_abs = abs_pl(pl2-pl9)
+        @test pl29_abs.land |> length == 4 # there 4 files generated with c version of the code
+
+        # Lambda 0
+        @test pl29_abs.land[1] |> length == 9
+        @test pl29_abs.land[1][1] == MyPair(0, 0)
+        @test pl29_abs.land[1][2] == MyPair(1, 0)
+        @test pl29_abs.land[1][3] == MyPair(2, 2)
+        @test pl29_abs.land[1][4] == MyPair(3, 3)
+        @test pl29_abs.land[1][5] == MyPair(3.5, 2.5)
+        @test pl29_abs.land[1][6] == MyPair(4, 3)
+        @test pl29_abs.land[1][7] == MyPair(5.5, 1.5)
+        @test pl29_abs.land[1][8] == MyPair(6, 2)
+        @test pl29_abs.land[1][9] == MyPair(8, 0)
+        # Lambda 1
+        @test pl29_abs.land[2] |> length == 5
+        @test pl29_abs.land[2][1] == MyPair(1, 0)
+        @test pl29_abs.land[2][2] == MyPair(3.5, 2.5)
+        @test pl29_abs.land[2][3] == MyPair(5, 1)
+        @test pl29_abs.land[2][4] == MyPair(5.5, 1.5)
+        @test pl29_abs.land[2][5] == MyPair(7, 0)
+        # Lambda 2
+        @test pl29_abs.land[3] |> length == 5
+        @test pl29_abs.land[3][1] == MyPair(3, 0)
+        @test pl29_abs.land[3][2] == MyPair(4, 1)
+        @test pl29_abs.land[3][3] == MyPair(4.5, 0.5)
+        @test pl29_abs.land[3][4] == MyPair(5, 1)
+        @test pl29_abs.land[3][5] == MyPair(6, 0)
+        # Lambda 3
+        @test pl29_abs.land[4] |> length == 3
+        @test pl29_abs.land[4][1] == MyPair(4, 0)
+        @test pl29_abs.land[4][2] == MyPair(4.5, 0.5)
+        @test pl29_abs.land[4][3] == MyPair(5, 0)
+    end
+    ##
+end
 ##
 
 @testset "Compare landscaspes distances with original code results" begin
