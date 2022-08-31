@@ -27,6 +27,7 @@
              MyPair(2, 14),
             ] # pyramids overlapping with crossings
     bars5 = [MyPair(0, 3), MyPair(0, 6), MyPair(0, 3)] # barcodes repetition
+    all_bars = [bars1, bars2, bars3, bars4, bars5]
 
 
     @testset "from barcodes" begin
