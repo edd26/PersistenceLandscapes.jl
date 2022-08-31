@@ -16,10 +16,10 @@ TODO create a structure Barcode from Point2D (a level of abstraction)
 """
 struct PersistenceBarcodes
     barcodes::Vector{MyPair}
-    dimensionOfBarcode::UInt
+    dimensionOfBarcode::Int
 
     function PersistenceBarcodes(bars::Vector{MyPair}, number::Real)
-        new(PersistenceBarcodes(bars).barcodes, UInt(number))
+        new(PersistenceBarcodes(bars).barcodes, Int(number))
     end
 
     # This hould be transformed into constructor from matrix nx2
@@ -89,11 +89,7 @@ struct PersistenceBarcodes
                         ending = beginning
                         beginning = z
                     end
-                    if (
-                        begin
-                            !=
-                        end
-                    )
+                    if (beginning != ending)
                         push!(
                             barcodes,
                             MyPair(

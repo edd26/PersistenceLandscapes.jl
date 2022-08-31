@@ -51,12 +51,12 @@ end
     @test_throws MethodError PersistenceBarcodes("1", 2)
 
     @test typeof(my_persi_barcode.barcodes) <: Array{MyPair,1}
-    @test typeof(my_persi_barcode.dimensionOfBarcode) <: UInt
+    @test typeof(my_persi_barcode.dimensionOfBarcode) <: Int
 
     @test my_persi_barcode.barcodes == [my_pair]
     @test my_persi_barcode.dimensionOfBarcode == UInt(2)
 
-    @test typeof(my_persi_barcode.dimensionOfBarcode) <: UInt
+    @test typeof(my_persi_barcode.dimensionOfBarcode) <: Int
 
 
     copied_barcode = copy(my_persi_barcode)
