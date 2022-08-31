@@ -48,7 +48,7 @@ end
 ## ===-
 @testset "PersistenceBarcodes Base functions tests" begin
 
-    @test_throws MethodError PersistenceBarcodes("1", 2)
+    @test_throws SystemError PersistenceBarcodes("1", 2)
 
     @test typeof(my_persi_barcode.barcodes) <: Array{MyPair,1}
     @test typeof(my_persi_barcode.dimensionOfBarcode) <: Int
@@ -391,7 +391,7 @@ end
 @testset "produceBettiNumbersOnAGridFromMinToMaxRangeWithAStepBeingParameterOfThisFunction tests" begin
     produceBettiNumbersOnAGridFromMinToMaxRangeWithAStepBeingParameterOfThisFunction(
         my_persi_barcode,
-        UInt(250),
+        Int(250),
         0.0,
         12.0,
     )

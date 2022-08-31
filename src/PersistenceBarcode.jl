@@ -33,7 +33,7 @@ struct PersistenceBarcodes
     function PersistenceBarcodes(pers_barcode::PersistenceBarcodes)
         # @info typeof(pers_barcodes.barcodes)
         # @info typeof(pers_barcodes.dimensionOfBarcode)
-        new(pers_barcode.barcodes, UInt(pers_barcode.dimensionOfBarcode))
+        new(pers_barcode.barcodes, Int(pers_barcode.dimensionOfBarcode))
     end
 
     function PersistenceBarcodes(bars::Vector{MyPair})
@@ -69,7 +69,7 @@ struct PersistenceBarcodes
         barcodes = sort(barcodes)
 
         # CHANGE
-        new(barcodes, UInt(dimensionOfBarcode))
+        new(barcodes, Int(dimensionOfBarcode))
     end
 
     function PersistenceBarcodes(filename::String, startin_point::Float64, step::Float64)
@@ -102,10 +102,10 @@ struct PersistenceBarcodes
             end
         end
 
-        new(barcodes, UInt(dimensionOfBarcode))
+        new(barcodes, Int(dimensionOfBarcode))
     end
 
-    function PersistenceBarcodes(filename::String, dimensionOfBarcode::UInt)
+    function PersistenceBarcodes(filename::String, dimensionOfBarcode::Int)
         my_pairs = MyPair[]
         open(filename, "r") do io
             # read till end of file
@@ -116,7 +116,7 @@ struct PersistenceBarcodes
             end
         end
 
-        new(barcodes, UInt(dimensionOfBarcode))
+        new(barcodes, Int(dimensionOfBarcode))
     end
 end
 
@@ -174,7 +174,7 @@ end
 """
 Returns the dimension of PersistenceBarcodes structure.
 """
-function dim(pers_barcode::PersistenceBarcodes)::UInt
+function dim(pers_barcode::PersistenceBarcodes)::Int
     return pers_barcode.dimensionOfBarcode
 end
 
@@ -660,11 +660,11 @@ end
 
 function produceBettiNumbersOnAGridFromMinToMaxRangeWithAStepBeingParameterOfThisFunction(
     pers_barcode::PersistenceBarcodes,
-    step::UInt,
+    step::Int,
     minn::Float64,
     maxx::Float64;
     dbg::Bool=false
-)::Vector{UInt}
+)::Vector{Int}
 
     if (minn == Inf)
         minMax_val = minMax(pers_barcode)
@@ -672,7 +672,7 @@ function produceBettiNumbersOnAGridFromMinToMaxRangeWithAStepBeingParameterOfThi
         minMax_val = MyPair(minn, maxx)
     end
 
-    bettiNumbers = zeros(UInt, step)# (step+1);
+    bettiNumbers = zeros(Int, step)# (step+1);
     # for j = 1:step
     #     pusbettiNumbers[j] = 0;
     # end
@@ -848,7 +848,7 @@ end # putToAFileHistogramOfBarcodesLengths
 function computeBottleneckDistance(
     first::PersistenceBarcodes,
     second::PersistenceBarcodes,
-    p::UInt;
+    p::Int;
     local_debug::Bool=false
 )
 
