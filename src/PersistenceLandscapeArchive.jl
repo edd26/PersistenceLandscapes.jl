@@ -2,7 +2,6 @@
 Module with all functions that are not required in Julia, but were defined
 in the original C code
 =#
-# TODO Add MyPair module
 
 using Plots
 using Eirene

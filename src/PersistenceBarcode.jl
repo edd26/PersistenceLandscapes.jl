@@ -36,7 +36,6 @@ struct PersistenceBarcodes
         new(pers_barcode.barcodes, UInt(pers_barcode.dimensionOfBarcode))
     end
 
-
     function PersistenceBarcodes(bars::Vector{MyPair})
         total_pairs = size(bars, 1)
         infty = Inf
@@ -346,7 +345,7 @@ This works as follows:
     - create a new barcode with birth equal to (unit length) * (birth index) and
         death equal to (unit length) * (death index)
 """
-function putToBins(pers_barcode::PersistenceBarcodes, numberOfBins; dbg::Bool = false)
+function putToBins(pers_barcode::PersistenceBarcodes, numberOfBins; dbg::Bool=false)
     myPair_minMax = minMax(pers_barcode)
     binnedData = MyPair[]
     dx = (myPair_minMax.second - myPair_minMax.first) / numberOfBins #::Float64
@@ -384,10 +383,10 @@ end
 """
 Sort barcodes is descending order of birth (if the same, then longer lived are beofre shorter lived).
 """
-function Base.sort(pers_barcode::PersistenceBarcodes; rev::Bool = false)
+function Base.sort(pers_barcode::PersistenceBarcodes; rev::Bool=false)
     # sorted = sort([1:mat_size;], by=i->(sorted_values[i],matrix_indices[i]))
     # sorted = sort(pers_barcode.barcodes, lt = compareMyPairs)
-    sorted = sort(pers_barcode.barcodes, lt = isless)
+    sorted = sort(pers_barcode.barcodes, lt=isless)
 
     if rev
         sorted = [sorted[k] for k = size(sorted, 1):-1:1]
@@ -397,7 +396,7 @@ function Base.sort(pers_barcode::PersistenceBarcodes; rev::Bool = false)
 end
 
 function Base.sort(bars::Vector{MyPair})
-    return sort(bars, lt = isless)
+    return sort(bars, lt=isless)
 end
 
 # tested
@@ -412,7 +411,7 @@ Check if two PersistenceBarcodes structures are exactly the same.
 function compare(
     pers_barcode::PersistenceBarcodes,
     b::PersistenceBarcodes;
-    dbg::Bool = false,
+    dbg::Bool=false
 )::Bool
     if (dbg)
         println("pers_barcode.barcodes.size(): $(size(pers_barcode.barcodes,1))")
@@ -470,7 +469,7 @@ end# computeAverageOfMidpointOfBarcodes
 """
 Return new PersistenceBarcodes structure, where midpoint of all barcoeds is 0.
 """
-function setAverageMidpointToZero(pers_barcode::PersistenceBarcodes; dbg::Bool = false)
+function setAverageMidpointToZero(pers_barcode::PersistenceBarcodes; dbg::Bool=false)
 
     # average = pers_barcode.computeAverageOfMidpointOfBarcodes(); #::Float64
     average = computeAverageOfMidpointOfBarcodesWeightedByLength(pers_barcode) #::Float64
@@ -746,7 +745,7 @@ function produceBettiNumbersOnAGridFromMinToMaxRangeWithAStepBeingParameterOfThi
     step::UInt,
     minn::Float64,
     maxx::Float64;
-    dbg::Bool = false,
+    dbg::Bool=false
 )::Vector{UInt}
 
     if (minn == Inf)
@@ -834,7 +833,7 @@ function putToAFileHistogramOfBarcodesLengths(
 
     # sorted = sort(pers_barcode.barcodes, by= x-> x[1])
     # reverse( begining(barsLenghts) , ending(barsLenghts) );
-    sorted = sort(pers_barcode, rev = true)
+    sorted = sort(pers_barcode, rev=true)
 
     open(filename, "w") do io
         if shouldWeAlsoPutResponsibleBarcodes
@@ -932,7 +931,7 @@ function computeBottleneckDistance(
     first::PersistenceBarcodes,
     second::PersistenceBarcodes,
     p::UInt;
-    local_debug::Bool = false,
+    local_debug::Bool=false
 )
 
     # If first and second have different sizes, then I want to rename them in the way that first is the larger one:
@@ -947,7 +946,7 @@ function computeBottleneckDistance(
     # Result = char[(size(firstBar)+size(secondBar))];
     # some_array = zeros(Int[(size(firstBar)+size(secondBar))];
 
-    for i = 0:(size(firstBar) + size(secondBar))
+    for i = 0:(size(firstBar)+size(secondBar))
         Result[i] = zeros((size(firstBar) + size(secondBar)))
         some_array[i] = zeros((size(firstBar) + size(secondBar)))
     end
@@ -979,8 +978,8 @@ function computeBottleneckDistance(
     bigNumber = 10000
     local_debug && @debug "Starting creation of cost matrix "
 
-    for coll = 1:(size(firstBar) + size(secondBar))
-        for row = 1:(size(firstBar) + size(secondBar))
+    for coll = 1:(size(firstBar)+size(secondBar))
+        for row = 1:(size(firstBar)+size(secondBar))
             local_debug && println("row = $(row )\ncoll : $(coll )")
             if ((coll < size(firstBar)) && (row < size(secondBar)))
                 # P1
@@ -1003,16 +1002,16 @@ function computeBottleneckDistance(
                     bigNumber * pow(
                         computeDistanceOfPointsInPlane(
                             secondBar[row],
-                            projectionToDiagonal(secondBar[coll - size(firstBar)]),
+                            projectionToDiagonal(secondBar[coll-size(firstBar)]),
                         ),
                         p,
                     )
 
                 if local_debug
                     "Region P2, computing distance between : " << secondBar[row] <<
-                    " and projection(" << secondBar[coll - size(firstBar)] <<
+                    " and projection(" << secondBar[coll-size(firstBar)] <<
                     ") which is : " <<
-                    projectionToDiagonal(secondBar[coll - size(firstBar)]) << "\n"
+                    projectionToDiagonal(secondBar[coll-size(firstBar)]) << "\n"
                     "The distance is : " << some_array[coll][row]
                 end
             end
@@ -1023,7 +1022,7 @@ function computeBottleneckDistance(
                     (int)bigNumber * pow(
                         computeDistanceOfPointsInPlane(
                             firstBar[coll],
-                            projectionToDiagonal(firstBar[row - size(secondBar)]),
+                            projectionToDiagonal(firstBar[row-size(secondBar)]),
                         ),
                         (double)p,
                     )
@@ -1047,8 +1046,8 @@ function computeBottleneckDistance(
     end
 
     if local_debug
-        for i = 1:(size(firstBar) + size(secondBar))
-            for j = 0:(size(firstBar) + size(secondBar))
+        for i = 1:(size(firstBar)+size(secondBar))
+            for j = 0:(size(firstBar)+size(secondBar))
                 print("$(some_array[y][x]) ")
             end
             println()
@@ -1066,8 +1065,8 @@ function computeBottleneckDistance(
         (size(firstBar) + size(secondBar)),
     )
     if local_debug
-        for y = 0:(size(firstBar) + size(secondBar))
-            for x = 0:(size(firstBar) + size(secondBar))
+        for y = 0:(size(firstBar)+size(secondBar))
+            for x = 0:(size(firstBar)+size(secondBar))
                 print("$(Result[y][x]) ")
             end
             println()
@@ -1077,8 +1076,8 @@ function computeBottleneckDistance(
     # < MyPair< MyPair<double,double> , MyPair<double,double> > > matching;
     matching = MyPair[]
 
-    for y = 0:(size(firstBar) + size(secondBar))
-        for x = 0:(size(firstBar) + size(secondBar))
+    for y = 0:(size(firstBar)+size(secondBar))
+        for x = 0:(size(firstBar)+size(secondBar))
             if (Result[x][y])
                 store = false
                 if (x < size(firstBar))

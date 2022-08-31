@@ -1,5 +1,5 @@
-
 using Plots
+
 # ===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-===-
 # Plotting functions >>>
 function get_peaks_and_positions(lambdas)
@@ -71,13 +71,13 @@ end
 
 function plot_persistence_landscape(
     pl1::PersistenceLandscape;
-    max_layers = size(pl1.land, 1),
-    plot_kwargs...,
+    max_layers=size(pl1.land, 1),
+    plot_kwargs...
 )
-    colors = cgrad(:cmyk, max(2, max_layers), categorical = true, rev = true)
+    colors = cgrad(:cmyk, max(2, max_layers), categorical=true, rev=true)
 
     try
-        colors = cgrad(plot_kwargs[:palette], max_layers, categorical = true, rev = true)
+        colors = cgrad(plot_kwargs[:palette], max_layers, categorical=true, rev=true)
     catch
         @debug "Catched no palette"
     end
@@ -86,7 +86,7 @@ function plot_persistence_landscape(
     for k = 1:max_layers
         peaks_position, peaks = get_peaks_and_positions(pl1.land[k])
 
-        plot!(canvas1, peaks_position, peaks; c = colors[k], plot_kwargs...)
+        plot!(canvas1, peaks_position, peaks; c=colors[k], plot_kwargs...)
     end
 
     return canvas1

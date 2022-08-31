@@ -1,10 +1,11 @@
 #=
 Module with all functions that compute distances of landscapes
 =#
+
 function computeMaximalDistanceNonSymmetric2(
     pl1::PersistenceLandscape,
     pl2::PersistenceLandscape;
-    dbg = false,
+    dbg=false
 )
     dbg && println(" computeMaximalDistanceNonSymmetric")
     @warn "name of function modified due to conflicting names"
@@ -27,17 +28,17 @@ function computeMaximalDistanceNonSymmetric2(
         end
 
         p2Count = 1
-        for i = 1:(size(l1.land[level], 1) - 1)  # w tym przypadku nie rozwarzam punktow w nieskocznosci
+        for i = 1:(size(l1.land[level], 1)-1)  # w tym przypadku nie rozwarzam punktow w nieskocznosci
             while true
                 if (pl1.land[level][i].first >= pl2.land[level][p2Count].first) &&
-                   (pl1.land[level][i].first <= pl2.land[level][p2Count + 1].first)
+                   (pl1.land[level][i].first <= pl2.land[level][p2Count+1].first)
                     break
                 end
                 p2Count += 1
             end
             point_approximation = functionValue(
                 pl2.land[level][p2Count],
-                pl2.land[level][p2Count + 1],
+                pl2.land[level][p2Count+1],
                 pl1.land[level][i].first,
             )
             val = abs(point_approximation - pl1.land[level][i].second)
@@ -88,11 +89,11 @@ function computeMaximalDistanceNonSymmetric(
     minimalNumberOfLevels = min(size(pl1.land, 1), pl2.land.size())[1]
     for level = 1:minimalNumberOfLevels
         p2Count = 0
-        for i = 1:(size(l1.land[level], 1) - 1)  # w tym przypadku nie rozwarzam punktow w nieskocznosci
+        for i = 1:(size(l1.land[level], 1)-1)  # w tym przypadku nie rozwarzam punktow w nieskocznosci
             while (true)
                 if (
                     (pl1.land[level][i].first >= pl2.land[level][p2Count].first) &&
-                    (pl1.land[level][i].first <= pl2.land[level][p2Count + 1].first)
+                    (pl1.land[level][i].first <= pl2.land[level][p2Count+1].first)
                 )
                     break
                 end
@@ -101,7 +102,7 @@ function computeMaximalDistanceNonSymmetric(
             val = abs(
                 functionValue(
                     pl2.land[level][p2Count],
-                    pl2.land[level][p2Count + 1],
+                    pl2.land[level][p2Count+1],
                     pl1.land[level][i].first,
                 ) - pl1.land[level][i].second,
             )
@@ -116,7 +117,7 @@ function computeMaximalDistanceNonSymmetric(
                 y1 = pl1.land[level][i].second
                 y2 = functionValue(
                     pl2.land[level][p2Count],
-                    pl2.land[level][p2Count + 1],
+                    pl2.land[level][p2Count+1],
                     pl1.land[level][i].first,
                 )
             end

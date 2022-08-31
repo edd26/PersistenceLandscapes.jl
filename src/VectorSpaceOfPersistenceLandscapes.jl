@@ -3,7 +3,6 @@ This script contains a structure that is used to create average lansdcape
 fro a vector of landscapes
 
 =#
-
 import Base.size
 
 # ===-===-
@@ -11,7 +10,7 @@ struct VectorSpaceOfPersistenceLandscapes
     vectOfLand::Vector{PersistenceLandscape}
 end
 
-function Base.size(vec_space::VectorSpaceOfPersistenceLandscapes; dim = 1)
+function Base.size(vec_space::VectorSpaceOfPersistenceLandscapes; dim=1)
     return length(vec_space.vectOfLand)
 end
 
@@ -22,7 +21,7 @@ function averageLandscpceInDiscreteSetOfPoints(
     numberOfPoints::UInt,
     from_num::Float64,
     to::Float64;
-    local_dbg = false,
+    local_dbg=false
 )  # vector<pair<double,double> >
 
     if numberOfPoints <= 1
@@ -38,10 +37,10 @@ function averageLandscpceInDiscreteSetOfPoints(
 
     result = MyPair[]
 
-    for i = 1:(numberOfPoints - 1)
+    for i = 1:(numberOfPoints-1)
         result[i] = make_pair(from + (to - from) * i / (numberOfPoints - 1), 0)
     end
-    result[numberOfPoints - 1] = make_pair(to, 0)
+    result[numberOfPoints-1] = make_pair(to, 0)
 
     if local_dbg
         println("Initial values:")
@@ -72,11 +71,11 @@ function averageLandscpceInDiscreteSetOfPoints(
                     println("result[nr].first : $(2)")
                 end
                 if (
-                    v_space_pland.vectOfLand[i].land[dim][it - 1].first <= result[nr].first
+                    v_space_pland.vectOfLand[i].land[dim][it-1].first <= result[nr].first
                 ) && (v_space_pland.vectOfLand[i].land[dim][it].first >= result[nr].first)
 
                     result[nr].second += functionValue(
-                        v_space_pland.vectOfLand[i].land[dim][it - 1],
+                        v_space_pland.vectOfLand[i].land[dim][it-1],
                         v_space_pland.vectOfLand[i].land[dim][it],
                         result[nr].first,
                     )
@@ -113,9 +112,9 @@ function averageLandscpceInDiscreteSetOfPoints(
 end
 
 
-function average(x::PersistenceLandscape...; dbg = false)::PersistenceLandscape
+function average(x::PersistenceLandscape...; dbg=false)::PersistenceLandscape
     v_space_pland = VectorSpaceOfPersistenceLandscapes([x1 for x1 in x])
-    return average(v_space_pland, dbg = dbg)
+    return average(v_space_pland, dbg=dbg)
 end
 
 function two_element_average(x, y)
@@ -124,7 +123,7 @@ end
 
 function average(
     v_space_pland::VectorSpaceOfPersistenceLandscapes;
-    dbg::Bool = false,
+    dbg::Bool=false,
     useGridInComputations::Bool=false
 )::PersistenceLandscape
     # size(v_space_pland.vectOfLand,1) == 0 && return PersistenceLandscape()
@@ -226,9 +225,9 @@ function average(
                 if i + 1 != size(nextLevelMerge, 1) + 1
                     l = operationOnPairOfLandscapes(
                         nextLevelMerge[i],
-                        nextLevelMerge[i + 1],
+                        nextLevelMerge[i+1],
                         # two_element_average,
-                        + ,
+                        +,
                     )
                 else
                     l = nextLevelMerge[i]
@@ -263,7 +262,7 @@ end
 
 function standardDeviation(
     v_space_pland::VectorSpaceOfPersistenceLandscapes;
-    whichDistance::String = "regular"
+    whichDistance::String="regular"
 )
     av = average(v_space_pland)
     distanceToAverage = 0

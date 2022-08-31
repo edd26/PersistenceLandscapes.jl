@@ -38,7 +38,7 @@ end
 
 function get_landscape_form_vectors(
     landscapePointsWithoutInfinities::Vector{Vector{MyPair}};
-    allow_inf_intervals = false,
+    allow_inf_intervals=false
 )
     land = Vector{Vector{MyPair}}()
     for level = 1:size(landscapePointsWithoutInfinities, 1)
@@ -56,7 +56,7 @@ function get_landscape_form_vectors(
     return land
 end
 
-function create_PersistenceLandscape(p::PersistenceBarcodes; useGridInComputations = false)
+function create_PersistenceLandscape(p::PersistenceBarcodes; useGridInComputations=false)
     # @debug "PersistenceLandscape(PersistenceBarcodes& p )"
 
     land = Vector{Vector{MyPair}}()
@@ -86,7 +86,7 @@ function subSelectCharacteristicPoints(point, subset_characteristicPoints, birth
     birth_condition = birth_oper.(birth(point), birth.(subset_characteristicPoints))
     death_condition = death_oper.(death(point), death.(subset_characteristicPoints))
     if any(i -> i, birth_condition .&& death_condition)
-        selected_points = subset_characteristicPoints[birth_condition .&& death_condition]
+        selected_points = subset_characteristicPoints[birth_condition.&&death_condition]
     else
         selected_points = Vector{MyPair}[]
     end
@@ -97,11 +97,11 @@ function getPointsBeforeCharacteristic(point, subset_characteristicPoints)
 end
 
 function getPointsAfterCharacteristic(point, subset_characteristicPoints)
-    subSelectCharacteristicPoints(point, subset_characteristicPoints, <=, >= )
+    subSelectCharacteristicPoints(point, subset_characteristicPoints, <=, >=)
 end
 
 function appendEndOfSection!(lambda_n, lambda_death, cp_birth)
-    push!(lambda_n, MyPair(lambda_death , 0))
+    push!(lambda_n, MyPair(lambda_death, 0))
     push!(lambda_n, MyPair(cp_birth, 0))
     # return vcat(lambda_n,
     #             [MyPair(lambda_death , 0),
@@ -115,8 +115,8 @@ end
 function beginNewLambda(first_point)
 
     return [#MyPair(min_birth, 0),
-            MyPair(first_point |> birth, 0),
-            first_point]
+        MyPair(first_point |> birth, 0),
+        first_point]
 end
 
 function appendLastPoint!(lambda_n)
@@ -130,11 +130,10 @@ end
 
 
 """
-
 Appending last point is necessary for this structure of code to work,
 especially, when inf intervals are disabled.
 """
-function getNthLambda(characteristicPoints; allow_inf_intervals::Bool = false)
+function getNthLambda(characteristicPoints; allow_inf_intervals::Bool=false)
 
     # ===-===-
     lambda_n = beginNewLambda(characteristicPoints[1])
@@ -163,7 +162,7 @@ function getNthLambda(characteristicPoints; allow_inf_intervals::Bool = false)
                 if (i + p < total_characteristic_points)
                     selected_points = getPointsBeforeCharacteristic(
                         point,
-                        characteristicPoints[(i + p):end],
+                        characteristicPoints[(i+p):end],
                     )
                     newCharacteristicPoints = vcat(newCharacteristicPoints, selected_points)
                     p += length(selected_points)
@@ -174,7 +173,7 @@ function getNthLambda(characteristicPoints; allow_inf_intervals::Bool = false)
                 if (i + p < total_characteristic_points)
                     selected_points = getPointsAfterCharacteristic(
                         point,
-                        characteristicPoints[(i + p):end],
+                        characteristicPoints[(i+p):end],
                     )
                     newCharacteristicPoints = vcat(newCharacteristicPoints, selected_points)
                     p += length(selected_points)
@@ -205,19 +204,19 @@ end
 
 ## ===-===-
 
-function comparePoints2( f::MyPair, s::MyPair )
-    if ( f.first < s.first )
+function comparePoints2(f::MyPair, s::MyPair)
+    if (f.first < s.first)
         return true
     else
-    # {//f.first >= s.first
-        if ( f.first > s.first )
+        # {//f.first >= s.first
+        if (f.first > s.first)
             return false
         else
-        # {//f.first == s.first
-        if ( f.second > s.second )
-                return true;
+            # {//f.first == s.first
+            if (f.second > s.second)
+                return true
             else
-                return false;
+                return false
             end # 3rd if
         end # 2nd if
     end #1st if
@@ -236,7 +235,7 @@ function noGridsLandscapesConstructor(p::PersistenceBarcodes;)
     # Apply sorting so that: first is increasing with index; if equal, then larger second are first
     characteristicPoints = p.barcodes |>
                            sort |>
-                            getCharacterisitcPoints
+                           getCharacterisitcPoints
 
     land = Vector{Vector{MyPair}}()
     while (!isempty(characteristicPoints))
@@ -246,7 +245,7 @@ function noGridsLandscapesConstructor(p::PersistenceBarcodes;)
     return land
 end
 
-function constructLandscapeWithGrids(p::PersistenceBarcodes; allow_inf_intervals = false)
+function constructLandscapeWithGrids(p::PersistenceBarcodes; allow_inf_intervals=false)
 
     land = Vector{Vector{MyPair}}()
     # # @debug "Constructing persistence landscape based on a grid"# getchar())
@@ -339,10 +338,10 @@ function constructLandscapeWithGrids(p::PersistenceBarcodes; allow_inf_intervals
         # for every element in the domain for which the previous landscape is nonzero.
         wasPrevoiusStepZero = true
         nr = 1
-        while nr < size(land.land[size(land, 1) - 1]) - 1
+        while nr < size(land.land[size(land, 1)-1]) - 1
             # @debug "nr : $(nr)"
             address = ()(
-                2 * (land.land[size(land, 1) - 1][nr].first - minMax_val.first) /
+                2 * (land.land[size(land, 1)-1][nr].first - minMax_val.first) /
                 (gridDiameter),
             )
             # @debug "We are considering the element x : $(land.land[ size(land,1)-1 ][nr].first). Its position in the structure is : $(address)",
@@ -360,7 +359,7 @@ function constructLandscapeWithGrids(p::PersistenceBarcodes; allow_inf_intervals
                     # @debug "Adding : ($(criticalValuesOnPointsOfGrid[address-1].first) $(0)) to lambda_$(lambda)",
                     push!(
                         nextLambbda,
-                        make_MyPair(criticalValuesOnPointsOfGrid[address - 1].first, 0),
+                        make_MyPair(criticalValuesOnPointsOfGrid[address-1].first, 0),
                     )
                     wasPrevoiusStepZero = false
                 end
@@ -392,7 +391,7 @@ end
 function create_PersistenceLandscape(
     land::PersistenceLandscape,
     filename::String;
-    allow_inf_intervals::Bool = false,
+    allow_inf_intervals::Bool=false
 )
     land_vecto = copy(land.land)
     # @debug "Using constructor : PersistenceLandscape $(filename)"

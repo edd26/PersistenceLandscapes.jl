@@ -42,7 +42,6 @@ function >(p1::MyPair, p2::MyPair)
     end
 end
 
-
 # tested
 function make_MyPair(val1, val2)
     return MyPair(val1, val2)

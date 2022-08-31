@@ -33,7 +33,6 @@ function vector < string > readFileNames(char * filenameWithFilenames)
     * / return result
 end# readFileNames
 
-
 # This procedure reads all the files named in the vector<string>. It can read both barcode files and landscape files. But in the case of landsape files, we assume that the extension is
 # '.lan'.
 function vector <
@@ -53,10 +52,10 @@ function vector <
             # check if last four characters in the name of the file is '.lan'.
             l = filenames[fileNo].size()
             if (
-                (filenames[fileNo][l - 1] == 'n') &&
-                (filenames[fileNo][l - 2] == 'a') &&
-                (filenames[fileNo][l - 3] == 'l') &&
-                (filenames[fileNo][l - 4] == '.')
+                (filenames[fileNo][l-1] == 'n') &&
+                (filenames[fileNo][l-2] == 'a') &&
+                (filenames[fileNo][l-3] == 'l') &&
+                (filenames[fileNo][l-4] == '.')
             )
                 isThisBarcodeFile = false
             end

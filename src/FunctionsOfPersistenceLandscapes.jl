@@ -1,36 +1,36 @@
 function computeIntegral(l::PersistenceLandscape)
 
-    return computeIntegralOfLandscape(l,);
+    return computeIntegralOfLandscape(l,)
 end#computeIntegral
 
 function maximum(l::PersistenceLandscape)
 
-    return computeMaximum(l,);
+    return computeMaximum(l,)
 end#maximum
 
 function firstMomentOfFirstLandscapeCenteredAtZero(l::PersistenceLandscape)
 
-    return computeNthMoment(l, 1 , 0 , 0 );
+    return computeNthMoment(l, 1, 0, 0)
 end#firstMomentCenteredAtZero
 
 function secondMomentOfFirstLandscapeCenteredAtZero(l::PersistenceLandscape)
 
-    return computeNthMoment(l, 2 , 0 , 0 );
+    return computeNthMoment(l, 2, 0, 0)
 end#firstMomentCenteredAtZero
 
 function thirdMomentOfFirstLandscapeCenteredAtZero(l::PersistenceLandscape)
 
-    return computeNthMoment(l, 3 , 0 , 0 );
+    return computeNthMoment(l, 3, 0, 0)
 end#firstMomentCenteredAtZero
 
 function fourthMomentOfFirstLandscapeCenteredAtZero(l::PersistenceLandscape)
 
-    return computeNthMoment(l, 4 , 0 , 0 );
+    return computeNthMoment(l, 4, 0, 0)
 end#firstMomentCenteredAtZero
 
 function numberOfNonzeroLandscapes(l::PersistenceLandscape)
 
-    return size(l);
+    return size(l)
 end#numberOfNonzeroLandscapes
 
 function userFunction(l::PersistenceLandscape)
@@ -39,24 +39,23 @@ function userFunction(l::PersistenceLandscape)
     return pi
 end#numberOfNonzeroLandscapes
 
-
-function averageBarcodeLength( b::PersistenceBarcodes)
-    av = 0;
-    for  i in b
-        av += abs(i.second - i.first);
+function averageBarcodeLength(b::PersistenceBarcodes)
+    av = 0
+    for i in b
+        av += abs(i.second - i.first)
     end
     av = av / size(b)
-    return av;
+    return av
 end
 
-function maxLengthBarcode( b::PersistenceBarcodes)
-    maxL = 0;
+function maxLengthBarcode(b::PersistenceBarcodes)
+    maxL = 0
     for i in b
         if maxL < abs(i.second - i.first)
             maxL = abs(i.second - i.first)
         end
     end
-    return maxL;
+    return maxL
 end
 
 
@@ -79,48 +78,48 @@ function numberOfFunctions()
     return 8
 end
 
-function gimmeFunctionOfANumnber(numberOfFunction::Int )
+function gimmeFunctionOfANumnber(numberOfFunction::Int)
 
-    if ( (numberOfFunction <= 0) || (numberOfFunction > 7) )
+    if ((numberOfFunction <= 0) || (numberOfFunction > 7))
         println("Wrong number of function : " << numberOfFunction << ".The program will now terminate.")
-        throw("Wrong number of function, the program will now terminate.\n");
+        throw("Wrong number of function, the program will now terminate.\n")
     end
     if numberOfFunction == 1
         println("Using function computeIntegral.")
-        return computeIntegral;
+        return computeIntegral
 
     elseif numberOfFunction == 2
         println("Using function maximum.")
-        return  maximum;
+        return maximum
 
     elseif numberOfFunction == 3
         println("Using function firstMomentCenteredAtZero.")
-        return firstMomentOfFirstLandscapeCenteredAtZero;
+        return firstMomentOfFirstLandscapeCenteredAtZero
 
     elseif numberOfFunction == 4
         println("Using function secondMomentOfFirstLandscapeCenteredAtZero.")
-        return secondMomentOfFirstLandscapeCenteredAtZero;
+        return secondMomentOfFirstLandscapeCenteredAtZero
 
     elseif numberOfFunction == 5
         println("Using function thirdMomentthirdMomentCenteredAtZero.")
-        return thirdMomentOfFirstLandscapeCenteredAtZero;
+        return thirdMomentOfFirstLandscapeCenteredAtZero
 
     elseif numberOfFunction == 6
         println("Using function fourthMomentthirdMomentCenteredAtZero.")
-        return fourthMomentOfFirstLandscapeCenteredAtZero;
+        return fourthMomentOfFirstLandscapeCenteredAtZero
 
     elseif numberOfFunction == 7
         println("Using function numberOfNonzeroLandscapes.")
-        return numberOfNonzeroLandscapes;
+        return numberOfNonzeroLandscapes
 
     elseif numberOfFunction == 8
         println("Using the function defined by the used in a file functionsOfPersistenceLandscapes.h.")
-        return userFunction;
+        return userFunction
 
     else
         println("Unknown function, the program will now terminate.")
-        throw("Unknown function, the program will now terminate.\n");
-        return 0;
+        throw("Unknown function, the program will now terminate.\n")
+        return 0
     end
 end
 

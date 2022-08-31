@@ -25,11 +25,10 @@ useGridInComputations,
 gridDiameter,
 epsi
 
-
 function configure(;
-    config_file_name::String = "configure",
-    config_dict::Dict = config_dict,
-    dbg::Bool = false,
+    config_file_name::String="configure",
+    config_dict::Dict=config_dict,
+    dbg::Bool=false
 )
     begin
         @unpack areThereInfiniteIntervals,
