@@ -66,7 +66,7 @@ end
 
 ## ===-
 @testset "Test contruction of PersistenceLandscapes" begin
-    include("persistenceLandscape_test.jl")
+    include("landscapesConstruction_test.jl")
     #     include("landscapesConstruction_test.jl")
 end
 
