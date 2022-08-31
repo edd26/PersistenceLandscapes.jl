@@ -1,4 +1,3 @@
-# ===-
 ## ===-
 @testset "constructors tests" begin
     #
@@ -121,6 +120,7 @@ end
 @testset "PersistenceLandscape operations" begin
     pl0, pl1, pl2, pl3, pl4, pl5, pl6, pl7, pl8, pl9 = generate_testing_lanscapes()
 
+    #
     @testset "equality" begin
         @test typeof(pl0 + pl0) == PersistenceLandscape
         @test typeof(pl0 - pl0) == PersistenceLandscape
@@ -136,6 +136,7 @@ end
         @test (pl0 == pl1) == false
     end
 
+    #
     @testset "addition" begin
         # ===-
         # comutative test
@@ -168,14 +169,14 @@ end
         # ===-
         # Landscapes with diferent number of layers
         @test length((pl6 + pl0).land) == max(length(pl6.land), length(pl0.land))
-        @test_broken (pl6 + pl0) ==
+        @test (pl6 + pl0) ==
               [
             [MyPair(0, 0), MyPair(1, 1), MyPair(2, 3), MyPair(3, 1), MyPair(4, 0)],
             [MyPair(1, 0), MyPair(2, 1), MyPair(3, 0)],
         ] |> PersistenceLandscape
 
         @test length((pl6 + pl2).land) == max(length(pl6.land), length(pl2.land))
-        @test_broken (pl6 + pl2) ==
+        @test (pl6 + pl2) ==
               [
             [MyPair(0, 0), MyPair(1, 2), MyPair(2, 2), MyPair(4, 0)],
             [MyPair(1, 0), MyPair(2, 1), MyPair(3, 0)],
@@ -198,7 +199,7 @@ end
         @test length((pl6 + pl7).land) == max(length(pl6.land), length(pl7.land))
         @test (pl6 + pl7) ==
               [
-            [MyPair(0, 0), MyPair(1, 2), MyPair(2, 4), MyPair(4, 0)],
+            [MyPair(0, 0), MyPair(2, 4), MyPair(4, 0)],
             [MyPair(0, 0), MyPair(1, 1), MyPair(2, 1), MyPair(3, 0)],
         ] |> PersistenceLandscape
 
@@ -207,9 +208,7 @@ end
               [
             [
                 MyPair(0, 0),
-                MyPair(1, 1),
                 MyPair(2, 2),
-                MyPair(3, 2),
                 MyPair(4, 2),
                 MyPair(6, 0),
             ],
@@ -225,7 +224,7 @@ end
         ] |> PersistenceLandscape
 
         @test length((pl0 + pl9).land) == max(length(pl0.land), length(pl9.land))
-        @test_broken (pl0 + pl9) ==
+        @test (pl0 + pl9) ==
               [
             [
                 MyPair(0, 0),
@@ -244,7 +243,7 @@ end
         ] |> PersistenceLandscape
 
         @test length((pl8 + pl9).land) == max(length(pl8.land), length(pl9.land))
-        @test_broken (pl8 + pl9) ==
+        @test (pl8 + pl9) ==
               [
             [
                 MyPair(0, 0),
@@ -364,18 +363,18 @@ end
               [[MyPair(0, 0), MyPair(1, -1), MyPair(2, 1), MyPair(3, 0)]] |>
               PersistenceLandscape
         # ===- Two layers
-        @test_broken (pl6 - pl1) ==
+        @test (pl6 - pl1) ==
               [
             [MyPair(0, 0), MyPair(2, 0), MyPair(4, 0)],
             [MyPair(1, 0), MyPair(2, 1), MyPair(3, 0)],
         ] |> PersistenceLandscape
-        @test_broken (pl1 - pl6) ==
+        @test (pl1 - pl6) ==
               [
             [MyPair(0, 0), MyPair(2, 0), MyPair(4, 0)],
             [MyPair(1, 0), MyPair(2, -1), MyPair(3, 0)],
         ] |> PersistenceLandscape
         # ===- Many layers
-        @test_broken (pl9 - pl4) ==
+        @test (pl9 - pl4) ==
               [
             [
                 MyPair(0, 0),
@@ -424,10 +423,8 @@ end
         @test abs(diff_result1.land[2][3].second) == abs(diff_result2.land[2][3].second)
         @test diff_result1.land[2][4] == diff_result2.land[2][4]
     end
+    #
 end
-##
-
-
 
 
 ## ===-
@@ -495,17 +492,16 @@ end
     # Test abs structure
     @test pl7 - pl6 |> abs_pl ==
           [
-        [MyPair(0, 0), MyPair(1, 0), MyPair(2, 0), MyPair(4, 0)],
+        [MyPair(0, 0), MyPair(2, 0), MyPair(4, 0)],
         [MyPair(0, 0), MyPair(1, 1), MyPair(1.5, 0), MyPair(2, 1), MyPair(3, 0)],
     ] |> PersistenceLandscape
     @test pl6 - pl7 |> abs_pl ==
           [
-        [MyPair(0, 0), MyPair(1, 0), MyPair(2, 0), MyPair(4, 0)],
+        [MyPair(0, 0), MyPair(2, 0), MyPair(4, 0)],
         [MyPair(0, 0), MyPair(1, 1), MyPair(1.5, 0), MyPair(2, 1), MyPair(3, 0)],
     ] |> PersistenceLandscape
 
 end
-##
 
 
 ## ===-
