@@ -3,7 +3,6 @@ Module with MyPair, which is a parir of floating point numbers.
 =#
 import Base.:<, Base.:>, Base.==, Base.isless
 
-# tested
 struct MyPair
     first::Float64
     second::Float64
@@ -40,11 +39,6 @@ function >(p1::MyPair, p2::MyPair)
     else
         return false
     end
-end
-
-# tested
-function make_MyPair(val1, val2)
-    return MyPair(val1, val2)
 end
 
 function birth(a::MyPair)
@@ -150,7 +144,7 @@ Creates a new Point2D  which coordinates are average value of input coordinates.
 TODO This should be extracted to Point2D related script.
 """
 function projectionToDiagonal(p::MyPair)::MyPair
-    return make_MyPair(0.5 * (p.first + p.second), 0.5 * (p.first + p.second))
+    return MyPair(0.5 * (p.first + p.second), 0.5 * (p.first + p.second))
 end
 
 # tested

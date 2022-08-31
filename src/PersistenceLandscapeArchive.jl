@@ -188,7 +188,7 @@ end
 #     for dim = 1 : size(land)
 #         lambda_dim = MyPair[]
 #         for i = 1 : size(land.land[dim],1)
-#             push!(lambda_dim, make_MyPair( land.land[dim][i].first , land.land[dim][i].second/x ))
+#             push!(lambda_dim, MyPair( land.land[dim][i].first , land.land[dim][i].second/x ))
 #         end
 #
 #         push!(result, lambda_dim)

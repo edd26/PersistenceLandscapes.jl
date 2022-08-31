@@ -57,13 +57,13 @@ struct PersistenceBarcodes
         for i = 1:total_pairs
             if (bars[i].second != infty)
                 # this is a finite interval
-                push!(barcodes, make_MyPair(bars[i].first, bars[i].second))
+                push!(barcodes, MyPair(bars[i].first, bars[i].second))
                 nr += 1
             end
             # to keep it all compact for now I am removing infinite intervals from consideration.
             #=else
                 # this is infinite interval:
-                barcodes[i] =  make_MyPair( bars[i].first, INT_MAX );
+                barcodes[i] =  MyPair( bars[i].first, INT_MAX );
             }=#
         end
         barcodes = sort(barcodes)
@@ -243,7 +243,7 @@ function removeBarcodesThatBeginsBeforeGivenNumber(
         else
             # pers_barcode.barcodes[i].first <= number
             if (pers_barcode.barcodes[i].second > number)
-                push!(newBarcodes, make_MyPair(number, pers_barcode.barcodes[i].second))
+                push!(newBarcodes, MyPair(number, pers_barcode.barcodes[i].second))
             end
             # in the opposite case pers_barcode.barcodes[i].second <= in which case, we totally ignore this point.
         end
@@ -287,7 +287,7 @@ function putToBins(pers_barcode::PersistenceBarcodes, numberOfBins; dbg::Bool=fa
         rightBinEnd = myPair_minMax.first + (rightBinNumber + 0.5) * dx #::Float64
 
         if leftBinEnd != rightBinEnd
-            push!(binnedData, make_MyPair(leftBinEnd, rightBinEnd))
+            push!(binnedData, MyPair(leftBinEnd, rightBinEnd))
         end
 
         if dbg
@@ -601,7 +601,7 @@ function restrictBarcodesToGivenInterval(
         end
         push!(
             new_pairs,
-            make_MyPair(
+            MyPair(
                 max(interval.first, pers_barcode.barcodes[i].first),
                 min(interval.second, pers_barcode.barcodes[i].second),
             ),
@@ -642,7 +642,7 @@ function minMax(pers_barcode::PersistenceBarcodes)
             bmax = pers_barcode.barcodes[i].second
         end
     end
-    return make_MyPair(bmin, bmax)
+    return MyPair(bmin, bmax)
 end # minMax
 
 
@@ -673,7 +673,7 @@ function produceBettiNumbersOnAGridFromMinToMaxRangeWithAStepBeingParameterOfThi
     if (minn == Inf)
         minMax_val = minMax(pers_barcode)
     else
-        minMax_val = make_MyPair(minn, maxx)
+        minMax_val = MyPair(minn, maxx)
     end
 
     bettiNumbers = zeros(UInt, step)# (step+1);

@@ -44,11 +44,11 @@ function get_landscape_form_vectors(
     for level = 1:size(landscapePointsWithoutInfinities, 1)
         v = landscapePointsWithoutInfinities[level]
         if allow_inf_intervals
-            if !(make_MyPair(-Inf, 0) in v)
-                v = vcat(make_MyPair(-Inf, 0), v)
+            if !(MyPair(-Inf, 0) in v)
+                v = vcat(MyPair(-Inf, 0), v)
             end
-            if !(make_MyPair(Inf, 0) in v)
-                v = vcat(v, make_MyPair(Inf, 0))
+            if !(MyPair(Inf, 0) in v)
+                v = vcat(v, MyPair(Inf, 0))
             end
         end
         push!(land, v)
@@ -244,22 +244,22 @@ function constructLandscapeWithGrids(p::PersistenceBarcodes; allow_inf_intervals
 
     aa = MyPair[]
     if allow_inf_intervals
-        push!(aa, make_MyPair(-Inf, 0))
+        push!(aa, MyPair(-Inf, 0))
     end
 
     x = minMax_val.first
     for i = 0:numberOfBins
         v = Float64[]
-        # pair<, vector<double> > p = std::make_MyPair( x , v )
+        # pair<, vector<double> > p = std::MyPair( x , v )
         p = (x, v)
-        push!(aa, make_MyPair(x, 0))
+        push!(aa, MyPair(x, 0))
         push!(criticalValuesOnPointsOfGrid[i], p)
         # @debug "x : $(x)"
         x += 0.5 * gridDiameter
     end
 
     if allow_inf_intervals
-        push!(aa, make_MyPair(Inf, 0))
+        push!(aa, MyPair(Inf, 0))
     end
     # @debug "Grid has been created. Now, begin to add intervals"
     # for every peristent interval
@@ -311,7 +311,7 @@ function constructLandscapeWithGrids(p::PersistenceBarcodes; allow_inf_intervals
         # @debug "Constructing lambda_$(lambda)"
         nextLambbda = MyPair[]
 
-        push!(nextLambbda, make_MyPair(INT_MIN, 0))
+        push!(nextLambbda, MyPair(INT_MIN, 0))
 
         # for every element in the domain for which the previous landscape is nonzero.
         wasPrevoiusStepZero = true
@@ -329,7 +329,7 @@ function constructLandscapeWithGrids(p::PersistenceBarcodes; allow_inf_intervals
                     # @debug "AAAdding : ($(criticalValuesOnPointsOfGrid[address].first) $(0)) to lambda_$(lambda)",
                     push!(
                         nextLambbda,
-                        make_MyPair(criticalValuesOnPointsOfGrid[address].first, 0),
+                        MyPair(criticalValuesOnPointsOfGrid[address].first, 0),
                     )
                 end
             else
@@ -337,14 +337,14 @@ function constructLandscapeWithGrids(p::PersistenceBarcodes; allow_inf_intervals
                     # @debug "Adding : ($(criticalValuesOnPointsOfGrid[address-1].first) $(0)) to lambda_$(lambda)",
                     push!(
                         nextLambbda,
-                        make_MyPair(criticalValuesOnPointsOfGrid[address-1].first, 0),
+                        MyPair(criticalValuesOnPointsOfGrid[address-1].first, 0),
                     )
                     wasPrevoiusStepZero = false
                 end
                 # @debug "AAdding : ($(criticalValuesOnPointsOfGrid[address].first) $(criticalValuesOnPointsOfGrid[address].second[lambda])) to lambda_$(lambda)",
                 push!(
                     nextLambbda,
-                    make_MyPair(
+                    MyPair(
                         criticalValuesOnPointsOfGrid[address].first,
                         criticalValuesOnPointsOfGrid[address].second[lambda],
                     ),
@@ -359,7 +359,7 @@ function constructLandscapeWithGrids(p::PersistenceBarcodes; allow_inf_intervals
             # removing the first, fake, landscape
             land.land.clear()
         end
-        push!(nextLambbda, make_MyPair(INT_MAX, 0))
+        push!(nextLambbda, MyPair(INT_MAX, 0))
         nextLambbda.erase(unique(nextLambbda.begin(), nextLambbda.end()), nextLambbda.end())
         push!(land, nextLambbda)
     end
@@ -403,19 +403,19 @@ function create_PersistenceLandscape(
                 ending = splitted[2]
 
 
-                push!(landscapeAtThisLevel, make_MyPair(beginning, ending))
+                push!(landscapeAtThisLevel, MyPair(beginning, ending))
                 # @debug "Reading a pont : $(beginning), $(ending)"
                 if false
                     # @debug "IGNORE LINE"
                     if !isThisAFirsLine
                         if allow_inf_intervals
-                            push!(landscapeAtThisLevel, make_MyPair(Inf, 0))
+                            push!(landscapeAtThisLevel, MyPair(Inf, 0))
                         end
                         push!(land_vecto, landscapeAtThisLevel)
                         landscapeAtThisLevel = MyPair[]
                     end
                     if allow_inf_intervals
-                        push!(landscapeAtThisLevel, make_MyPair(-Inf, 0))
+                        push!(landscapeAtThisLevel, MyPair(-Inf, 0))
                     end
                     isThisAFirsLine = false
                 end
@@ -425,7 +425,7 @@ function create_PersistenceLandscape(
     if size(landscapeAtThisLevel, 1) > 1
         # seems that the last line of the file is not finished with the newline sign. We need to put what we have in landscapeAtThisLevel to the constructed landscape.
         if allow_inf_intervals
-            push!(landscapeAtThisLevel, make_MyPair(Inf, 0))
+            push!(landscapeAtThisLevel, MyPair(Inf, 0))
         end
         push!(land_vecto, landscapeAtThisLevel)
     end
@@ -461,7 +461,7 @@ function computeLandscapeOnDiscreteSetOfPoints(
     i = 0
     while (x <= bmax)
         v = Float64[]
-        result[i] = make_MyPair(x, v)
+        result[i] = MyPair(x, v)
         x += dx / 2.0
         i += 1
     end
@@ -508,17 +508,17 @@ function computeLandscapeOnDiscreteSetOfPoints(
     # @debug "Now we fill in the suitable vecors in this landscape"
     land = Vector{Vector{MyPair}}()
     for dim = 0:indexOfLastNonzeroLandscape
-        land[dim].push_back(make_MyPair(-Inf, 0))
+        land[dim].push_back(MyPair(-Inf, 0))
     end
     i = 0
     for x = bmin:bmax
         for nr = 0:size(result[i].second, 1)
-            land[nr].push_back(make_MyPair(result[i].first, result[i].second[nr]))
+            land[nr].push_back(MyPair(result[i].first, result[i].second[nr]))
         end
         i += 1
     end
     for dim = 0:indexOfLastNonzeroLandscape
-        land[dim].push_back(make_MyPair(Inf, 0))
+        land[dim].push_back(MyPair(Inf, 0))
     end
     land.land.clear()
     land.land.swap(land)

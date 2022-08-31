@@ -358,7 +358,7 @@ function operationOnPairOfLandscapes(
 
         # if both of while loops fail, then there is nothing added to lambda_n
         # why add this infinite loop if there was none in the original data?
-        # push!(lambda_n,  make_MyPair( Inf, 0 ) )
+        # push!(lambda_n,  MyPair( Inf, 0 ) )
         # CHANGE
         # result.land[i] = lambda_n
         push!(result, lambda_n)
@@ -458,7 +458,7 @@ function append_nonoverlapping_elements!(
     #             oper_result = oper(0 , selected_land.land[i][nr].second)
     #         end
     #
-    #         new_pair = make_MyPair(selected_land.land[i][nr].first, oper_result)
+    #         new_pair = MyPair(selected_land.land[i][nr].first, oper_result)
     #         lambda_n[nr] = new_pair
     #     end
     #     # CHANGE
@@ -478,7 +478,7 @@ function multiplyByIndicatorFunction(
         if (local_dbg)println("dim : $(dim)")
         end
         lambda_n = MyPair[]
-        push!(lambda_n, make_MyPair(0, INT_MIN))
+        push!(lambda_n, MyPair(0, INT_MIN))
         if indicator.size() > dim
             if (local_dbg)
                 println("There is nonzero indicator in this dimension")
@@ -501,7 +501,7 @@ function multiplyByIndicatorFunction(
                     end
                     push!(
                         lambda_n,
-                        make_MyPair(
+                        MyPair(
                             indicator[dim].second,
                             functionValue(
                                 land.land[dim][nr-1],
@@ -510,7 +510,7 @@ function multiplyByIndicatorFunction(
                             ),
                         ),
                     )
-                    push!(lambda_n, make_MyPair(indicator[dim].second, 0))
+                    push!(lambda_n, MyPair(indicator[dim].second, 0))
                     break
                 end
                 if (land.land[dim][nr].first >= indicator[dim].first) &&
@@ -518,10 +518,10 @@ function multiplyByIndicatorFunction(
                     if (local_dbg)
                         println("Entering the indicator")
                     end
-                    push!(lambda_n, make_MyPair(indicator[dim].first, 0))
+                    push!(lambda_n, MyPair(indicator[dim].first, 0))
                     push!(
                         lambda_n,
-                        make_MyPair(
+                        MyPair(
                             indicator[dim].first,
                             functionValue(
                                 land.land[dim][nr-1],
@@ -536,11 +536,11 @@ function multiplyByIndicatorFunction(
                 end
                 push!(
                     lambda_n,
-                    make_MyPair(land.land[dim][nr].first, land.land[dim][nr].second),
+                    MyPair(land.land[dim][nr].first, land.land[dim][nr].second),
                 )
             end
         end
-        push!(lambda_n, make_MyPair(0, -Inf))
+        push!(lambda_n, MyPair(0, -Inf))
         if size(lambda_n, 1) > 2
             result.land.push_back(lambda_n)
         end
@@ -570,7 +570,7 @@ function generateBettiNumbersHistogram(
                 if land.land[dim][i].second == 0
                     push!(
                         rangeOfLandscapeInThisDimension,
-                        make_MyPair(land.land[dim][i].first, dim + 1),
+                        MyPair(land.land[dim][i].first, dim + 1),
                     )
                 end
             end
@@ -582,17 +582,17 @@ function generateBettiNumbersHistogram(
                     if first
                         push!(
                             rangeOfLandscapeInThisDimension,
-                            make_MyPair(land.land[dim][i].first, 0),
+                            MyPair(land.land[dim][i].first, 0),
                         )
                     end
                     push!(
                         rangeOfLandscapeInThisDimension,
-                        make_MyPair(land.land[dim][i].first, dim + 1),
+                        MyPair(land.land[dim][i].first, dim + 1),
                     )
                     if (!first)
                         push!(
                             rangeOfLandscapeInThisDimension,
-                            make_MyPair(land.land[dim][i].first, 0),
+                            MyPair(land.land[dim][i].first, 0),
                         )
                     end
                     first = !first
@@ -638,9 +638,9 @@ function generateBettiNumbersHistogram(
     for i = 1:size(resultRaw)
         push!(result, resultRaw[i-1])
         if resultRaw[i-1].second <= resultRaw[i].second
-            push!(result, make_MyPair(resultRaw[i].first, resultRaw[i-1].second))
+            push!(result, MyPair(resultRaw[i].first, resultRaw[i-1].second))
         else
-            push!(result, make_MyPair(resultRaw[i-1].first, resultRaw[i].second))
+            push!(result, MyPair(resultRaw[i-1].first, resultRaw[i].second))
         end
     end
     # result.erase( unique( result.begin(), result.end() ), result.end() )
@@ -664,15 +664,15 @@ function generateBettiNumbersHistogram(
         if minBetti != maxBetti
             if (size(resultNew) == 0) || (size(resultNew[resultNew-1].second) <= minBetti)
                 # going up
-                push!(resultNew, make_MyPair(x, minBetti))
-                push!(resultNew, make_MyPair(x, maxBetti))
+                push!(resultNew, MyPair(x, minBetti))
+                push!(resultNew, MyPair(x, maxBetti))
             else
                 # going down
-                push!(resultNew, make_MyPair(x, maxBetti))
-                push!(resultNew, make_MyPair(x, minBetti))
+                push!(resultNew, MyPair(x, maxBetti))
+                push!(resultNew, MyPair(x, minBetti))
             end
         else
-            push!(resultNew, make_MyPair(x, minBetti))
+            push!(resultNew, MyPair(x, minBetti))
         end
     end
 
@@ -1180,7 +1180,7 @@ function multiplyLanscapeByRealNumberNotOverwrite(land::PersistenceLandscape, x:
         for i = 1:size(land.land[dim], 1)
             push!(
                 lambda_dim,
-                make_MyPair(land.land[dim][i].first, x * land.land[dim][i].second),
+                MyPair(land.land[dim][i].first, x * land.land[dim][i].second),
             )
         end
 
