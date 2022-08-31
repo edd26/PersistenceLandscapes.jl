@@ -557,10 +557,6 @@ function gimmeProperLandscapePoints(land::PersistenceLandscape)::Vector{MyPair}
     return result
 end
 
-function comparePairsForMerging(first::MyPair, second::MyPair)
-    return (first.first < second.first)
-end
-
 function generateBettiNumbersHistogram(
     land::PersistenceLandscape;
     dbg=false
@@ -994,15 +990,6 @@ function reduceAllPairsOfLowPersistenceMaximaMinima(land::PersistenceLandscape, 
             removePairsOfLocalMaximumMinimumOfEpsPersistence(land, epsilon)
     end
 end
-
-
-# Yet another function to smooth up the data. The idea of this one is as follows. Let us take a landscape point A which is not (+infty,0), (-infty,0) of (a,0), (b,0), where a and b denotes the
-# points which support of the function begins and ends. Let B and C will be the landscape points after A. Suppose B and C are also no one as above.
-# The question we are asking here is -- can we remove the point B and draw a line from A to C such that the difference in a landscape will be not greater than epsilon?
-# To measure the penalty of removing B, the funcion penalty. In below, the simplese example is given:
-function penalty(A::MyPair, B::MyPair, C::MyPair)
-    return abs(functionValue(A, C, B.first) - B.second)
-end# penalty
 
 function reducePoints(
     land::PersistenceLandscape,

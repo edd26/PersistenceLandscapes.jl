@@ -200,28 +200,6 @@ function getNthLambda(characteristicPoints; allow_inf_intervals::Bool=false)
     return lambda_n, newCharacteristicPoints
 end
 
-
-
-## ===-===-
-
-function comparePoints2(f::MyPair, s::MyPair)
-    if (f.first < s.first)
-        return true
-    else
-        # {//f.first >= s.first
-        if (f.first > s.first)
-            return false
-        else
-            # {//f.first == s.first
-            if (f.second > s.second)
-                return true
-            else
-                return false
-            end # 3rd if
-        end # 2nd if
-    end #1st if
-end # function
-
 ### ==-===-
 """
 Generate layers of landscape from barcodes.

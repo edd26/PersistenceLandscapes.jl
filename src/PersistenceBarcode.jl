@@ -124,83 +124,6 @@ struct PersistenceBarcodes
     end
 end
 
-# ===-===-===-===-
-# MyPair >>>
-
-"""
-Compute Euclidean distance for a pair of values.
-
-TODO This should be extracted to Point2D related script.
-"""
-function computeDistanceOfPointsInPlane(p1::MyPair, p2::MyPair)::Float64
-    # cerr << "Computing distance of points :(" << p1.first << "," << p1.second << ") and (" << p2.first << "," << p2.second << ")\n";
-    # cerr << "Distance :" << sqrt( (p1.first-p2.first)*(p1.first-p2.first) + (p1.second-p2.second)*(p1.second-p2.second) ) << "\n";
-    return sqrt((p1.first - p2.first)^2 + (p1.second - p2.second)^2)
-end # computeDistanceOfPointsInPlane
-
-
-"""
-Projects point to the diagonal of a cube.
-
-NOTE! This is not verified description.
-
-Creates a new Point2D  which coordinates are average value of input coordinates.
-TODO This should be extracted to Point2D related script.
-"""
-function projectionToDiagonal(p::MyPair)::MyPair
-    return make_MyPair(0.5 * (p.first + p.second), 0.5 * (p.first + p.second))
-end
-
-# tested
-"""
-Check if the barcode 'f' is longer than barcode 's'.
-
-TODO An alternative could be added with just f>s
-TODO This should be extracted to Point2D related script.
-"""
-function compareAccordingToLength(f::MyPair, s::MyPair)::Bool
-    l1 = abs(f.second - f.first) #::Float64
-    l2 = abs(s.second - s.first) #::Float64
-    return (l1 > l2)
-end
-
-# tested
-"""
-Compare two structures MyPair with the following logic:
-- return true if 's' was born before 'f'
-- return false if 'f' was born before 's'
-- return true if 's' died before 'f' (this applies when both are born at the same time)
-- return false if none of above applies
-"""
-# TODO add function depreciation; use isless instead
-function compareMyPairs(f::MyPair, s::MyPair)::Bool
-
-    if f.first < s.first
-        return true
-    end
-
-    if f.first > s.first
-        return false
-    end
-
-    if f.second < s.second
-        return true
-    end
-    return false
-end
-
-"""
-Boolean check if birth times of 'f' is smaller than birth time of 's'.
-"""
-function compareForHistograms(f::MyPair, s::MyPair)::Bool
-    return f.first < s.first
-end
-
-# MyPair <<<
-# ===-===-===-===-
-
-
-
 # to write individual bar
 # function ostream& operator<<(ostream& out, MyPairp )
 #     out << p.first << " " << p.second;
@@ -579,7 +502,7 @@ function setRange(pers_barcode::PersistenceBarcodes, beginn::Real, endd::Real)
         throw(DomainError("Bar ranges in the setRange procedure."))
     end
 
-    minMax_val = minMax(pers_barcode)# ::MyPair
+    minMax_val = minMax(pers_barcode)
     new_range = endd - beginn
 
     new_pairs = MyPair[]
@@ -658,7 +581,6 @@ function removeShortBarcodes(
     end
     return PersistenceBarcodes(cleanedBarcodes, pers_barcode.dimensionOfBarcode)
 end
-
 
 """
 Returns new PersistenceBarcodes structure where birth and death times are restruced to 'interval'
