@@ -1,2 +1,2 @@
-# LandscapesConstruction.jl
-Julia wrapper for Persistence Landscape toolbox by Paweł Dłotko
+# PersistenceLandscapes.jl
+Julia version for Persistence Landscapes Toolbox by Paweł Dłotko (all the code was translated from C++ to Julia).
