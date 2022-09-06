@@ -1,13 +1,15 @@
 #=
 Module with MyPair, which is a parir of floating point numbers.
 =#
-import Base.:<, Base.:>, Base.==, Base.isless
+import Base.:<, Base.:>, Base.==, Base.isless, Base.show
 
 struct MyPair
     first::Float64
     second::Float64
 end
 
+# Basic operators >>>
+#
 function ==(p1::MyPair, p2::MyPair)
     return p1.first == p2.first && p1.second == p2.second
 end
@@ -40,6 +42,10 @@ function >(p1::MyPair, p2::MyPair)
         return false
     end
 end
+
+Base.show(io::IO, p::MyPair) = print(io, "(x=$(p.first),y=$(p.second))")
+
+# Basic operators <<<
 
 function birth(a::MyPair)
     return a.first - a.second
