@@ -87,7 +87,7 @@ generate_testing_pairs() = [
         # layer 2 of barcodes
         MyPair(2, 10),
         MyPair(4, 12),
-        MyPair(8, 14),
+        MyPair(6, 14),
         #
         # layer 3 of barcodes peak split
         MyPair(2, 12),
