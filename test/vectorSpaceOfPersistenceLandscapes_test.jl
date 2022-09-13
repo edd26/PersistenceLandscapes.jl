@@ -2,6 +2,8 @@
 
 @testset "Constructor for a collection of landscapes" begin
     # TODO add tests for less trivial cases
+    pl0, pl1, pl2, pl3, pl4, pl5, pl6, pl7, pl8, pl9 = generate_testing_lanscapes()
+
     landscpae_collection = VectorSpaceOfPersistenceLandscapes([pl1, pl2, pl2])
 
     @test length(landscpae_collection.vectOfLand) == 3
