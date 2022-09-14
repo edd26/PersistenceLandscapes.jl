@@ -25,7 +25,7 @@
 # using DrWatson
 using UnPack
 using Plots
-using Eirene
+# using Eirene
 
 import Base.:<, Base.:>, Base.==, Base.isless
 
@@ -41,7 +41,7 @@ function isless(p1::MyPair, p2::MyPair)
 end
 
 function <(p1::MyPair, p2::MyPair)
-    if p1.first<p2.first
+    if p1.first < p2.first
         return true
     elseif p1.first == p2.first
         if p1.second < p2.second
@@ -53,7 +53,7 @@ function <(p1::MyPair, p2::MyPair)
 end
 
 function >(p1::MyPair, p2::MyPair)
-    if p1.first>p2.first
+    if p1.first > p2.first
         return true
     elseif p1.first == p2.first
         if p1.second > p2.second
@@ -85,18 +85,19 @@ useGridInComputations = false
 gridDiameter = 0.01
 epsi = 0.000005
 
-config_dict = Dict{Symbol, Any}()
+config_dict = Dict{Symbol,Any}()
 @pack! config_dict = areThereInfiniteIntervals,
-                    infty,
-                    shallInfiniteBarcodesBeIgnored,
-                    valueOfInfinity,
-                    useGridInComputations,
-                    gridDiameter,
-                    epsi
+infty,
+shallInfiniteBarcodesBeIgnored,
+valueOfInfinity,
+useGridInComputations,
+gridDiameter,
+epsi
 
 
-function configure(;config_file_name::String = "configure", config_dict::Dict = config_dict, dbg::Bool = false)
-    begin @unpack areThereInfiniteIntervals,
+function configure(; config_file_name::String="configure", config_dict::Dict=config_dict, dbg::Bool=false)
+    begin
+        @unpack areThereInfiniteIntervals,
         infty,
         shallInfiniteBarcodesBeIgnored,
         valueOfInfinity,
@@ -110,7 +111,7 @@ function configure(;config_file_name::String = "configure", config_dict::Dict = 
 
     all_lines = try
         # @info isfile(config_file_name)
-        open(config_file_name , "r") do f
+        open(config_file_name, "r") do f
             readlines(f)
         end
     catch
@@ -119,11 +120,11 @@ function configure(;config_file_name::String = "configure", config_dict::Dict = 
     end
 
     for line in all_lines
-    # while (!in.eof())
+        # while (!in.eof())
         # getline(in,line)
 
-        if ( !(length(line) == 0 || line[1] == '#') )
-            lineSS = parse(Float64,line)
+        if (!(length(line) == 0 || line[1] == '#'))
+            lineSS = parse(Float64, line)
 
             if vaiableNumber == 0
                 i = lineSS
@@ -164,14 +165,14 @@ function configure(;config_file_name::String = "configure", config_dict::Dict = 
 
             isThisAFirsLine = false
         end
-	end
+    end
     @pack! config_dict = areThereInfiniteIntervals,
-                    infty,
-                    shallInfiniteBarcodesBeIgnored,
-                    valueOfInfinity,
-                    useGridInComputations,
-                    gridDiameter,
-                    epsi
+    infty,
+    shallInfiniteBarcodesBeIgnored,
+    valueOfInfinity,
+    useGridInComputations,
+    gridDiameter,
+    epsi
 
     return config_dict
 end

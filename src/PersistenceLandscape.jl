@@ -22,7 +22,7 @@
 # include("PersistenceBarcode.jl")
 
 using Plots
-using Eirene
+# using Eirene
 
 import Base.:+, Base.:-, Base.:*, Base.:/, Base.==
 
