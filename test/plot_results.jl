@@ -62,13 +62,11 @@ function plot_barcodes(barcodes::Vector; dim_range=1:1,
     sort_by_birth::Bool=true,
     alpha::Float64=1.0,
     kwargs...)
+    local_alpha = 1.0
 
-    plot_ref = plot()
     # barcodes = all_barcodes_geom
     min_dim, max_dim = dim_range[1], dim_range[end]
     total_dims = length(dim_range)
-
-    lw = 8
 
     dims_indices = 1:length(min_dim:max_dim)
     all_sizes = [size(barcodes[k], 1) for k = dims_indices]
@@ -82,22 +80,22 @@ function plot_barcodes(barcodes::Vector; dim_range=1:1,
     end
 
     if sort_by_birth
+        sorted_barcodes = copy(barcodes)
         for (dim_index, dim) = enumerate(min_dim:max_dim)
-            if dim == 0
-                sort!(barcodes[dim_index], dims=1)
-            else
-                sort!(barcodes[dim_index], dims=1)
-            end
+            # if dim == 0
+            #     sorted_barcodes = sort(barcodes[dim_index], dims=1)
+            # else
+            permutation = sortperm(barcodes[dim_index][:, 1])
+            sorted_barcodes[dim_index] = barcodes[dim_index][permutation, :]
+            # end
         end
+        barcodes = sorted_barcodes
     end
 
+    plot_ref = plot()
     total_cycles = sum([size(barcodes[k], 1) for (k, dim) in enumerate(min_dim:max_dim)])
     for (p, dim) = enumerate(min_dim:max_dim)# 1:(max_dim) #TODO ths can not be starting from min_dim, because it may be 0
         b = barcodes[p][:, :]
-
-        # if dim == 0
-        #     b = sort(b, dims=1)
-        # end
 
         total_bars = size(b, 1)
         y_vals = [[k, k] for k in y_val_ranges[p]]
@@ -106,12 +104,13 @@ function plot_barcodes(barcodes::Vector; dim_range=1:1,
             # TODO change label to empty one
             plot!(b[k, :], y_vals[k]; label="",
                 lc=lc,
-                alpha=alpha
+                alpha=local_alpha
             )
         end
     end
 
     ylims!(0, total_cycles + 2)
+    yticks!(1:total_cycles)
 
     return plot_ref
 end
@@ -188,7 +187,7 @@ begin
             layout=(3, 1),
             size=(400, 1000)
         )
-        max_death = max(bar9...)
+        max_death = max(bar...)
         xticks!(0:1:max_death)
         title!("bar$(iterator), $(version_name)_version")
 
@@ -223,7 +222,7 @@ begin
             layout=(3, 1),
             size=(400, 1000)
         )
-        max_death = max(bar9...)
+        max_death = max(bar...)
         xticks!(0:1:max_death)
         title!("bar$(iterator), $(version_name)_version")
 
@@ -309,13 +308,13 @@ do_nothing = "ok"
 
 
 ##
-begin
-    "Performence test"
-    using BenchmarkTools
-    ##
-    function get_pers_land(a)
-        return generate_testing_pairs() .|> PersistenceBarcodes .|> PersistenceLandscape
-    end
-
-    @benchmark get_pers_land(data) setup = (data = rand(1000))
-end
+# begin
+#     "Performence test"
+#     using BenchmarkTools
+#     ##
+#     function get_pers_land(a)
+#         return generate_testing_pairs() .|> PersistenceBarcodes .|> PersistenceLandscape
+#     end
+#
+#     @benchmark get_pers_land(data) setup = (data = rand(1000))
+# end
