@@ -1,7 +1,10 @@
 #=
 Get plots for basic structures. Compare results for this version and plots obtained for previous version
 =#
-version_name = "fixed2"
+using Pkg
+Pkg.activate(".")
+
+version_name = "fixed"
 version_name = "newest"
 version_name = "old"
 
@@ -303,3 +306,16 @@ do_nothing = "ok"
 # plt_average = plot_persistence_landscape(average(landscpae_collection))
 # plot!(plt_average , ticks=0:1:10, xlims=[1,11])
 # final_plot = plot(plt_a, plt_b, plt_average, layout=(3,1), size=(600, 400*3))
+
+
+##
+begin
+    "Performence test"
+    using BenchmarkTools
+    ##
+    function get_pers_land(a)
+        return generate_testing_pairs() .|> PersistenceBarcodes .|> PersistenceLandscape
+    end
+
+    @benchmark get_pers_land(data) setup = (data = rand(1000))
+end
