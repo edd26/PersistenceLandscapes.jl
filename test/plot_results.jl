@@ -1,6 +1,7 @@
 #=
 Get plots for basic structures. Compare results for this version and plots obtained for previous version
 =#
+version_name = "fixed2"
 version_name = "newest"
 version_name = "old"
 
