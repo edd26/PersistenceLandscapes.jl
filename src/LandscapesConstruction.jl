@@ -163,7 +163,7 @@ function getNthLambda(characteristicPoints; allow_inf_intervals::Bool=false)
     stack_of_points = copy(characteristicPoints)
     # ===-===-
     lambda_n = beginNewLambda(characteristicPoints[1])
-    stack_of_points = drop_form_stack(stack_of_points, lambda_n[2])
+    drop_form_stack!(stack_of_points, lambda_n[2])
 
     newCharacteristicPoints = MyPair[]
 
@@ -200,7 +200,7 @@ function getNthLambda(characteristicPoints; allow_inf_intervals::Bool=false)
                 newCharacteristicPoints = vcat(newCharacteristicPoints, selected_points)
 
                 for point in selected_points
-                    stack_of_points = drop_form_stack(stack_of_points, point)
+                    drop_form_stack!(stack_of_points, point)
                 end
 
                 push!(newCharacteristicPoints, point)
@@ -209,19 +209,21 @@ function getNthLambda(characteristicPoints; allow_inf_intervals::Bool=false)
 
                 newCharacteristicPoints = vcat(newCharacteristicPoints, selected_points)
                 for point in selected_points
-                    stack_of_points = drop_form_stack(stack_of_points, point)
+                    drop_form_stack!(stack_of_points, point)
                 end
             else # cp_birth >= lambda_death
                 appendEndOfSection!(lambda_n, lambda_death, cp_birth)
             end
 
-            push!(lambda_n, stack_of_points[1])
-            stack_of_points = drop_form_stack(stack_of_points, stack_of_points[1])
+            if !(stack_of_points |> isempty)
+                push!(lambda_n, stack_of_points[1])
+                drop_form_stack!(stack_of_points, stack_of_points[1])
+            end
             # @debug "6 Adding to lambda_n : ($(characteristicPoints[i]))"
         else # it does not belong to lambda n
             # push!(newCharacteristicPoints, characteristicPoints[i])
             push!(newCharacteristicPoints, stack_of_points[1])
-            stack_of_points = drop_form_stack(stack_of_points, stack_of_points[1])
+            drop_form_stack!(stack_of_points, stack_of_points[1])
             # @debug "7 Adding to newCharacteristicPoints : ($(characteristicPoints[i]))"
         end
         # i = i + iter
