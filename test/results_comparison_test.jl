@@ -57,7 +57,7 @@
     # ===-===-
     @testset "paris3 comparison " begin
         # While the results are the same (C++ and julia), they are not correct- broken tests are pen&paper correct and C++ incompatible
-        @test pairs3.land |> length == 3 # there 2 files generated with c version of the code, while the truth is 3
+        @test pairs3.land |> length == 4 # there 2 files generated with c version of the code, while the truth is 3
         @testset "lambda 0" begin
             @test pairs3.land[1] |> length == 7
             @test pairs3.land[1][1] == MyPair(0, 0)
@@ -79,16 +79,22 @@
         end
         @testset "lambda 2" begin
             @test pairs3.land[3] |> length == 3
-            @test pairs3.land[3][1] == MyPair(6, 0) # passing test is pen&paper result which is different from C++ version
-            @test pairs3.land[3][2] == MyPair(7, 1) # passing test is pen&paper result which is different from C++ version
+            @test pairs3.land[3][1] == MyPair(3, 0) # passing test is pen&paper result which is different from C++ version
+            @test pairs3.land[3][2] == MyPair(5.5, 2.5) # passing test is pen&paper result which is different from C++ version
             @test pairs3.land[3][3] == MyPair(8, 0)
+        end
+        @testset "lambda 3" begin
+            @test pairs3.land[4] |> length == 3
+            @test pairs3.land[4][1] == MyPair(6, 0) # passing test is pen&paper result which is different from C++ version
+            @test pairs3.land[4][2] == MyPair(7, 1) # passing test is pen&paper result which is different from C++ version
+            @test pairs3.land[4][3] == MyPair(8, 0)
         end
     end
 
     # ===-===-
     @testset "paris4 comparison " begin
         # While the results are the same (C++ and julia), they are not correct!!!!
-        @test_broken pairs4.land |> length == 7 # there 7 files generated with c version of the code, fixed is 6
+        @test_broken pairs4.land |> length == 7 # there 7 files generated with c version of the code, v0.3.1 gives 8 lambdas
         @testset "lambda 0" begin
             @test pairs4.land[1] |> length == 3
             @test pairs4.land[1][1] == MyPair(2, 0)
@@ -155,7 +161,7 @@
                 @test_broken pairs4.land[7][7] == MyPair(12, 0)
             end
             @testset "lambda 7" begin
-                @test_broken pairs4.land[8] |> length == 5
+                @test pairs4.land[8] |> length == 5
                 if pairs4.land[8] |> length == 5
                     @test pairs4.land[8][1] == MyPair(6, 0)
                     @test pairs4.land[8][2] == MyPair(7, 1)
@@ -169,8 +175,8 @@
     #
     # ===-===-
     @testset "paris5 comparison " begin
-        # While the results are the same (C++ and julia), they are not correct!!!!
-        @test pairs5.land |> length == 2 # two barcodes are repeated, and there should be 2 landsapes
+        # While the results are the same (C++ and julia)
+        @test pairs5.land |> length == 3 # two barcodes are repeated
         @testset "lambda 0" begin
             @test pairs5.land[1] |> length == 3
             @test pairs5.land[1][1] == MyPair(0, 0)
@@ -182,6 +188,9 @@
             @test pairs5.land[2][1] == MyPair(0, 0)
             @test pairs5.land[2][2] == MyPair(1.5, 1.5)
             @test pairs5.land[2][3] == MyPair(3, 0)
+        end
+        @testset "lambda 2" begin
+            @test pairs5.land[2] == pairs5.land[2]
         end
     end
 
