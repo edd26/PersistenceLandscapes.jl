@@ -192,25 +192,24 @@ function getNthLambda(characteristicPoints; allow_inf_intervals::Bool=false)
                 point = get_landscape_dip(cp_birth, lambda_death)
 
                 push!(lambda_n, point)
+                push!(lambda_n, stack_of_points[1])
                 # add point to characteristic points at position of i
 
                 # push those poitns which have almost equal birth and that have death larger than point
                 # get anything that starts at the same point and is smaller in length
-                selected_points = subSelectCharacteristicPoints(point, stack_of_points, almostEqual, <=)
-                newCharacteristicPoints = vcat(newCharacteristicPoints, selected_points)
-
-                for point in selected_points
-                    drop_form_stack!(stack_of_points, point)
-                end
+                # selected_points = subSelectCharacteristicPoints(point, stack_of_points, almostEqual, <=)
+                # newCharacteristicPoints = vcat(newCharacteristicPoints, selected_points)
+                # for point1 in selected_points
+                #     drop_form_stack!(stack_of_points, point1)
+                # end
 
                 push!(newCharacteristicPoints, point)
 
-                selected_points = subSelectCharacteristicPoints(point, stack_of_points, <, >=)
-
-                newCharacteristicPoints = vcat(newCharacteristicPoints, selected_points)
-                for point in selected_points
-                    drop_form_stack!(stack_of_points, point)
-                end
+                # selected_points = subSelectCharacteristicPoints(point, stack_of_points, <, >=)
+                # newCharacteristicPoints = vcat(newCharacteristicPoints, selected_points)
+                # for point2 in selected_points
+                #     drop_form_stack!(stack_of_points, point2)
+                # end
             else # cp_birth >= lambda_death
                 appendEndOfSection!(lambda_n, lambda_death, cp_birth)
             end
@@ -236,7 +235,7 @@ function getNthLambda(characteristicPoints; allow_inf_intervals::Bool=false)
     end
 
     lambda_n = lambda_n |> unique # This function slows down computation signifficantly
-    newCharacteristicPoints = newCharacteristicPoints |> unique # This function slows down computation signifficantly
+    # newCharacteristicPoints = newCharacteristicPoints |> unique # This function slows down computation signifficantly
     return lambda_n, newCharacteristicPoints
 end
 
