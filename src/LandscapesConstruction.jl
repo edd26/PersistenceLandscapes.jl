@@ -149,8 +149,9 @@ function get_landscape_dip(cp_birth, lambda_death)
     return point
 end
 
-function drop_form_stack(stack_of_points, point)
-    [x for x in stack_of_points if x != point]
+function drop_form_stack!(stack_of_points, point)::Vector{MyPair}
+    point_position = findfirst(x -> x == point, stack_of_points)
+    deleteat!(stack_of_points, point_position)
 end
 
 """
