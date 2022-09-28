@@ -1,31 +1,31 @@
 ## ===-
 @testset "constructors tests" begin
     #
-# 3 piramids within each othe
+    # 3 piramids within each othe
     bars1 = [MyPair(0, 3), MyPair(0, 6), MyPair(0, 10)]
-# 3 consecutive pyramids
+    # 3 consecutive pyramids
     bars2 = [MyPair(0, 3), MyPair(3, 6), MyPair(6, 9)]
-# Pyramid at the crossing of highe lvl pyramids
+    # Pyramid at the crossing of highe lvl pyramids
     bars3 = [MyPair(0, 8), MyPair(3, 11), MyPair(3, 8), MyPair(6, 14)]
     # Layers of crossing barcodes
     bars4 = [# layer 1 of barcodes
-             MyPair(2, 6),
-             MyPair(4, 8),
-             MyPair(6, 10),
-             MyPair(8, 12),
-             MyPair(10, 14),
-            # layer 2 of barcodes
-             MyPair(2, 10),
-             MyPair(4, 12),
-             MyPair(8, 14),
-             #
-            # layer 3 of barcodes peak split
-             MyPair(2, 12),
-             MyPair(4, 14),
+        MyPair(2, 6),
+        MyPair(4, 8),
+        MyPair(6, 10),
+        MyPair(8, 12),
+        MyPair(10, 14),
+        # layer 2 of barcodes
+        MyPair(2, 10),
+        MyPair(4, 12),
+        MyPair(8, 14),
+        #
+        # layer 3 of barcodes peak split
+        MyPair(2, 12),
+        MyPair(4, 14),
 
-            # layer 4 of barcodes- peak
-             MyPair(2, 14),
-            ] # pyramids overlapping with crossings
+        # layer 4 of barcodes- peak
+        MyPair(2, 14),
+    ] # pyramids overlapping with crossings
     bars5 = [MyPair(0, 3), MyPair(0, 6), MyPair(0, 3)] # barcodes repetition
     all_bars = [bars1, bars2, bars3, bars4, bars5]
 
@@ -42,14 +42,14 @@
         @test length(pland2.land[1]) == 7
 
         pland3 = bars3 |> PersistenceBarcodes |> PersistenceLandscape
-        @test_broken length(pland3.land) == 3
+        @test length(pland3.land) == 3 # no longer broken after fixing landscapes creation with version v0.3.0
         @test length(pland3.land[1]) == 7
         @test length(pland3.land[2]) == 5
         @test length(pland3.land[3]) == 3
 
         pland4 = bars4 |> PersistenceBarcodes |> PersistenceLandscape
         # broken, because upper lvls crossing overlay with pyramids comming form persistence barcodes
-        @test_broken length(pland4.land) == 6
+        @test length(pland4.land) == 6 # no longer broken after fixing landscapes creation with version v0.3.0
         @test length(pland4.land[1]) == 3
         @test length(pland4.land[2]) == 5
         @test length(pland4.land[3]) == 7
@@ -57,7 +57,7 @@
         @test_broken length(pland4.land[5]) == 11
 
         pland5 = bars5 |> PersistenceBarcodes |> PersistenceLandscape
-        @test_broken length(pland5.land) == 2 # same as above
+        @test length(pland5.land) == 2 # same as above # no longer broken after fixing landscapes creation with version v0.3.0
         @test length(pland5.land[1]) == 3
         @test length(pland5.land[2]) == 3
     end

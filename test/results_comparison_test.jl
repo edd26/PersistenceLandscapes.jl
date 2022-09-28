@@ -56,126 +56,140 @@
 
     # ===-===-
     @testset "paris3 comparison " begin
-        # While the results are the same (C++ and julia), they are not correct!!!!
-        @test_broken pairs3.land |> length == 3 # there 2 files generated with c version of the code
-        # Lambda 0
-        @test pairs3.land[1] |> length == 7
-        @test pairs3.land[1][1] == MyPair(0, 0)
-        @test pairs3.land[1][2] == MyPair(4, 4)
-        @test pairs3.land[1][3] == MyPair(5.5, 2.5)
-        @test pairs3.land[1][4] == MyPair(7, 4)
-        @test pairs3.land[1][5] == MyPair(8.5, 2.5)
-        @test pairs3.land[1][6] == MyPair(10, 4)
-        @test pairs3.land[1][7] == MyPair(14, 0)
-        # Lambda 1
-        @test pairs3.land[2] |> length == 5
-        @test pairs3.land[2][1] == MyPair(3, 0)
-        @test pairs3.land[2][2] == MyPair(5.5, 2.5)
-        @test pairs3.land[2][3] == MyPair(7, 1)
-        @test pairs3.land[2][4] == MyPair(8.5, 2.5)
-        @test pairs3.land[2][5] == MyPair(11, 0)
-        # Lambda 2
-        @test pairs3.land[3] |> length == 3
-        @test_broken pairs3.land[3][1] == MyPair(6, 0)
-        @test_broken pairs3.land[3][2] == MyPair(7, 1)
-        @test pairs3.land[3][3] == MyPair(8, 0)
+        # While the results are the same (C++ and julia), they are not correct- broken tests are pen&paper correct and C++ incompatible
+        @test pairs3.land |> length == 3 # there 2 files generated with c version of the code, while the truth is 3
+        @testset "lambda 0" begin
+            @test pairs3.land[1] |> length == 7
+            @test pairs3.land[1][1] == MyPair(0, 0)
+            @test pairs3.land[1][2] == MyPair(4, 4)
+            @test pairs3.land[1][3] == MyPair(5.5, 2.5)
+            @test pairs3.land[1][4] == MyPair(7, 4)
+            @test pairs3.land[1][5] == MyPair(8.5, 2.5)
+            @test pairs3.land[1][6] == MyPair(10, 4)
+            @test pairs3.land[1][7] == MyPair(14, 0)
+        end
+        @testset "lambda 1" begin
+            @test pairs3.land[2] |> length == 5
+            @test pairs3.land[2][1] == MyPair(3, 0)
+            @test pairs3.land[2][2] == MyPair(5.5, 2.5)
+            @test pairs3.land[2][3] == MyPair(7, 1)
+            @test pairs3.land[2][4] == MyPair(8.5, 2.5)
+            @test pairs3.land[2][5] == MyPair(11, 0)
+
+        end
+        @testset "lambda 2" begin
+            @test pairs3.land[3] |> length == 3
+            @test pairs3.land[3][1] == MyPair(6, 0) # passing test is pen&paper result which is different from C++ version
+            @test pairs3.land[3][2] == MyPair(7, 1) # passing test is pen&paper result which is different from C++ version
+            @test pairs3.land[3][3] == MyPair(8, 0)
+        end
     end
 
     # ===-===-
     @testset "paris4 comparison " begin
         # While the results are the same (C++ and julia), they are not correct!!!!
-        @test_broken pairs4.land |> length == 7 # there 2 files generated with c version of the code
-        # Lambda 0
-        @test pairs4.land[1] |> length == 3
-        @test pairs4.land[1][1] == MyPair(2, 0)
-        @test pairs4.land[1][2] == MyPair(8, 6)
-        @test pairs4.land[1][3] == MyPair(14, 0)
-        # Lambda 1
-        @test pairs4.land[2] |> length == 5
-        @test pairs4.land[2][1] == MyPair(2, 0)
-        @test pairs4.land[2][2] == MyPair(7, 5)
-        @test pairs4.land[2][3] == MyPair(8, 4)
-        @test pairs4.land[2][4] == MyPair(9, 5)
-        @test pairs4.land[2][5] == MyPair(14, 0)
-        # Lambda 2
-        @test pairs4.land[3] |> length == 7
-        @test pairs4.land[3][1] == MyPair(2, 0)
-        @test pairs4.land[3][2] == MyPair(6, 4)
-        @test pairs4.land[3][3] == MyPair(7, 3)
-        @test pairs4.land[3][4] == MyPair(8, 4)
-        @test_broken pairs4.land[3][5] == MyPair(9, 3)
-        @test_broken pairs4.land[3][6] == MyPair(10, 4)
-        @test pairs4.land[3][7] == MyPair(14, 0)
-        # Lambda 3
-        @test_broken pairs4.land[4] |> length == 7
-        if pairs4.land[4] |> length == 7
-            # this prevents from error indexing error when test on len fails
-            @test pairs4.land[4][1] ==MyPair(2, 0)
-            @test pairs4.land[4][2] ==MyPair(4, 2)
-            @test pairs4.land[4][3] ==MyPair(5, 1)
-            @test pairs4.land[4][4] ==MyPair(8, 4)
-            @test pairs4.land[4][5] ==MyPair(11, 1)
-            @test pairs4.land[4][6] ==MyPair(12, 2)
-            @test pairs4.land[4][7] ==MyPair(14, 0)
+        @test_broken pairs4.land |> length == 7 # there 7 files generated with c version of the code, fixed is 6
+        @testset "lambda 0" begin
+            @test pairs4.land[1] |> length == 3
+            @test pairs4.land[1][1] == MyPair(2, 0)
+            @test pairs4.land[1][2] == MyPair(8, 6)
+            @test pairs4.land[1][3] == MyPair(14, 0)
         end
-        # Lambda 4
-        @test pairs4.land[5] |> length == 5
-        @test pairs4.land[5][1] == MyPair(4, 0)
-        @test pairs4.land[5][2] == MyPair(7, 3)
-        @test_broken pairs4.land[5][3] == MyPair(8, 2)
-        @test_broken pairs4.land[5][4] == MyPair(9, 3)
-        @test pairs4.land[5][5] == MyPair(12, 0)
-        # Lambda 5
-        @test pairs4.land[6] |> length == 7
-        @test pairs4.land[6][1] == MyPair(4, 0)
-        @test pairs4.land[6][2] == MyPair(6, 2)
-        @test pairs4.land[6][3] == MyPair(7, 1)
-        @test pairs4.land[6][4] == MyPair(8, 2)
-        @test pairs4.land[6][5] == MyPair(9, 1)
-        @test pairs4.land[6][6] == MyPair(10, 2)
-        @test pairs4.land[6][7] == MyPair(12, 0)
-        # Lambda 6
-        @test_broken pairs4.land[7] |> length == 7
-        @test pairs4.land[7][1] == MyPair(4, 0)
-        @test pairs4.land[7][2] == MyPair(5, 1)
-        @test pairs4.land[7][3] == MyPair(6, 0)
-        @test_broken pairs4.land[7][4] == MyPair(8, 2)
-        @test_broken pairs4.land[7][5] == MyPair(10, 2)
-        @test_broken pairs4.land[7][6] == MyPair(11, 1)
-        @test_broken pairs4.land[7][7] == MyPair(12, 0)
-        # Lambda 7
-        @test_broken pairs4.land[8] |> length == 5
-        if pairs4.land[8] |> length == 5
+        @testset "lambda 1" begin
+            @test pairs4.land[2] |> length == 5
+            @test pairs4.land[2][1] == MyPair(2, 0)
+            @test pairs4.land[2][2] == MyPair(7, 5)
+            @test pairs4.land[2][3] == MyPair(8, 4)
+            @test pairs4.land[2][4] == MyPair(9, 5)
+            @test pairs4.land[2][5] == MyPair(14, 0)
+        end
+        @testset "lambda 2" begin
+            # Lambda 2
+            @test pairs4.land[3] |> length == 7
+            @test pairs4.land[3][1] == MyPair(2, 0)
+            @test pairs4.land[3][2] == MyPair(6, 4)
+            @test pairs4.land[3][3] == MyPair(7, 3)
+            @test pairs4.land[3][4] == MyPair(8, 4)
+            @test pairs4.land[3][5] == MyPair(9, 3)
+            @test pairs4.land[3][6] == MyPair(10, 4)
+            @test pairs4.land[3][7] == MyPair(14, 0)
+        end
+        @testset "lambda 3" begin
+            @test_broken pairs4.land[4] |> length == 7 # 7 points within C results, fixed is 10 points
+            @test pairs4.land[4][1] == MyPair(2, 0)
+            @test pairs4.land[4][2] == MyPair(4, 2)
+            @test pairs4.land[4][3] == MyPair(5, 1)
+            @test_broken pairs4.land[4][4] == MyPair(8, 4) # broken because correct with pen&paper but different from C++ version
+            @test_broken pairs4.land[4][5] == MyPair(11, 1)# broken because correct with pen&paper but different from C++ version
+            @test_broken pairs4.land[4][6] == MyPair(12, 2)# broken because correct with pen&paper but different from C++ version
+            @test_broken pairs4.land[4][7] == MyPair(14, 0)# broken because correct with pen&paper but different from C++ version
+        end
+        @testset "lambda 4" begin
+            @test_broken pairs4.land[5] |> length == 5 # 5 barcodes in C++ version, # broken because correct with pen&paper but different from C++ version
+            @test pairs4.land[5][1] == MyPair(4, 0)
+            @test_broken pairs4.land[5][2] == MyPair(7, 3)# broken because correct with pen&paper but different from C++ version
+            @test_broken pairs4.land[5][3] == MyPair(8, 2)# broken because correct with pen&paper but different from C++ version
+            @test_broken pairs4.land[5][4] == MyPair(9, 3)# broken because correct with pen&paper but different from C++ version
+            @test_broken pairs4.land[5][5] == MyPair(12, 0)# broken because correct with pen&paper but different from C++ version
+        end
+        @testset "lambda 5" begin
+            @test_broken pairs4.land[6] |> length == 7 # 7 barcodes in C++ version # broken because correct with pen&paper but different from C++ version
+            @test pairs4.land[6][1] == MyPair(4, 0)
+            @test_broken pairs4.land[6][2] == MyPair(6, 2)# broken because correct with pen&paper but different from C++ version
+            @test_broken pairs4.land[6][3] == MyPair(7, 1)# broken because correct with pen&paper but different from C++ version
+            @test_broken pairs4.land[6][4] == MyPair(8, 2)# broken because correct with pen&paper but different from C++ version
+            @test_broken pairs4.land[6][5] == MyPair(9, 1)# broken because correct with pen&paper but different from C++ version
+            @test_broken pairs4.land[6][6] == MyPair(10, 2)# broken because correct with pen&paper but different from C++ version
+            @test_broken pairs4.land[6][7] == MyPair(12, 0)# broken because correct with pen&paper but different from C++ version
+        end
+        if pairs4.land |> length > 6
             # this prevents from error indexing error when test on len fails
-            @test pairs4.land[8][1] ==MyPair(6, 0)
-            @test pairs4.land[8][2] ==MyPair(7, 1)
-            @test pairs4.land[8][3] ==MyPair(8, 0)
-            @test pairs4.land[8][4] ==MyPair(9, 1)
-            @test pairs4.land[8][5] ==MyPair(10, 0)
+            @testset "lambda 6" begin
+                @test_broken pairs4.land[7] |> length == 7
+                @test pairs4.land[7][1] == MyPair(4, 0)
+                @test pairs4.land[7][2] == MyPair(5, 1)
+                @test pairs4.land[7][3] == MyPair(6, 0)
+                @test_broken pairs4.land[7][4] == MyPair(8, 2)
+                @test_broken pairs4.land[7][5] == MyPair(10, 2)
+                @test_broken pairs4.land[7][6] == MyPair(11, 1)
+                @test_broken pairs4.land[7][7] == MyPair(12, 0)
+            end
+            @testset "lambda 7" begin
+                @test_broken pairs4.land[8] |> length == 5
+                if pairs4.land[8] |> length == 5
+                    @test pairs4.land[8][1] == MyPair(6, 0)
+                    @test pairs4.land[8][2] == MyPair(7, 1)
+                    @test pairs4.land[8][3] == MyPair(8, 0)
+                    @test pairs4.land[8][4] == MyPair(9, 1)
+                    @test pairs4.land[8][5] == MyPair(10, 0)
+                end
+            end
         end
     end
     #
     # ===-===-
     @testset "paris5 comparison " begin
         # While the results are the same (C++ and julia), they are not correct!!!!
-        @test_broken pairs5.land |> length == 2 # two barcodes are repeated, and there should be 2  landsapes, not 3
-        # Lambda 0
-        @test pairs5.land[1] |> length == 3
-        @test pairs5.land[1][1] == MyPair(0, 0)
-        @test pairs5.land[1][2] == MyPair(3, 3)
-        @test pairs5.land[1][3] == MyPair(6, 0)
-        # Lambda 1
-        @test pairs5.land[2] |> length == 3
-        @test pairs5.land[2][1] == MyPair(0, 0)
-        @test pairs5.land[2][2] == MyPair(1.5, 1.5)
-        @test pairs5.land[2][3] == MyPair(3, 0)
+        @test pairs5.land |> length == 2 # two barcodes are repeated, and there should be 2 landsapes
+        @testset "lambda 0" begin
+            @test pairs5.land[1] |> length == 3
+            @test pairs5.land[1][1] == MyPair(0, 0)
+            @test pairs5.land[1][2] == MyPair(3, 3)
+            @test pairs5.land[1][3] == MyPair(6, 0)
+        end
+        @testset "lambda 1" begin
+            @test pairs5.land[2] |> length == 3
+            @test pairs5.land[2][1] == MyPair(0, 0)
+            @test pairs5.land[2][2] == MyPair(1.5, 1.5)
+            @test pairs5.land[2][3] == MyPair(3, 0)
+        end
     end
 
     # ===-===-
     # Pl8
     @testset "PL8 comparison " begin
 
-       #  [MyPair(2, 6), MyPair(2, 4), MyPair(4, 6)],
+        #  [MyPair(2, 6), MyPair(2, 4), MyPair(4, 6)],
         @test pl8.land |> length == 2 # there 2 files generated with c version of the code
 
         # Lambda 0
@@ -235,7 +249,7 @@ end
     pairs1, pairs2, pairs3, pairs4, pairs5 = generate_testing_pairs() .|> PersistenceBarcodes .|> PersistenceLandscape
 
     @testset "average of 2 x same structure" begin
-    avg_land1 = [pairs1, pairs1] |> VectorSpaceOfPersistenceLandscapes |> average
+        avg_land1 = [pairs1, pairs1] |> VectorSpaceOfPersistenceLandscapes |> average
         @test avg_land1.land |> length == 3
         @test avg_land1.land[1] |> length == 3
         @test avg_land1.land[1][1] == MyPair(0, 0)
@@ -303,7 +317,7 @@ end
         @test avg_land5.land[1][5] == MyPair(3.5, 2.5)
         @test avg_land5.land[1][6] == MyPair(4, 3)
         @test avg_land5.land[1][7] == MyPair(5.5, 1.5)
-        @test avg_land5.land[1][8] == MyPair(6,2)
+        @test avg_land5.land[1][8] == MyPair(6, 2)
         @test avg_land5.land[1][9] == MyPair(8, 0)
         # lambda 1
         @test avg_land5.land[2] |> length == 5
@@ -349,7 +363,7 @@ end
     pairs1, pairs2, pairs3, pairs4, pairs5 = generate_testing_pairs() .|> PersistenceBarcodes .|> PersistenceLandscape
 
     @testset "distance of 2 x same structure" begin
-        p1_diff = pairs1- pairs1
+        p1_diff = pairs1 - pairs1
         @test p1_diff.land |> length == 3 # there 2 files generated with c version of the code
         # Lambda 0
         @test p1_diff.land[1] |> length == 3
@@ -369,7 +383,7 @@ end
     end
 
     @testset "distance of non-overlapping structures" begin
-        pl23_diff = pl2-pl3
+        pl23_diff = pl2 - pl3
         @test pl23_diff.land |> length == 1 # there 2 files generated with c version of the code
         # Lambda 0
         @test pl23_diff.land[1] |> length == 5
@@ -381,7 +395,7 @@ end
     end
 
     @testset "distance of overlapping structures" begin
-        pl01_diff = pl0-pl1
+        pl01_diff = pl0 - pl1
         @test pl01_diff.land |> length == 1 # there 2 files generated with c version of the code
         # Lambda 0
         @test pl01_diff.land[1] |> length == 5
@@ -393,7 +407,7 @@ end
     end
 
     @testset "distance of 2-layered structure" begin
-        pl67_diff = pl6-pl7
+        pl67_diff = pl6 - pl7
         @test pl67_diff.land |> length == 2 # there 2 files generated with c version of the code
         # Lambda 0
         @test pl67_diff.land[1] |> length == 3
@@ -409,7 +423,7 @@ end
     end
 
     @testset "distance of complex structure" begin
-        pl29_diff = pl2-pl9
+        pl29_diff = pl2 - pl9
         @test pl29_diff.land |> length == 4 # there 4 files generated with c version of the code
 
         # Lambda 0
@@ -451,7 +465,7 @@ end
     pairs1, pairs2, pairs3, pairs4, pairs5 = generate_testing_pairs() .|> PersistenceBarcodes .|> PersistenceLandscape
 
     @testset "distance of 2 x same structure" begin
-        p1_abs = abs_pl(pairs1- pairs1)
+        p1_abs = abs_pl(pairs1 - pairs1)
         @test p1_abs.land |> length == 3 # there 2 files generated with c version of the code
         # Lambda 0
         @test p1_abs.land[1] |> length == 3
@@ -471,7 +485,7 @@ end
     end
 
     @testset "distance of non-overlapping structures" begin
-        pl23_abs = abs_pl(pl2-pl3)
+        pl23_abs = abs_pl(pl2 - pl3)
         @test pl23_abs.land |> length == 1 # there 2 files generated with c version of the code
         # Lambda 0
         @test pl23_abs.land[1] |> length == 5
@@ -483,7 +497,7 @@ end
     end
 
     @testset "distance of overlapping structures" begin
-        pl01_abs = abs_pl(pl0-pl1)
+        pl01_abs = abs_pl(pl0 - pl1)
         @test pl01_abs.land |> length == 1 # there 2 files generated with c version of the code
         # Lambda 0
         @test pl01_abs.land[1] |> length == 5
@@ -496,7 +510,7 @@ end
 
     ##
     @testset "distance of 2-layered structure" begin
-        pl67_abs = abs_pl(pl6-pl7)
+        pl67_abs = abs_pl(pl6 - pl7)
         @test pl67_abs.land |> length == 2 # there 2 files generated with c version of the code
         # Lambda 0
         @test pl67_abs.land[1] |> length == 3
@@ -513,7 +527,7 @@ end
     ##
 
     @testset "distance of complex structure" begin
-        pl29_abs = abs_pl(pl2-pl9)
+        pl29_abs = abs_pl(pl2 - pl9)
         @test pl29_abs.land |> length == 4 # there 4 files generated with c version of the code
 
         # Lambda 0
@@ -563,13 +577,13 @@ end
 
     @testset "distance of non-overlapping structures" begin
         @test computeDiscanceOfLandscapes(pl2, pl3, 1) == 2
-        @test isapprox(computeDiscanceOfLandscapes(pl2, pl3, 2), 1.547;atol=1.0e-0)
+        @test isapprox(computeDiscanceOfLandscapes(pl2, pl3, 2), 1.547; atol=1.0e-0)
         @test computeDiscanceOfLandscapes(pl2, pl3, 0) == Inf
     end
 
     @testset "distance of overlapping structures" begin
         @test computeDiscanceOfLandscapes(pl0, pl1, 1) == 3
-        @test isapprox(computeDiscanceOfLandscapes(pl0, pl1, 2), 1.63299;atol=1.0e-5)
+        @test isapprox(computeDiscanceOfLandscapes(pl0, pl1, 2), 1.63299; atol=1.0e-5)
         @test computeDiscanceOfLandscapes(pl0, pl1, 0) == Inf
     end
 
@@ -581,7 +595,7 @@ end
 
     @testset "distance of complex structure" begin
         @test computeDiscanceOfLandscapes(pl2, pl9, 1) == 22
-        @test isapprox(computeDiscanceOfLandscapes(pl2, pl9, 2), 6.37704;atol=1.0e-5)
+        @test isapprox(computeDiscanceOfLandscapes(pl2, pl9, 2), 6.37704; atol=1.0e-5)
         @test computeDiscanceOfLandscapes(pl2, pl9, 0) == Inf
     end
 end
