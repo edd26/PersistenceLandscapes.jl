@@ -26,3 +26,12 @@ Manifest.toml
 
 # C++ version of the code
 src/original_code/
+
+# Plotting results
+plots/
+
+# Tag file
+tags
+
+# IDE files
+.vscode
