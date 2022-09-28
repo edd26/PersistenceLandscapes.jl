@@ -83,22 +83,36 @@ function getCharacterisitcPoints(bars)
 end
 
 function subSelectCharacteristicPoints(point, subset_characteristicPoints, birth_oper, death_oper)
-    birth_condition = birth_oper.(birth(point), birth.(subset_characteristicPoints))
-    death_condition = death_oper.(death(point), death.(subset_characteristicPoints))
-    if any(i -> i, birth_condition .&& death_condition)
-        selected_points = subset_characteristicPoints[birth_condition.&&death_condition]
+    barcodes = vcat([[x |> birth x |> death] for x in subset_characteristicPoints]...)
+    point_barcode = [point |> birth point |> death]
+    b_cond = birth_oper.(barcodes[:, 1], point_barcode[1, 1])
+    d_cond = death_oper.(barcodes[:, 2], point_barcode[1, 2],)
+    final_condition = b_cond .&& d_cond
+
+    # birth_condition = birth_oper.(birth(point), birth.(subset_characteristicPoints))
+    # # death_condition = death_oper.(death.(subset_characteristicPoints), death(point),)
+    # death_condition = death_oper.(death(point), death.(subset_characteristicPoints),)
+
+    # final_condition = birth_condition .&& death_condition
+    # final_condition = birth_condition .|| death_condition
+
+    if any(i -> i, final_condition)
+        selected_points = subset_characteristicPoints[final_condition]
     else
         selected_points = Vector{MyPair}[]
     end
     return selected_points
 end
-function getPointsBeforeCharacteristic(point, subset_characteristicPoints)
-    subSelectCharacteristicPoints(point, subset_characteristicPoints, almostEqual, <=)
-end
 
-function getPointsAfterCharacteristic(point, subset_characteristicPoints)
-    subSelectCharacteristicPoints(point, subset_characteristicPoints, <=, >=)
-end
+# This is code smell
+# function getPointsBeforeCharacteristic(point, subset_characteristicPoints)
+#     subSelectCharacteristicPoints(point, subset_characteristicPoints, almostEqual, <=)
+# end
+
+# This is code smell
+# function getPointsAfterCharacteristic(point, subset_characteristicPoints)
+#     subSelectCharacteristicPoints(point, subset_characteristicPoints, <=, >=)
+# end
 
 function appendEndOfSection!(lambda_n, lambda_death, cp_birth)
     push!(lambda_n, MyPair(lambda_death, 0))
@@ -128,6 +142,16 @@ function appendInfIntervals(labmda::Vector{MyPair})
     return [MyPair(-Inf, 0), lambda_n, MyPair(Inf, 0)]
 end
 
+function get_landscape_dip(cp_birth, lambda_death)
+    p_start = (cp_birth + lambda_death) / 2
+    p_stop = (lambda_death - cp_birth) / 2
+    point = MyPair(p_start, p_stop)
+    return point
+end
+
+function drop_form_stack(stack_of_points, point)
+    [x for x in stack_of_points if x != point]
+end
 
 """
 Appending last point is necessary for this structure of code to work,
@@ -135,59 +159,71 @@ especially, when inf intervals are disabled.
 """
 function getNthLambda(characteristicPoints; allow_inf_intervals::Bool=false)
 
+    stack_of_points = copy(characteristicPoints)
     # ===-===-
     lambda_n = beginNewLambda(characteristicPoints[1])
-    i = 2
-    newCharacteristicPoints = MyPair[]
-    total_characteristic_points = size(characteristicPoints, 1)
-    while (i <= total_characteristic_points)
-        # @debug "running for i: $(i) and size of char points $(size(characteristicPoints, 1)+1)"
-        p = 1
-        # last_lambda_n = size(lambda_n, 1)
+    stack_of_points = drop_form_stack(stack_of_points, lambda_n[2])
 
-        cp_birth = birth(characteristicPoints[i])
-        cp_death = death(characteristicPoints[i])
+    newCharacteristicPoints = MyPair[]
+
+    # this while loop should be removing points from structure and iterate while there are points left
+    # while (i <= total_characteristic_points)
+    #     # @debug "running for i: $(i) and size of char points $(size(characteristicPoints, 1)+1)"
+    #     iter = 1 # last_lambda_n = size(lambda_n, 1)
+    #     cp_birth = birth(characteristicPoints[i])
+    #     cp_death = death(characteristicPoints[i])
+    while !(stack_of_points |> isempty)
+
+        cp_birth = birth(stack_of_points[1])
+        cp_death = death(stack_of_points[1])
         lambda_birth = birth(lambda_n[end])
         lambda_death = death(lambda_n[end])
-        if (cp_birth >= lambda_birth) && (cp_death > lambda_death)
+        does_it_belong_to_lambda_n = (cp_birth >= lambda_birth) && (cp_death > lambda_death)
+
+        if does_it_belong_to_lambda_n
+            # does it happen within this hill?
+            # what needs to be done when its true?
+            # get indentation
+            # push indentation to the lambda
+            # add indentation to characteristic points
+            # push point to the lambda
             if cp_birth < lambda_death
-                p_start = (cp_birth + lambda_death) / 2
-                p_stop = (lambda_death - cp_birth) / 2
+                point = get_landscape_dip(cp_birth, lambda_death)
 
-                point = MyPair(p_start, p_stop)
                 push!(lambda_n, point)
-
+                # add point to characteristic points at position of i
 
                 # push those poitns which have almost equal birth and that have death larger than point
-                if (i + p < total_characteristic_points)
-                    selected_points = getPointsBeforeCharacteristic(
-                        point,
-                        characteristicPoints[(i+p):end],
-                    )
-                    newCharacteristicPoints = vcat(newCharacteristicPoints, selected_points)
-                    p += length(selected_points)
+                # get anything that starts at the same point and is smaller in length
+                selected_points = subSelectCharacteristicPoints(point, stack_of_points, almostEqual, <=)
+                newCharacteristicPoints = vcat(newCharacteristicPoints, selected_points)
+
+                for point in selected_points
+                    stack_of_points = drop_form_stack(stack_of_points, point)
                 end
 
                 push!(newCharacteristicPoints, point)
 
-                if (i + p < total_characteristic_points)
-                    selected_points = getPointsAfterCharacteristic(
-                        point,
-                        characteristicPoints[(i+p):end],
-                    )
-                    newCharacteristicPoints = vcat(newCharacteristicPoints, selected_points)
-                    p += length(selected_points)
+                selected_points = subSelectCharacteristicPoints(point, stack_of_points, <, >=)
+
+                newCharacteristicPoints = vcat(newCharacteristicPoints, selected_points)
+                for point in selected_points
+                    stack_of_points = drop_form_stack(stack_of_points, point)
                 end
-            else
+            else # cp_birth >= lambda_death
                 appendEndOfSection!(lambda_n, lambda_death, cp_birth)
             end
-            push!(lambda_n, characteristicPoints[i])
+
+            push!(lambda_n, stack_of_points[1])
+            stack_of_points = drop_form_stack(stack_of_points, stack_of_points[1])
             # @debug "6 Adding to lambda_n : ($(characteristicPoints[i]))"
-        else
-            push!(newCharacteristicPoints, characteristicPoints[i])
+        else # it does not belong to lambda n
+            # push!(newCharacteristicPoints, characteristicPoints[i])
+            push!(newCharacteristicPoints, stack_of_points[1])
+            stack_of_points = drop_form_stack(stack_of_points, stack_of_points[1])
             # @debug "7 Adding to newCharacteristicPoints : ($(characteristicPoints[i]))"
         end
-        i = i + p
+        # i = i + iter
     end
 
     appendLastPoint!(lambda_n)
@@ -197,6 +233,7 @@ function getNthLambda(characteristicPoints; allow_inf_intervals::Bool=false)
     end
 
     lambda_n = lambda_n |> unique # This function slows down computation signifficantly
+    newCharacteristicPoints = newCharacteristicPoints |> unique # This function slows down computation signifficantly
     return lambda_n, newCharacteristicPoints
 end
 
