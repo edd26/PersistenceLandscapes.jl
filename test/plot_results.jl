@@ -5,6 +5,7 @@ using Pkg
 Pkg.activate(".")
 
 version_name = "fixed"
+version_name = "fixed_fix"
 version_name = "newest"
 version_name = "old"
 
@@ -249,6 +250,27 @@ lands_vec = [
     [pl6, pl2] |> VectorSpaceOfPersistenceLandscapes |> average,
 ]
 
+components = [
+    [pl0, pl1],
+    [pl1, pl2, pl3],
+    [pl6, pl0],
+    [pl6, pl2],
+    [pl6, pl0, pl2],
+    [pl0, pl0],
+    [pl0, pl1],
+    [pl6, pl2],]
+
+src_brs = [
+    [bar0, bar1],
+    [bar1, bar2, bar3],
+    [bar6, bar0],
+    [bar6, bar2],
+    [bar6, bar2, bar0],
+    [bar0, bar0],
+    [bar0, bar1],
+    [bar6, bar2],
+]
+
 bars_vec = [
     vcat(bar0, bar1),
     vcat(bar1, bar2, bar3),
@@ -259,18 +281,48 @@ bars_vec = [
     vcat(bar0, bar1),
     vcat(bar6, bar2),
 ]
+
 begin
-    for (k, (bar, land)) in zip(bars_vec, lands_vec) |> enumerate
+    k = 1
+    bar = bars_vec[k]
+    land = lands_vec[k]
+    piece = components[k]
+    sbar = src_brs[k]
+
+    for (k, (bar, land, piece, sbar)) in zip(bars_vec, lands_vec, components, src_brs) |> enumerate
         iterator = k
         reformatted_barcodes = [vcat([hcat([bar[k, 1], bar[k, 2]]...) for k in 1:size(bar, 1)]...)]
+        rsbar1 = [vcat([hcat([sbar[1][k, 1], sbar[1][k, 2]]...) for k in 1:size(sbar[1], 1)]...)]
+        rsbar2 = [vcat([hcat([sbar[2][k, 1], sbar[2][k, 2]]...) for k in 1:size(sbar[2], 1)]...)]
+        piece1 = plot(
+            plot_bd_diagram(rsbar1),
+            plot_barcodes(rsbar1),
+            plot_persistence_landscape(piece[1]);
+            layout=(3, 1),
+            title="pl1"
+        )
+        piece2 = plot(
+            plot_bd_diagram(rsbar2),
+            plot_barcodes(rsbar2),
+            plot_persistence_landscape(piece[2]);
+            layout=(3, 1),
+            title="pl2"
+        )
         comparison_plt = plot(
             plot_bd_diagram(reformatted_barcodes),
             plot_barcodes(reformatted_barcodes),
             plot_persistence_landscape(land);
             layout=(3, 1),
-            size=(400, 1000)
+            title="operation"
         )
-        max_death = max(bar9...)
+        final_plt = plot(
+            piece1,
+            piece2,
+            comparison_plt;
+            layout=(1, 3),
+            size=(1200, 1000)
+        )
+        max_death = max(bar...)
         xticks!(0:1:max_death)
         title!("bar$(iterator), $(version_name)_version")
 
@@ -281,10 +333,10 @@ begin
         !ispath(full_path) && mkpath(full_path)
 
         file_name = "$(iterator)_operations_$(version_name).png"
-        savefig(comparison_plt, full_path * file_name)
+        savefig(final_plt, full_path * file_name)
     end
 end
-do_nothing = "ok"
+fido_nothing = "ok"
 
 
 
