@@ -271,7 +271,7 @@ function real_average(
     if useGridInComputations
         result = v_space_pland |> get_grid_average
     else
-        result = v_space_pland |> get_pointwise_average
+        result = reduce(+, v_space_pland.vectOfLand)
     end
 
     result_divided = result / total_landscapes
