@@ -63,7 +63,7 @@ export almostEqual,
     computeIntegralOfLandscape
 
 # VectorSpaceOfPersistenceLandscapes exports
-export VectorSpaceOfPersistenceLandscapes, average, standardDeviation
+export VectorSpaceOfPersistenceLandscapes, average, standardDeviation, real_average
 
 # export configure
 

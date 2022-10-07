@@ -259,6 +259,26 @@ function average(
     end
 end
 
+function real_average(
+    v_space_pland::VectorSpaceOfPersistenceLandscapes;
+    dbg::Bool=false,
+    useGridInComputations::Bool=false
+)::PersistenceLandscape
+    # size(v_space_pland.vectOfLand,1) == 0 && return PersistenceLandscape()
+    total_landscapes = size(v_space_pland.vectOfLand, 1)
+    total_landscapes == 0 && return []
+
+    if useGridInComputations
+        result = v_space_pland |> get_grid_average
+    else
+        result = v_space_pland |> get_pointwise_average
+    end
+
+    result_divided = result / total_landscapes
+
+    return result_divided
+end
+
 function divide_layer(l::PersistenceLandscape)
     final_layers_collection = Vector{Vector{MyPair}}()
     for layer in l.land
