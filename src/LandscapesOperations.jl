@@ -38,7 +38,7 @@ end
 
 function /(this::PersistenceLandscape, x::Real)
     x == 0 && throw(DomainError("In Base./=, division by 0. Program terminated."))
-    return this / x
+    return multiplyLanscapeByRealNumberNotOverwrite(this, 1/x)
 end
 
 function ==(lhs::PersistenceLandscape, rhs::PersistenceLandscape; operatorEqualDbg=false)
