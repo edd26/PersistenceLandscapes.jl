@@ -16,4 +16,3 @@
     # average(landscpae_collection)
     # the result is not correct- it gives only the bottom border, not full average
 end
-

@@ -42,6 +42,11 @@ end
 end
 
 ## ===-
+@testset "Landscapes averages" begin
+    include("computeAverage_test.jl")
+end
+
+## ===-
 # @testset "Test PersistenceLandscapes plotting" begin
 #     include("landscapesPlotting_test.jl")
 # end
