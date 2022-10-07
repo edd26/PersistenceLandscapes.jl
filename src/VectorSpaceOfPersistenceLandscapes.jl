@@ -121,6 +121,129 @@ function two_element_average(x, y)
     (x + y) / 2
 end
 
+function get_gird_average(
+    v_space_pland::VectorSpaceOfPersistenceLandscapes;
+    dbg::Bool=false
+)
+    result = Any[]
+    #finding maxN such that lambda_n exist
+    maxN = 0
+    for i = 1:size(v_space_pland.vectOfLand, 1)
+        if maxN < size(v_space_pland.vectOfLand[i], 1)
+            maxN = size(v_space_pland.vectOfLand[i], 1)
+        end
+    end
+    dbg && println("Maximal nonzero lambda : $(maxN)")
+
+    #for every lambda:
+    for lambda = 0:maxN
+        dbg && println("Considering lambda : $(lambda)")
+        #initialize and set up the counter:
+        counter = VectorSpaceOfPersistenceLandscapes[]
+        for i = 1:size(v_space_pland.vectOfLand, 1)
+            push!(counter) = 1
+        end
+
+        thisLambda = MyPair[]
+        push!(thisLambda, make_pair(-Inf, 0))
+        while (true)
+            #now we need to iterate through the counter.
+            whichIndicesShouldBeIncremented = Any[]
+            valueInThisPoint = 0
+            min_x = Inf
+
+            for i = 1:size(counter, 1)
+                lambda >= size(v_space_pland.vectOfLand[i].land, 1) && continue
+                counter[i] >= size(v_space_pland.vectOfLand[i].land[lambda], 1) &&
+                    continue
+
+                if v_space_pland.vectOfLand[i].land[lambda][counter[i]].first < min_x
+                    #we found new point with smaller x coordinate. Whatever we had before that have the be zeored.
+                    whichIndicesShouldBeIncremented = Any[]
+                    valueInThisPoint = 0
+                    push!(whichIndicesShouldBeIncremented, i)
+                    min_x = v_space_pland.vectOfLand[i].land[lambda][counter[i]].first
+                    valueInThisPoint +=
+                        v_space_pland.vectOfLand[i].land[lambda][counter[i]].second
+                else
+                    if v_space_pland.vectOfLand[i].land[lambda][counter[i]].first ==
+                       min_x
+                        valueInThisPoint +=
+                            v_space_pland.vectOfLand[i].land[lambda][counter[i]].second
+                        push!(whichIndicesShouldBeIncremented, i)
+                    end
+                end
+            end
+
+            #if we cannot find any new point, that means that we are done.
+            (min_x == Inf) && break
+            push!(
+                thisLambda,
+                make_pair(min_x, valueInThisPoint / size(v_space_pland.vectOfLand, 1)),
+            )
+
+            dbg && println(
+                "Adding to lambda : $(min_x) , $(valueInThisPoint/size(v_space_pland.vectOfLand,1))",
+            )
+
+            for i = 1:size(whichIndicesShouldBeIncremented, 1)
+                counter[whichIndicesShouldBeIncremented[i]] += 1
+            end
+        end
+        push!(thisLambda, make_pair(Inf, 0))
+        result.push!(land, thisLambda)
+    end
+    return result
+end
+
+function get_pointwise_average(
+    v_space_pland::VectorSpaceOfPersistenceLandscapes;
+    dbg::Bool=false,
+    )
+    #compute average as a linear combination of PL functions
+    nextLevelMerge = copy(v_space_pland.vectOfLand)
+
+    # for i = 1 : size(v_space_pland.vectOfLand,1)
+    #     nextLevelMerge[i] = v_space_pland.vectOfLand[i]
+    # end
+
+    # While there are no new levels to merge (so for single loop we process whole level to be merged)
+    while (size(nextLevelMerge, 1) != 1)
+        dbg && println("size(nextLevelMerge, 1) : $(size(nextLevelMerge, 1))")
+
+        # a placeholder for new layer (merged with all previous layers?)
+        nextNextLevelMerge = PersistenceLandscape[]
+        # for every second layer- but why every second layer? because they are pairwise merged? yes
+        # a pair of vector is merged and then pushed to the vector, in next while iteration it will be merged wit
+        # another merge of 2 layers
+        for i = 1:2:size(nextLevelMerge, 1)
+            dbg && println(
+                "i : $(i)\nsize(nextLevelMerge, 1) : $(size(nextLevelMerge, 1))",
+            )
+
+            # l = PersistenceLandscape[]
+            if i + 1 != size(nextLevelMerge, 1) + 1
+                l = operationOnPairOfLandscapes(
+                    nextLevelMerge[i],
+                    nextLevelMerge[i+1],
+                    # two_element_average,
+                    +,
+                )
+            else
+                l = nextLevelMerge[i]
+            end
+            # l_divided = divide_layer(l)
+            # push!(nextNextLevelMerge, l_divided )
+            push!(nextNextLevelMerge, l)
+        end
+        dbg && println("After this iteration \n")
+
+        nextLevelMerge = nextNextLevelMerge
+    end
+    result = nextLevelMerge[1]
+    return result
+end
+
 function average(
     v_space_pland::VectorSpaceOfPersistenceLandscapes;
     dbg::Bool=false,
@@ -129,120 +252,11 @@ function average(
     # size(v_space_pland.vectOfLand,1) == 0 && return PersistenceLandscape()
     size(v_space_pland.vectOfLand, 1) == 0 && return []
 
-    result = Any[]
-
     if useGridInComputations
-        #finding maxN such that lambda_n exist
-        maxN = 0
-        for i = 1:size(v_space_pland.vectOfLand, 1)
-            if maxN < size(v_space_pland.vectOfLand[i], 1)
-                maxN = size(v_space_pland.vectOfLand[i], 1)
-            end
-        end
-        dbg && println("Maximal nonzero lambda : $(maxN)")
-
-        #for every lambda:
-        for lambda = 0:maxN
-            dbg && println("Considering lambda : $(lambda)")
-            #initialize and set up the counter:
-            counter = VectorSpaceOfPersistenceLandscapes[]
-            for i = 1:size(v_space_pland.vectOfLand, 1)
-                push!(counter) = 1
-            end
-
-            thisLambda = MyPair[]
-            push!(thisLambda, make_pair(-Inf, 0))
-            while (true)
-                #now we need to iterate through the counter.
-                whichIndicesShouldBeIncremented = Any[]
-                valueInThisPoint = 0
-                min_x = Inf
-
-                for i = 1:size(counter, 1)
-                    lambda >= size(v_space_pland.vectOfLand[i].land, 1) && continue
-                    counter[i] >= size(v_space_pland.vectOfLand[i].land[lambda], 1) &&
-                        continue
-
-                    if v_space_pland.vectOfLand[i].land[lambda][counter[i]].first < min_x
-                        #we found new point with smaller x coordinate. Whatever we had before that have the be zeored.
-                        whichIndicesShouldBeIncremented = Any[]
-                        valueInThisPoint = 0
-                        push!(whichIndicesShouldBeIncremented, i)
-                        min_x = v_space_pland.vectOfLand[i].land[lambda][counter[i]].first
-                        valueInThisPoint +=
-                            v_space_pland.vectOfLand[i].land[lambda][counter[i]].second
-                    else
-                        if v_space_pland.vectOfLand[i].land[lambda][counter[i]].first ==
-                           min_x
-                            valueInThisPoint +=
-                                v_space_pland.vectOfLand[i].land[lambda][counter[i]].second
-                            push!(whichIndicesShouldBeIncremented, i)
-                        end
-                    end
-                end
-
-                #if we cannot find any new point, that means that we are done.
-                (min_x == Inf) && break
-                push!(
-                    thisLambda,
-                    make_pair(min_x, valueInThisPoint / size(v_space_pland.vectOfLand, 1)),
-                )
-
-                dbg && println(
-                    "Adding to lambda : $(min_x) , $(valueInThisPoint/size(v_space_pland.vectOfLand,1))",
-                )
-
-                for i = 1:size(whichIndicesShouldBeIncremented, 1)
-                    counter[whichIndicesShouldBeIncremented[i]] += 1
-                end
-            end
-            push!(thisLambda, make_pair(Inf, 0))
-            result.push!(land, thisLambda)
-        end
+        return v_space_pland |> get_grid_average
     else
-        #compute average as a linear combination of PL functions
-        nextLevelMerge = copy(v_space_pland.vectOfLand)
-
-        # for i = 1 : size(v_space_pland.vectOfLand,1)
-        #     nextLevelMerge[i] = v_space_pland.vectOfLand[i]
-        # end
-
-        # While there are no new levels to merge (so for single loop we process whole level to be merged)
-        while (size(nextLevelMerge, 1) != 1)
-            dbg && println("size(nextLevelMerge, 1) : $(size(nextLevelMerge, 1))")
-
-            # a placeholder for new layer (merged with all previous layers?)
-            nextNextLevelMerge = PersistenceLandscape[]
-            # for every second layer- but why every second layer? because they are pairwise merged? yes
-            # a pair of vector is merged and then pushed to the vector, in next while iteration it will be merged wit
-            # another merge of 2 layers
-            for i = 1:2:size(nextLevelMerge, 1)
-                dbg && println(
-                    "i : $(i)\nsize(nextLevelMerge, 1) : $(size(nextLevelMerge, 1))",
-                )
-
-                # l = PersistenceLandscape[]
-                if i + 1 != size(nextLevelMerge, 1) + 1
-                    l = operationOnPairOfLandscapes(
-                        nextLevelMerge[i],
-                        nextLevelMerge[i+1],
-                        # two_element_average,
-                        +,
-                    )
-                else
-                    l = nextLevelMerge[i]
-                end
-                # l_divided = divide_layer(l)
-                # push!(nextNextLevelMerge, l_divided )
-                push!(nextNextLevelMerge, l)
-            end
-            dbg && println("After this iteration \n")
-
-            nextLevelMerge = nextNextLevelMerge
-        end
-        result = nextLevelMerge[1]
+        return v_space_pland |> get_pointwise_average
     end
-    return result
 end
 
 function divide_layer(l::PersistenceLandscape)
