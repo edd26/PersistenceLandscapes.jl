@@ -72,12 +72,18 @@ end
 function plot_persistence_landscape(
     pl1::PersistenceLandscape;
     max_layers=size(pl1.land, 1),
+    max_colour_range=size(pl1.land, 1),
     plot_kwargs...
 )
-    colors = cgrad(:cmyk, max(2, max_layers), categorical=true, rev=true)
+    if max_colour_range < max_layers
+        @warn "Selected colour range is less than total layers! Changing to max layers instead"
+        max_colour_range = max_layers
+    end
+
+    colors = cgrad(:cmyk, max(2, max_colour_range), categorical=true, rev=true)
 
     try
-        colors = cgrad(plot_kwargs[:palette], max_layers, categorical=true, rev=true)
+        colors = cgrad(plot_kwargs[:palette], max_colour_range, categorical=true, rev=true)
     catch
         @debug "Catched no palette"
     end
