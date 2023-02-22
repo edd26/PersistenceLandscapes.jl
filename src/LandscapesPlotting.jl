@@ -80,6 +80,11 @@ function plot_persistence_landscape(
         max_colour_range = max_layers
     end
 
+    if max_layers > size(pl1.land, 1),
+        @warn "Selected maximum for layers exceeds total layers in data structure! Executing code for maximal layers available."
+        max_layers=size(pl1.land, 1)
+    end
+
     colors = cgrad(:cmyk, max(2, max_colour_range), categorical=true, rev=true)
 
     try
