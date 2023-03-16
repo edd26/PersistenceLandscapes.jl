@@ -43,27 +43,27 @@ end
 
 function ==(lhs::PersistenceLandscape, rhs::PersistenceLandscape; operatorEqualDbg=false)
     if size(lhs.land, 1) != size(rhs.land, 1)
-        operatorEqualDbg && println("1")
+        # operatorEqualDbg && println("1")
         return false
     end
 
     # check if every elements are the same
     for level = 1:size(lhs.land, 1)
         if size(lhs.land[level]) != size(rhs.land[level])
-            if (operatorEqualDbg)
-                println("size(lhs.land[level]) : $(size(lhs.land[level]))")
-                println("size(rhs.land[level]) : $(size(rhs.land[level]))")
-                println("2")
-            end
+            # if (operatorEqualDbg)
+            #     println("size(lhs.land[level]) : $(size(lhs.land[level]))")
+            #     println("size(rhs.land[level]) : $(size(rhs.land[level]))")
+            #     println("2")
+            # end
             return false
         end
         for i = 1:size(lhs.land[level], 1)
             if lhs.land[level][i] != rhs.land[level][i]
-                if (operatorEqualDbg)
-                    println("lhs.land[level][i] : $(lhs.land[level][i])")
-                    println("rhs.land[level][i] : $(rhs.land[level][i])")
-                    println("3")
-                end
+                # if (operatorEqualDbg)
+                #     println("lhs.land[level][i] : $(lhs.land[level][i])")
+                #     println("rhs.land[level][i] : $(rhs.land[level][i])")
+                #     println("3")
+                # end
                 return false
             end
         end
@@ -209,7 +209,7 @@ function operationOnPairOfLandscapes(
     land1 = deepcopy(in_land1)
     land2 = deepcopy(in_land2)
 
-    local_dbg && println("operationOnPairOfLandscapes")
+    # local_dbg && println("operationOnPairOfLandscapes")
 
     #check for (-Inf,0) and (0, Inf) pairs
     # land1 = check_for_infs(land1)
@@ -225,7 +225,7 @@ function operationOnPairOfLandscapes(
 
     # iterate for elements that are in both pers landscapes
     for i = 1:min(size(land1.land, 1), size(land2.land, 1))#-1)
-        @debug "for loop, i: $(i)"
+        # @debug "for loop, i: $(i)"
         lambda_n = MyPair[]
         p = 1
         q = 1
@@ -234,14 +234,14 @@ function operationOnPairOfLandscapes(
         # while  (p+1 < size(land1.land[i],1)) && (q+1 < size(land2.land[i],1))
         while (p <= size(land1.land[i], 1)) && (q <= size(land2.land[i], 1))
             # this while has to have forward check
-            @debug "first while loop, p: $(p), q: $(q)"
-            if local_dbg
-                println("p : $(p)")
-                println("q : $(q)")
-                println("land1.land[i][p].first : $(land1.land[i][p].first)")
-                println("land2.land[i][q].first : $(land2.land[i][q].first)")
-                println()
-            end
+            # @debug "first while loop, p: $(p), q: $(q)"
+            # if local_dbg
+            #     println("p : $(p)")
+            #     println("q : $(q)")
+            #     println("land1.land[i][p].first : $(land1.land[i][p].first)")
+            #     println("land2.land[i][q].first : $(land2.land[i][q].first)")
+            #     println()
+            # end
 
             # This if may be true for p=1 and thus will always fail for the first iteration
             # because it was assumed, that the first pair is (-Inf, 0), because for that
@@ -249,8 +249,8 @@ function operationOnPairOfLandscapes(
             # will be met and thus p and q will be increased, so that for second iteration this will
             # be ok. That might be the reason why (0, Inf) is added at the last iteration
             if land1.land[i][p].first < land2.land[i][q].first
-                @debug "First if, land1.first < land2.first"
-                local_dbg && println("first if, first values are equal")
+                # @debug "First if, land1.first < land2.first"
+                # local_dbg && println("first if, first values are equal")
 
                 if q == 1
                     element_before = MyPair(land1.land[i][p].first, 0)
@@ -268,9 +268,9 @@ function operationOnPairOfLandscapes(
                 operation_result = oper(land1.land[i][p].second, end_value)
                 new_pair = MyPair(land1.land[i][p].first, operation_result)
 
-                local_dbg && println("end_value = $(end_value)")
-                local_dbg && println("operation_result = $(operation_result)")
-                local_dbg && println("new_pair  = $(new_pair  )")
+                # local_dbg && println("end_value = $(end_value)")
+                # local_dbg && println("operation_result = $(operation_result)")
+                # local_dbg && println("new_pair  = $(new_pair  )")
 
                 push!(lambda_n, new_pair)
                 p += 1
@@ -278,8 +278,8 @@ function operationOnPairOfLandscapes(
             end
 
             if land1.land[i][p].first > land2.land[i][q].first
-                @debug "Second if, land1.first > land2.first"
-                local_dbg && println("Second if, first values are equal")
+                # @debug "Second if, land1.first > land2.first"
+                # local_dbg && println("Second if, first values are equal")
 
                 if p == 1
                     element_before = MyPair(land2.land[i][q].first, 0)
@@ -297,9 +297,9 @@ function operationOnPairOfLandscapes(
                 operation_result = oper(end_value, land2.land[i][q].second)
                 new_pair = MyPair(land2.land[i][q].first, operation_result)
 
-                local_dbg && println("end_value = $(end_value)")
-                local_dbg && println("operation_result = $(operation_result)")
-                local_dbg && println("new_pair  = $(new_pair  )")
+                # local_dbg && println("end_value = $(end_value)")
+                # local_dbg && println("operation_result = $(operation_result)")
+                # local_dbg && println("new_pair  = $(new_pair  )")
 
                 push!(lambda_n, new_pair)
                 q += 1
@@ -309,7 +309,7 @@ function operationOnPairOfLandscapes(
             # this the only if statement in while loop that can be executed in frist loop
             # other loops try to access q-1 or p-1 elements
             if land1.land[i][p].first == land2.land[i][q].first
-                @debug "Last if, land1 == land2"
+                # @debug "Last if, land1 == land2"
                 # local_dbg && println("Third")
                 # division by a factor of 2 was added in julia version
                 operation_result = oper(land1.land[i][p].second, land2.land[i][q].second)
@@ -320,19 +320,19 @@ function operationOnPairOfLandscapes(
                 p += 1
                 q += 1
             end
-            local_dbg && println("Next iteration")
+            # local_dbg && println("Next iteration")
             # getchar())
         end
 
         # this while covers case when there are no vectors left in land2 and there some left in land1
         # original +1 was changed to -1
         while (p <= size(land1.land[i], 1)) && (q >= size(land2.land[i], 1))
-            @debug "second while loop, p: $(p), q: $(q)"
+            # @debug "second while loop, p: $(p), q: $(q)"
 
             oper_result = oper(land1.land[i][p].second, 0)
-            local_dbg && println(
-                "New point : $(land1.land[i][p].first)  oper(land1.land[i][p].second,0) : $(oper_result)",
-            )
+            # local_dbg && println(
+            #     "New point : $(land1.land[i][p].first)  oper(land1.land[i][p].second,0) : $(oper_result)",
+            # )
 
             new_pair = MyPair(land1.land[i][p].first, oper_result)
 
@@ -343,12 +343,12 @@ function operationOnPairOfLandscapes(
         # this while covers case when there are no vectors left in land1 and there some left in land2
         # original +1 was changed to -1
         while (p >= size(land1.land[i], 1)) && (q <= size(land2.land[i], 1))
-            @debug "third while loop, p: $(p), q: $(q)"
+            # @debug "third while loop, p: $(p), q: $(q)"
 
             oper_result = oper(0, land2.land[i][q].second)
-            local_dbg && println(
-                "New point : $(land2.land[i][q].first) oper(0,land2.land[i][q].second) : $(oper_result)",
-            )
+            # local_dbg && println(
+            #     "New point : $(land2.land[i][q].first) oper(0,land2.land[i][q].second) : $(oper_result)",
+            # )
 
             new_pair = MyPair(land2.land[i][q].first, oper_result)
 
@@ -373,9 +373,9 @@ function operationOnPairOfLandscapes(
     is_land2_longer() = size(land2.land, 1) > min(size(land1.land, 1), size(land2.land, 1))
 
     if is_land1_longer()
-        @debug "first if modifier"
-        local_dbg &&
-            println("size(land1.land,1) > $(min( size(land1.land,1), size(land2.land,1) ))")
+        # @debug "first if modifier"
+        # local_dbg &&
+        #     println("size(land1.land,1) > $(min( size(land1.land,1), size(land2.land,1) ))")
 
         result = append_nonoverlapping_elements(
             result,
@@ -387,10 +387,10 @@ function operationOnPairOfLandscapes(
             zero_start=false
         )
     elseif is_land2_longer()
-        @debug "second if modifier"
-        local_dbg && println(
-            "( size(land2.land,1) > $(min( size(land1.land,1) , size(land2.land,1))) ",
-        )
+        # @debug "second if modifier"
+        # local_dbg && println(
+        #     "( size(land2.land,1) > $(min( size(land1.land,1) , size(land2.land,1))) ",
+        # )
 
         result = append_nonoverlapping_elements(
             result,
@@ -402,10 +402,10 @@ function operationOnPairOfLandscapes(
             zero_start=true
         )
     else
-        @debug "Both have the same number of layers, so there is no need to append anything."
+        # @debug "Both have the same number of layers, so there is no need to append anything."
     end
 
-    local_dbg && println("operationOnPairOfLandscapes")
+    # local_dbg && println("operationOnPairOfLandscapes")
 
     # return result
     return PersistenceLandscape(result, dims)
@@ -475,30 +475,30 @@ function multiplyByIndicatorFunction(
 )
     result = Vector{Vector{MyPair}}
     for dim = 0:size(land, 1)
-        if (local_dbg)println("dim : $(dim)")
-        end
+            # if (local_dbg)println("dim : $(dim)")
+        # end
         lambda_n = MyPair[]
         push!(lambda_n, MyPair(0, INT_MIN))
         if indicator.size() > dim
-            if (local_dbg)
-                println("There is nonzero indicator in this dimension")
-                println("[ $(indicator[dim].first) $(indicator[dim].second)]")
-            end
+            # if (local_dbg)
+            #     println("There is nonzero indicator in this dimension")
+            #     println("[ $(indicator[dim].first) $(indicator[dim].second)]")
+            # end
             for nr = 0:size(land.land[dim], 1)
-                if (local_dbg)
-                    println(
-                        "land.land[dim][nr] : $(land.land[dim][nr].first) $(land.land[dim][nr].second)",
-                    )
-                end
+                # if (local_dbg)
+                #     println(
+                #         "land.land[dim][nr] : $(land.land[dim][nr].first) $(land.land[dim][nr].second)",
+                #     )
+                # end
                 if land.land[dim][nr].first < indicator[dim].first
-                    if (local_dbg)
-                        println("Below treshold")
-                    end
+                    # if (local_dbg)
+                    #     println("Below treshold")
+                    # end
                     continue
                 end
                 if land.land[dim][nr].first > indicator[dim].second
-                    if (local_dbg)println("Just pass above treshold")
-                    end
+                    # if (local_dbg)println("Just pass above treshold")
+                    # end
                     push!(
                         lambda_n,
                         MyPair(
@@ -515,9 +515,9 @@ function multiplyByIndicatorFunction(
                 end
                 if (land.land[dim][nr].first >= indicator[dim].first) &&
                    (land.land[dim][nr-1].first <= indicator[dim].first)
-                    if (local_dbg)
-                        println("Entering the indicator")
-                    end
+                    # if (local_dbg)
+                    #     println("Entering the indicator")
+                    # end
                     push!(lambda_n, MyPair(indicator[dim].first, 0))
                     push!(
                         lambda_n,
@@ -531,9 +531,9 @@ function multiplyByIndicatorFunction(
                         ),
                     )
                 end
-                if (local_dbg)
-                    println("We are here")
-                end
+                # if (local_dbg)
+                #     println("We are here")
+                # end
                 push!(
                     lambda_n,
                     MyPair(land.land[dim][nr].first, land.land[dim][nr].second),
@@ -1051,14 +1051,14 @@ function computeValueAtAGivenPoint(
     # we know that the points in land.land[level] are ordered according to x coordinate. Therefore, we can find the point by using bisection:
     coordBegin = 1
     coordEnd = land.land[level].size() - 2
-    if local_dbg
-        println("Tutaj")
-        println("x : $(x)")
-        println(
-            "land.land[level][coordBegin].first : $(land.land[level][coordBegin].first)",
-        )
-        println("land.land[level][coordEnd].first : $(land.land[level][coordEnd].first)")
-    end
+    # if local_dbg
+    #     println("Tutaj")
+    #     println("x : $(x)")
+    #     println(
+    #         "land.land[level][coordBegin].first : $(land.land[level][coordBegin].first)",
+    #     )
+    #     println("land.land[level][coordEnd].first : $(land.land[level][coordEnd].first)")
+    # end
     # in this case x is outside the support of the landscape, therefore the value of the landscape is 0.
     if x <= land.land[level][coordBegin].first
         return 0
@@ -1066,23 +1066,23 @@ function computeValueAtAGivenPoint(
     if x >= land.land[level][coordEnd].first
         return 0
     end
-    local_dbg && println("Entering to the while loop")
+    # local_dbg && println("Entering to the while loop")
     while (coordBegin + 1 != coordEnd)
-        if (local_dbg)
-            println("coordBegin : $(coordBegin)")
-            println("coordEnd : $(coordEnd)")
-            println(
-                "land.land[level][coordBegin].first : $(land.land[level][coordBegin].first)",
-            )
-            println(
-                "land.land[level][coordEnd].first : $(land.land[level][coordEnd].first)",
-            )
-        end
+        # if (local_dbg)
+        #     println("coordBegin : $(coordBegin)")
+        #     println("coordEnd : $(coordEnd)")
+        #     println(
+        #         "land.land[level][coordBegin].first : $(land.land[level][coordBegin].first)",
+        #     )
+        #     println(
+        #         "land.land[level][coordEnd].first : $(land.land[level][coordEnd].first)",
+        #     )
+        # end
         newCord = (unsigned)floor((coordEnd + coordBegin) / 2.0)
-        if (local_dbg)
-            println("newCord : $(newCord)")
-            println("land.land[level][newCord].first : $(land.land[level][newCord].first)")
-        end
+        # if (local_dbg)
+        #     println("newCord : $(newCord)")
+        #     println("land.land[level][newCord].first : $(land.land[level][newCord].first)")
+        # end
         if land.land[level][newCord].first <= x
             coordBegin = newCord
             if (land.land[level][newCord].first == x)
@@ -1092,16 +1092,16 @@ function computeValueAtAGivenPoint(
             coordEnd = newCord
         end
     end
-    if (local_dbg)
-        println(
-            "x : $(x) is between : $(land.land[level][coordBegin].first) $(land.land[level][coordEnd].first))",
-        )
-        println(
-            "the y coords are : $(land.land[level][coordBegin].second) $(land.land[level][coordEnd].second)",
-        )
-        println("coordBegin : $(coordBegin)")
-        println("coordEnd : $(coordEnd)")
-    end
+    # if (local_dbg)
+    #     println(
+    #         "x : $(x) is between : $(land.land[level][coordBegin].first) $(land.land[level][coordEnd].first))",
+    #     )
+    #     println(
+    #         "the y coords are : $(land.land[level][coordBegin].second) $(land.land[level][coordEnd].second)",
+    #     )
+    #     println("coordBegin : $(coordBegin)")
+    #     println("coordEnd : $(coordEnd)")
+    # end
     return functionValue(land.land[level][coordBegin], land.land[level][coordEnd], x)
 end
 
