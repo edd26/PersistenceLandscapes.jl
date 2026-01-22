@@ -232,7 +232,10 @@ function operationOnPairOfLandscapes(
     # iterate for elements that are in both pers landscapes
     for i = 1:min(size(land1.land, 1), size(land2.land, 1))#-1)
         # @debug "for loop, i: $(i)"
-        lambda_n = MyPair[]
+        total_worst_case_layers = size(land1.land[i], 1) + size(land2.land[i], 1)
+        lambda_n = [MyPair(0, 0) for _ in 1:total_worst_case_layers]
+        lambda_index = 1
+        # lambda_n = MyPair[]
         p = 1
         q = 1
 
@@ -278,7 +281,9 @@ function operationOnPairOfLandscapes(
                 # local_dbg && println("operation_result = $(operation_result)")
                 # local_dbg && println("new_pair  = $(new_pair  )")
 
-                push!(lambda_n, new_pair)
+                # push!(lambda_n, new_pair)
+                lambda_n[lambda_index] = new_pair
+                lambda_index += 1
                 p += 1
                 continue
             end
@@ -307,7 +312,9 @@ function operationOnPairOfLandscapes(
                 # local_dbg && println("operation_result = $(operation_result)")
                 # local_dbg && println("new_pair  = $(new_pair  )")
 
-                push!(lambda_n, new_pair)
+                # push!(lambda_n, new_pair)
+                lambda_n[lambda_index] = new_pair
+                lambda_index += 1
                 q += 1
                 continue
             end
@@ -322,7 +329,9 @@ function operationOnPairOfLandscapes(
 
                 new_pair = MyPair(land2.land[i][q].first, operation_result)
 
-                push!(lambda_n, new_pair)
+                # push!(lambda_n, new_pair)
+                lambda_n[lambda_index] = new_pair
+                lambda_index += 1
                 p += 1
                 q += 1
             end
@@ -342,7 +351,9 @@ function operationOnPairOfLandscapes(
 
             new_pair = MyPair(land1.land[i][p].first, oper_result)
 
-            push!(lambda_n, new_pair)
+            # push!(lambda_n, new_pair)
+            lambda_n[lambda_index] = new_pair
+            lambda_index += 1
             p += 1
         end
 
@@ -358,7 +369,9 @@ function operationOnPairOfLandscapes(
 
             new_pair = MyPair(land2.land[i][q].first, oper_result)
 
-            push!(lambda_n, new_pair)
+            # push!(lambda_n, new_pair)
+            lambda_n[lambda_index] = new_pair
+            lambda_index += 1
             q += 1
         end
 
@@ -367,7 +380,7 @@ function operationOnPairOfLandscapes(
         # push!(lambda_n,  MyPair( Inf, 0 ) )
         # CHANGE
         # result.land[i] = lambda_n
-        push!(result, lambda_n)
+        push!(result, lambda_n[1:(lambda_index-1)])
     end
     ##
 
