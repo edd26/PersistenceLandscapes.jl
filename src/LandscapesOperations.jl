@@ -218,7 +218,13 @@ function operationOnPairOfLandscapes(
     # PersistenceLandscape result
     # result = Dict(:land => Any[], :dims => land1.dimension)
 
-    land = Vector{Vector{MyPair}}()
+    # The variables here are of undefined length, which causes the garbage collector 
+    # to be involved (it cleans up the memory allocated in this proces)
+    # Specifying size before would spped up computations
+    # TO Specify their length, one has to know number of layers and size of each layer
+    # Size of each layer is not known before computations (best case-> fully overlapping, 
+    # worst case-> fully non-overlapping)
+    # land = Vector{Vector{MyPair}}()
     result = Vector{Vector{MyPair}}()
     dims = land1.dimension
     # result.land = land
@@ -475,7 +481,7 @@ function multiplyByIndicatorFunction(
 )
     result = Vector{Vector{MyPair}}
     for dim = 0:size(land, 1)
-            # if (local_dbg)println("dim : $(dim)")
+        # if (local_dbg)println("dim : $(dim)")
         # end
         lambda_n = MyPair[]
         push!(lambda_n, MyPair(0, INT_MIN))
