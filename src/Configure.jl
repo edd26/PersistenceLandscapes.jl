@@ -5,7 +5,6 @@ Main configutaion file in C version of the code
 
 module Configure
 using UnPack
-using Plots
 
 areThereInfiniteIntervals = false
 allow_inf_intervals = areThereInfiniteIntervals

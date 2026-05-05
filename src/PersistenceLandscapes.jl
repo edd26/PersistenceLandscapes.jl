@@ -19,6 +19,8 @@
 =#
 module PersistenceLandscapes
 
+using Requires
+
 # PersistenceBarcodes exports
 # MyPair exports
 export MyPair, birth, death, functionValue, findZeroOfALineSegmentBetweenThoseTwoPoints
@@ -76,10 +78,17 @@ include("LandscapesConstruction.jl")
 
 include("LandscapesOperations.jl")
 include("LandscapesDistances.jl")
-include("LandscapesPlotting.jl")
 
 include("VectorSpaceOfPersistenceLandscapes.jl")
 include("Anova.jl")
 # include("Main.jl")
+
+# Stubs for extension functions (implemented in ext/PersistenceLandscapesPlotsExt.jl)
+function plot_persistence_landscape end
+function get_peaks_and_positions end
+
+function __init__()
+    @require Plots="91a5bcdd-55d7-5caf-9e0b-520d859cae80" include("../ext/PersistenceLandscapesPlotsExt.jl")
+end
 
 end
